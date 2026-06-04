@@ -17,6 +17,12 @@
   font-style: italic;
 }
 
+.gallery {
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
+}
+
 .gallery__stage {
   position: relative;
   display: flex;
@@ -34,8 +40,9 @@
   align-items: center;
   justify-content: center;
   width: var(--image-frame-width);
+  height: var(--image-frame-height);
+  max-height: var(--image-available-height);
   aspect-ratio: var(--image-aspect-ratio);
-  height: auto;
   margin: 0;
   overflow: hidden;
 }
