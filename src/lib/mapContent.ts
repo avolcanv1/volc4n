@@ -24,7 +24,7 @@ export function mapProject(doc: SanityProject): GalleryItem {
         .image(image)
         .width(1220)
         .height(679)
-        .fit('crop')
+        .fit('max')
         .auto('format')
         .url(),
     ),

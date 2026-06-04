@@ -32,7 +32,8 @@
   width: min(100%, var(--image-max-width));
   height: var(--image-max-height);
   max-height: var(--image-max-height);
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
 }
 
 .index__list {
