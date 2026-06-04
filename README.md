@@ -1,7 +1,5 @@
 # volc4n Web
 
-Standalone website project for volc4n — separate from LAAA Web.
-
 ## Stack
 
 - React 19
