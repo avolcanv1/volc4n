@@ -29,6 +29,9 @@
 
 .gallery__figure {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: min(100%, var(--image-max-width), calc(var(--image-max-height) * 16 / 9));
   aspect-ratio: var(--image-aspect-ratio);
   height: auto;
@@ -38,8 +41,9 @@
 
 .gallery__image {
   display: block;
-  width: 100%;
   height: 100%;
+  width: auto;
+  max-width: 100%;
   object-fit: contain;
   object-position: center;
   user-select: none;

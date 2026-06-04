@@ -22,7 +22,6 @@ export function mapProject(doc: SanityProject): GalleryItem {
     images: doc.images.map((image) =>
       builder!
         .image(image)
-        .width(1920)
         .height(1080)
         .fit('max')
         .auto('format')
