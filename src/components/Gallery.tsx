@@ -100,6 +100,18 @@ export function Gallery() {
       </header>
 
       <div className="gallery__stage">
+        <button
+          type="button"
+          className="gallery__nav gallery__nav--prev"
+          aria-label="Previous image"
+          onClick={goPrev}
+        />
+        <button
+          type="button"
+          className="gallery__nav gallery__nav--next"
+          aria-label="Next image"
+          onClick={goNext}
+        />
         <figure className="gallery__figure">
           <img
             key={`${current.id}-${safeImageIndex}`}
@@ -107,18 +119,6 @@ export function Gallery() {
             src={getProjectImage(current, safeImageIndex)}
             alt={current.imageAlt}
             draggable={false}
-          />
-          <button
-            type="button"
-            className="gallery__nav gallery__nav--prev"
-            aria-label="Previous image"
-            onClick={goPrev}
-          />
-          <button
-            type="button"
-            className="gallery__nav gallery__nav--next"
-            aria-label="Next image"
-            onClick={goNext}
           />
         </figure>
       </div>
