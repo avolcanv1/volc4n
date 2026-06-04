@@ -1,0 +1,27 @@
+---
+description: Automatically commit and push code changes to GitHub after completing work
+alwaysApply: true
+---
+
+# Auto-push to GitHub
+
+After making code changes in this project, commit and push to GitHub without waiting for the user to ask.
+
+## Workflow
+
+1. Finish the requested code changes.
+2. Run `git status`, `git diff`, and `git log -1 --oneline` to review what will be committed.
+3. Stage only relevant files (never `.env`, secrets, or `node_modules`).
+4. Commit with a concise message focused on why.
+5. Push to `origin main` (use `git pull --rebase origin main` first if the push is rejected).
+
+## Remote
+
+- Repository: `https://github.com/avolcanv1/volc4n.git`
+- Branch: `main`
+
+## Skip auto-push only when
+
+- The user explicitly says not to push or commit.
+- There are no file changes to commit.
+- The change is exploratory and the user asked a question-only task with no edits.
