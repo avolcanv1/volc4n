@@ -8,12 +8,12 @@
   --image-offset-top: 79px;
   --image-stage-padding-top: calc(var(--image-offset-top) - var(--page-header-block));
   --image-max-width: 100%;
-  --image-ratio-width: 16;
-  --image-ratio-height: 10;
-  --image-aspect-ratio: 16 / 10;
+  --image-ratio-width: 3;
+  --image-ratio-height: 2;
+  --image-aspect-ratio: 3 / 2;
   --image-max-height: min(
     calc((100vw - 2 * var(--page-padding)) * var(--image-ratio-height) / var(--image-ratio-width)),
-    calc(100svh - 140px)
+    calc(100svh - 120px)
   );
   --image-frame-width: min(
     var(--image-max-width),
