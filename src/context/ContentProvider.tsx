@@ -35,7 +35,6 @@ export function ContentProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!usesSanity || !sanityClient) {
-      setIsLoading(false)
       return
     }
 
