@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { ThemeContext } from './ThemeContext'
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [isDark, setIsDark] = useState(false)
+  const [isDark, setIsDark] = useState(true)
 
   useEffect(() => {
     document.documentElement.dataset.theme = isDark ? 'dark' : 'light'

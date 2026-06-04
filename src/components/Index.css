@@ -29,8 +29,9 @@
 
 .index__preview-image {
   display: block;
-  width: min(100%, var(--image-max-width));
-  height: var(--image-max-height);
+  width: min(100%, var(--image-max-width), calc(var(--image-max-height) * 16 / 9));
+  aspect-ratio: var(--image-aspect-ratio);
+  height: auto;
   max-height: var(--image-max-height);
   object-fit: contain;
   object-position: center;
