@@ -7,9 +7,18 @@
   --page-header-block: calc(var(--page-padding) + var(--page-font-size));
   --image-offset-top: 79px;
   --image-stage-padding-top: calc(var(--image-offset-top) - var(--page-header-block));
-  --image-max-width: 1220px;
-  --image-aspect-ratio: 16 / 9;
-  --image-max-height: min(calc(var(--image-max-width) * 9 / 16), calc(100svh - 160px));
+  --image-max-width: 100%;
+  --image-ratio-width: 16;
+  --image-ratio-height: 10;
+  --image-aspect-ratio: 16 / 10;
+  --image-max-height: min(
+    calc((100vw - 2 * var(--page-padding)) * var(--image-ratio-height) / var(--image-ratio-width)),
+    calc(100svh - 140px)
+  );
+  --image-frame-width: min(
+    var(--image-max-width),
+    calc(var(--image-max-height) * var(--image-ratio-width) / var(--image-ratio-height))
+  );
   --cursor-arrow-left: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22127%22%20height%3D%2260%22%20viewBox%3D%220%200%20127%2060%22%20fill%3D%22none%22%3E%3Cg%20transform%3D%22scale(-1%201)%20translate(-127%200)%22%3E%3Cpath%20d%3D%22M126.296%2028.9635H125.838C110.174%2028.6108%2097.5446%2015.7694%2097.5446%200H95.7807C95.7807%2013.3352%20104.318%2024.6949%20116.207%2028.9635H0V30.7275H116.383C104.389%2034.9256%2095.7807%2046.3558%2095.7807%2059.7615H97.5446C97.5446%2043.7804%20110.562%2030.7627%20126.543%2030.7627V28.9988C126.543%2028.9988%20126.402%2028.9988%20126.296%2028.9988V28.9635Z%22%20fill%3D%22%23231F20%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") 64 30, pointer;
   --cursor-arrow-right: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22127%22%20height%3D%2260%22%20viewBox%3D%220%200%20127%2060%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M126.296%2028.9635H125.838C110.174%2028.6108%2097.5446%2015.7694%2097.5446%200H95.7807C95.7807%2013.3352%20104.318%2024.6949%20116.207%2028.9635H0V30.7275H116.383C104.389%2034.9256%2095.7807%2046.3558%2095.7807%2059.7615H97.5446C97.5446%2043.7804%20110.562%2030.7627%20126.543%2030.7627V28.9988C126.543%2028.9988%20126.402%2028.9988%20126.296%2028.9988V28.9635Z%22%20fill%3D%22%23231F20%22%2F%3E%3C%2Fsvg%3E") 64 30, pointer;
 

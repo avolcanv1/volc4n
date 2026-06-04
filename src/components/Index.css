@@ -32,7 +32,7 @@
   display: block;
   height: 100%;
   width: auto;
-  max-width: min(100%, var(--image-max-width), calc(var(--image-max-height) * 16 / 9));
+  max-width: var(--image-frame-width);
   object-fit: contain;
   object-position: center;
 }
