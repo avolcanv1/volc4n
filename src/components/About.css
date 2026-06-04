@@ -1,0 +1,17 @@
+.about__main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.about__text {
+  width: min(100%, 1220px);
+  margin: 0;
+  font-size: 34px;
+  line-height: normal;
+}
+
+.about__address {
+  margin: 0;
+}

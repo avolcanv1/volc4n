@@ -1,0 +1,28 @@
+# Dependencies
+node_modules
+
+# Build
+dist
+dist-ssr
+*.local
+
+# Env (secrets stay local; use Vercel env vars in production)
+.env
+.env.*
+!.env.example
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

@@ -1,0 +1,40 @@
+:root {
+  --page-bg: #fff;
+  --page-text: #000;
+
+  font-family: 'Times New Roman', Times, serif;
+  line-height: normal;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:root[data-theme='dark'] {
+  --page-bg: #000;
+  --page-text: #fff;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100svh;
+  background: var(--page-bg);
+  color: var(--page-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+button {
+  font: inherit;
+}
