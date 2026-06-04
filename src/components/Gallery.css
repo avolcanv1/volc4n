@@ -49,6 +49,7 @@
 
 .gallery__image {
   display: block;
+  align-self: stretch;
   height: 100%;
   width: auto;
   max-width: 100%;
@@ -60,7 +61,7 @@
 
 .gallery__nav {
   position: absolute;
-  inset-block: 0;
+  bottom: 0;
   z-index: 1;
   width: 50%;
   height: 100%;
@@ -70,12 +71,12 @@
 }
 
 .gallery__nav--prev {
-  inset-inline-start: 0;
+  right: 50%;
   cursor: var(--cursor-arrow-left);
 }
 
 .gallery__nav--next {
-  inset-inline-start: 50%;
+  left: 50%;
   cursor: var(--cursor-arrow-right);
 }
 
