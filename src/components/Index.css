@@ -17,22 +17,33 @@
 }
 
 .index__preview {
-  --index-preview-width: min(49.4vw, 44.2rem);
-  --index-preview-height: min(44.2vh, 31.2rem);
+  --index-preview-width: min(64.22vw, 57.46rem);
+  --index-preview-height: min(57.46vh, 40.56rem);
 
   position: fixed;
   top: var(--index-list-offset-top);
   left: 62%;
   width: var(--index-preview-width);
   height: var(--index-preview-height);
+  background: #000;
   z-index: 0;
   pointer-events: none;
+  overflow: hidden;
+}
+
+.page--dark .index__preview {
+  background: #FAFAFA;
 }
 
 .index__preview-figure {
   margin: 0;
   width: 100%;
   height: 100%;
+  place-items: start center;
+}
+
+.index__preview-image {
+  object-position: top center;
 }
 
 .index__list {
