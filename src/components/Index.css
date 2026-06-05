@@ -61,18 +61,12 @@
   font-size: var(--page-font-size);
 }
 
-.index__row--active .index__category,
-.index__row--active .index__title,
-.index__row--active .index__year {
-  color: #fff;
-  mix-blend-mode: difference;
-}
-
 .index__title {
   grid-column: 2;
   font-size: 34px;
   text-align: center;
   white-space: nowrap;
+  text-shadow: 0 0 10px #FAFAFA, 0 1px 3px #FAFAFA;
 }
 
 .index__category {
@@ -87,14 +81,6 @@
   white-space: nowrap;
 }
 
-.page--dark .index__title,
-.page--dark .index__category,
-.page--dark .index__year {
-  text-shadow: var(--shadow-soft), var(--shadow-tight);
-}
-
-.page--dark .index__row--active .index__category,
-.page--dark .index__row--active .index__title,
-.page--dark .index__row--active .index__year {
-  text-shadow: none;
+.page.index.page--dark .index__title {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45), 0 0 12px rgba(0, 0, 0, 0.3);
 }

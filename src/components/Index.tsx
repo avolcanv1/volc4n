@@ -41,7 +41,7 @@ export function Index() {
         {projects.map((item, itemIndex) => (
           <div
             key={item.id}
-            className={`index__row${hoveredIndex === itemIndex ? ' index__row--active' : ''}`}
+            className="index__row"
             tabIndex={0}
             onMouseEnter={() => setHoveredIndex(itemIndex)}
             onMouseLeave={() => setHoveredIndex(null)}
