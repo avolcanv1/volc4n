@@ -9,7 +9,7 @@ import { ThemeToggle } from './ThemeToggle'
 import '../styles/page.css'
 import './Index.css'
 
-const PREVIEW_SLIDE_MS = 2500
+const PREVIEW_SLIDE_MS = 1000
 
 export function Index() {
   const { isDark } = useTheme()
