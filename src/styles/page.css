@@ -1,7 +1,7 @@
 .page {
   --page-padding: 30px;
   --page-font-size: 14px;
-  --page-bg: #fff;
+  --page-bg: #fafafa;
   --page-text: #000;
   --page-focus: #000;
   --page-header-block: calc(var(--page-padding) + var(--page-font-size));
