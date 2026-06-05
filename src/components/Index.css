@@ -21,17 +21,16 @@
   --index-preview-height: min(57.46vh, 40.56rem);
 
   position: fixed;
-  top: var(--index-list-offset-top);
+  top: 0;
   left: 62%;
   width: var(--index-preview-width);
   height: var(--index-preview-height);
   background: #000;
   z-index: 0;
   pointer-events: none;
-  overflow: hidden;
 }
 
-.page--dark .index__preview {
+.page.index.page--dark .index__preview {
   background: #FAFAFA;
 }
 
@@ -39,11 +38,6 @@
   margin: 0;
   width: 100%;
   height: 100%;
-  place-items: start center;
-}
-
-.index__preview-image {
-  object-position: top center;
 }
 
 .index__list {
