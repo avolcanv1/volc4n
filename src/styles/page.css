@@ -46,6 +46,7 @@
   --image-stage-top: var(--page-header-block);
   --image-stage-bottom: var(--gallery-footer-block);
   --image-max-width: 100%;
+  --fit-media-inset-block: 28px;
 }
 
 .fit-media {
@@ -69,6 +70,17 @@
   max-height: 100cqh;
   object-fit: contain;
   object-position: center;
+}
+
+.page.gallery .fit-media,
+.page.index .fit-media {
+  box-sizing: border-box;
+  padding-block: var(--fit-media-inset-block);
+}
+
+.page.gallery .fit-media__image,
+.page.index .fit-media__image {
+  max-height: calc(100cqh - (2 * var(--fit-media-inset-block)));
 }
 
 .page--dark {

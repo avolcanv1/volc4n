@@ -124,6 +124,7 @@
 .gallery__stage {
   position: relative;
   margin-block: 0;
+  overflow: visible;
 }
 
 .gallery__figure {
