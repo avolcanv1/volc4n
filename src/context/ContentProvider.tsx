@@ -1,13 +1,31 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { defaultAbout } from '../data/defaultAbout'
 import { galleryItems as fallbackProjects } from '../data/gallery'
-import { mapProject } from '../lib/mapContent'
+import { mapAbout, mapProject } from '../lib/mapContent'
 import { aboutQuery, projectsQuery } from '../lib/queries'
 import { isSanityConfigured, sanityClient } from '../lib/sanity'
 import type { AboutContent, GalleryItem } from '../types'
 import { ContentContext } from './ContentContext'
 
 const FETCH_TIMEOUT_MS = 8000
+
+const fallbackDescriptions = new Map(
+  fallbackProjects
+    .filter((project) => project.description?.length)
+    .map((project) => [project.title.trim().toLowerCase(), project.description!]),
+)
+
+function withFallbackDescriptions(projects: GalleryItem[]): GalleryItem[] {
+  return projects.map((project) => {
+    if (project.description?.length) {
+      return project
+    }
+
+    const fallbackDescription = fallbackDescriptions.get(project.title.trim().toLowerCase())
+
+    return fallbackDescription ? { ...project, description: fallbackDescription } : project
+  })
+}
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -50,11 +68,13 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       .then(([rawProjects, rawAbout]) => {
         if (cancelled) return
 
-        const mappedProjects = rawProjects.map(mapProject)
+        const mappedProjects = Array.isArray(rawProjects)
+          ? withFallbackDescriptions(rawProjects.map(mapProject))
+          : []
         setProjects(mappedProjects.length > 0 ? mappedProjects : fallbackProjects)
 
         if (rawAbout) {
-          setAbout(rawAbout)
+          setAbout(mapAbout(rawAbout))
         }
       })
       .catch(() => {

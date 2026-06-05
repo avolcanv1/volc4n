@@ -1,0 +1,17 @@
+.rich-text p {
+  margin: 0;
+}
+
+.rich-text p + p {
+  margin-top: 0.75rem;
+}
+
+.rich-text__link {
+  color: inherit;
+}
+
+.rich-text__link:hover,
+.rich-text__link:focus-visible {
+  text-decoration: underline;
+  text-underline-position: from-font;
+}

@@ -25,21 +25,23 @@ export function Index() {
       </header>
 
       {hoveredItem && (
-        <div className="index__preview" aria-hidden="true">
-          <img
-            className="index__preview-image"
-            src={getProjectImage(hoveredItem)}
-            alt=""
-          />
+        <div className="index__preview fit-media" aria-hidden="true">
+          <figure className="index__preview-figure">
+            <img
+              className="index__preview-image fit-media__image"
+              src={getProjectImage(hoveredItem)}
+              alt=""
+            />
+          </figure>
         </div>
       )}
 
       <main className="index__list">
         {projects.map((item, itemIndex) => (
-          <Link
+          <div
             key={item.id}
-            to={`/?slide=${itemIndex + 1}`}
             className="index__row"
+            tabIndex={0}
             onMouseEnter={() => setHoveredIndex(itemIndex)}
             onMouseLeave={() => setHoveredIndex(null)}
             onFocus={() => setHoveredIndex(itemIndex)}
@@ -48,7 +50,7 @@ export function Index() {
             <span className="index__category">{item.category}</span>
             <span className="index__title">{item.title}</span>
             <span className="index__year">{item.year}</span>
-          </Link>
+          </div>
         ))}
       </main>
     </div>

@@ -1,14 +1,19 @@
+import type { PortableTextBlock } from '@portabletext/types'
+
+export type RichText = PortableTextBlock[]
+
 export type GalleryItem = {
   id: string
   category: string
   title: string
   year: string
+  description?: RichText
   images: string[]
   imageAlt: string
 }
 
 export type AboutContent = {
-  bio: string
+  bio: RichText
   email: string
   address: string
 }

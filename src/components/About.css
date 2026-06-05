@@ -12,6 +12,11 @@
   line-height: normal;
 }
 
+.about__text.rich-text p {
+  font-size: inherit;
+  line-height: inherit;
+}
+
 .about__address {
   margin: 0;
 }

@@ -1,0 +1,22 @@
+.theme-toggle__track {
+  display: block;
+  width: 28px;
+  height: 14px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 1px;
+  box-sizing: border-box;
+}
+
+.theme-toggle__thumb {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  transition: transform 0.2s ease;
+}
+
+.theme-toggle--on .theme-toggle__thumb {
+  transform: translateX(14px);
+}

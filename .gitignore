@@ -1,9 +1,14 @@
 # Dependencies
 node_modules
 
+# Local tooling
+.tools
+.git.corrupt*
+
 # Build
 dist
 dist-ssr
+.vite
 *.local
 
 # Env (secrets stay local; use Vercel env vars in production)

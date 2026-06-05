@@ -1,4 +1,5 @@
 import type { GalleryItem } from '../types'
+import { plainTextToBlocks } from '../lib/richText'
 
 const placeholders = {
   checker: '/images/placeholder.png',
@@ -14,6 +15,7 @@ export const galleryItems: GalleryItem[] = [
     category: 'Editorial Desgin',
     title: 'Great Nation. Carlos Martiel',
     year: '2026',
+    description: plainTextToBlocks('Lorem ipsum dolor sit amet'),
     images: [placeholders.checker, placeholders.diagonal, placeholders.frame],
     imageAlt: 'Great Nation. Carlos Martiel',
   },

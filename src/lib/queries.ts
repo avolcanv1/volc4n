@@ -4,6 +4,7 @@ export const projectsQuery = `
     title,
     category,
     year,
+    description,
     images
   }
 `
