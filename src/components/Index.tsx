@@ -11,6 +11,19 @@ import './Index.css'
 
 const PREVIEW_SLIDE_MS = 1000
 const PREVIEW_EDGE_GAP = 12
+const PREVIEW_ASPECT = 3 / 2
+
+function getMaxPreviewHeight(viewportWidth: number, viewportHeight: number) {
+  if (viewportWidth <= 768) {
+    return Math.min(viewportHeight * 0.288, 16.2 * 16)
+  }
+
+  if (viewportWidth <= 1100) {
+    return Math.min(viewportHeight * 0.342, 21.6 * 16)
+  }
+
+  return Math.min(viewportHeight * 0.396, 27 * 16)
+}
 
 export function Index() {
   const { isDark } = useTheme()
@@ -71,11 +84,31 @@ export function Index() {
       const aboutRect = about.getBoundingClientRect()
       const toggleRect = toggle.getBoundingClientRect()
 
-      currentPreview.style.setProperty('--index-preview-left', `${aboutRect.right + PREVIEW_EDGE_GAP}px`)
-      currentPreview.style.setProperty(
-        '--index-preview-right',
-        `${window.innerWidth - toggleRect.left + PREVIEW_EDGE_GAP}px`,
-      )
+      const gapLeft = aboutRect.right + PREVIEW_EDGE_GAP
+      const gapRight = toggleRect.left - PREVIEW_EDGE_GAP
+      const gapWidth = Math.max(0, gapRight - gapLeft)
+      const gapCenter = gapLeft + gapWidth / 2
+      const maxHeight = getMaxPreviewHeight(window.innerWidth, window.innerHeight)
+
+      let width = gapWidth
+      let height = width / PREVIEW_ASPECT
+
+      if (height > maxHeight) {
+        height = maxHeight
+        width = height * PREVIEW_ASPECT
+      }
+
+      if (width > gapWidth) {
+        width = gapWidth
+        height = width / PREVIEW_ASPECT
+      }
+
+      const left = gapCenter - width / 2
+
+      currentPreview.style.right = 'auto'
+      currentPreview.style.setProperty('--index-preview-left', `${left}px`)
+      currentPreview.style.setProperty('--index-preview-width', `${width}px`)
+      currentPreview.style.setProperty('--index-preview-height', `${height}px`)
     }
 
     updatePreviewBounds()

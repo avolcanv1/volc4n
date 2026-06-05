@@ -20,26 +20,11 @@
   position: fixed;
   top: 0;
   left: var(--index-preview-left, 56%);
-  right: var(--index-preview-right, 12rem);
-  width: auto;
-  aspect-ratio: 3 / 2;
-  height: auto;
-  max-height: min(39.6vh, 27rem);
+  width: var(--index-preview-width, auto);
+  height: var(--index-preview-height, auto);
   background: #000;
   z-index: 0;
   pointer-events: none;
-}
-
-@media (max-width: 1100px) {
-  .index__preview {
-    max-height: min(34.2vh, 21.6rem);
-  }
-}
-
-@media (max-width: 768px) {
-  .index__preview {
-    max-height: min(28.8vh, 16.2rem);
-  }
 }
 
 .page.index.page--dark .index__preview {
