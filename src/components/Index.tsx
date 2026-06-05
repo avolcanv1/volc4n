@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
@@ -9,11 +9,38 @@ import { ThemeToggle } from './ThemeToggle'
 import '../styles/page.css'
 import './Index.css'
 
+const PREVIEW_SLIDE_MS = 2500
+
 export function Index() {
   const { isDark } = useTheme()
   const { projects } = useContent()
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
+  const [previewMediaIndex, setPreviewMediaIndex] = useState(0)
   const hoveredItem = hoveredIndex !== null ? projects[hoveredIndex] : null
+
+  useEffect(() => {
+    setPreviewMediaIndex(0)
+  }, [hoveredIndex])
+
+  useEffect(() => {
+    if (hoveredIndex === null) {
+      return
+    }
+
+    const mediaCount = projects[hoveredIndex]?.media.length ?? 0
+
+    if (mediaCount <= 1) {
+      return
+    }
+
+    const timer = window.setInterval(() => {
+      setPreviewMediaIndex((current) => (current + 1) % mediaCount)
+    }, PREVIEW_SLIDE_MS)
+
+    return () => {
+      window.clearInterval(timer)
+    }
+  }, [hoveredIndex, projects])
 
   return (
     <div className={`page index${isDark ? ' page--dark' : ''}`}>
@@ -25,11 +52,12 @@ export function Index() {
         <ThemeToggle />
       </header>
 
-      {hoveredItem && (
-        <div className="index__preview fit-media" aria-hidden="true">
-          <figure className="index__preview-figure">
+      {hoveredItem && hoveredItem.media.length > 0 && (
+        <div className="index__preview" aria-hidden="true">
+          <figure className="index__preview-figure fit-media">
             <ProjectMedia
-              media={getProjectMedia(hoveredItem)}
+              key={`${hoveredItem.id}-${previewMediaIndex}`}
+              media={getProjectMedia(hoveredItem, previewMediaIndex)}
               className="index__preview-image fit-media__image"
               alt=""
             />
