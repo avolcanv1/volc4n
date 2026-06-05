@@ -22,7 +22,7 @@
 
   position: fixed;
   top: var(--index-list-offset-top);
-  left: 54%;
+  left: 62%;
   width: var(--index-preview-width);
   height: var(--index-preview-height);
   z-index: 0;
@@ -33,20 +33,6 @@
   margin: 0;
   width: 100%;
   height: 100%;
-}
-
-.index__preview-image {
-  animation: index-preview-fade 0.45s ease;
-}
-
-@keyframes index-preview-fade {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
 }
 
 .index__list {
