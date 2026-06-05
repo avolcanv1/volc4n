@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
@@ -10,10 +10,13 @@ import '../styles/page.css'
 import './Index.css'
 
 const PREVIEW_SLIDE_MS = 1000
+const PREVIEW_EDGE_GAP = 12
 
 export function Index() {
   const { isDark } = useTheme()
   const { projects } = useContent()
+  const headerRef = useRef<HTMLElement>(null)
+  const previewRef = useRef<HTMLDivElement>(null)
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const [previewMediaIndex, setPreviewMediaIndex] = useState(0)
   const hoveredItem = hoveredIndex !== null ? projects[hoveredIndex] : null
@@ -42,9 +45,48 @@ export function Index() {
     }
   }, [hoveredIndex, projects])
 
+  useLayoutEffect(() => {
+    const header = headerRef.current
+    const preview = previewRef.current
+
+    if (!header || !preview) {
+      return
+    }
+
+    function updatePreviewBounds() {
+      const about = header.querySelector<HTMLElement>('[data-nav-about]')
+      const toggle = header.querySelector<HTMLElement>('.theme-toggle')
+
+      if (!about || !toggle || !preview) {
+        return
+      }
+
+      const aboutRect = about.getBoundingClientRect()
+      const toggleRect = toggle.getBoundingClientRect()
+
+      preview.style.setProperty('--index-preview-left', `${aboutRect.right + PREVIEW_EDGE_GAP}px`)
+      preview.style.setProperty(
+        '--index-preview-right',
+        `${window.innerWidth - toggleRect.left + PREVIEW_EDGE_GAP}px`,
+      )
+    }
+
+    updatePreviewBounds()
+
+    const resizeObserver = new ResizeObserver(updatePreviewBounds)
+    resizeObserver.observe(header)
+
+    window.addEventListener('resize', updatePreviewBounds)
+
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', updatePreviewBounds)
+    }
+  }, [hoveredIndex])
+
   return (
     <div className={`page index${isDark ? ' page--dark' : ''}`}>
-      <header className="index__header page__bar">
+      <header ref={headerRef} className="index__header page__bar">
         <Link to="/" className="site-logo">
           volc4n
         </Link>
@@ -53,7 +95,7 @@ export function Index() {
       </header>
 
       {hoveredItem && hoveredItem.media.length > 0 && (
-        <div className="index__preview" aria-hidden="true">
+        <div ref={previewRef} className="index__preview" aria-hidden="true">
           <figure className="index__preview-figure fit-media">
             <ProjectMedia
               key={`${hoveredItem.id}-${previewMediaIndex}`}

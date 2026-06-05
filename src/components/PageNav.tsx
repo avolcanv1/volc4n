@@ -22,6 +22,7 @@ export function PageNav() {
       </Link>
       <Link
         to="/about"
+        data-nav-about=""
         className={`page__nav-link${isAbout ? ' page__nav--current' : ''}`}
       >
         About

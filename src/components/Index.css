@@ -19,8 +19,8 @@
 .index__preview {
   position: fixed;
   top: 0;
-  left: 56%;
-  right: calc(var(--page-padding) + clamp(5.5rem, 9vw, 7.5rem));
+  left: var(--index-preview-left, 56%);
+  right: var(--index-preview-right, 12rem);
   width: auto;
   aspect-ratio: 3 / 2;
   height: auto;
@@ -32,16 +32,12 @@
 
 @media (max-width: 1100px) {
   .index__preview {
-    left: 58%;
-    right: calc(var(--page-padding) + clamp(4.5rem, 8vw, 6.5rem));
     max-height: min(34.2vh, 21.6rem);
   }
 }
 
 @media (max-width: 768px) {
   .index__preview {
-    left: 61%;
-    right: calc(var(--page-padding) + 3.5rem);
     max-height: min(28.8vh, 16.2rem);
   }
 }
