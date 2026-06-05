@@ -17,6 +17,10 @@
   line-height: inherit;
 }
 
+.about__text.rich-text p + p {
+  margin-top: 1.25em;
+}
+
 .about__address {
   margin: 0;
 }
