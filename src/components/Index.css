@@ -66,7 +66,7 @@
   font-size: 34px;
   text-align: center;
   white-space: nowrap;
-  text-shadow: 0 0 10px #FAFAFA, 0 1px 3px #FAFAFA;
+  mix-blend-mode: difference;
 }
 
 .index__category {
@@ -81,6 +81,8 @@
   white-space: nowrap;
 }
 
-.page.index.page--dark .index__title {
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45), 0 0 12px rgba(0, 0, 0, 0.3);
+.page--dark .index__title,
+.page--dark .index__category,
+.page--dark .index__year {
+  text-shadow: var(--shadow-soft), var(--shadow-tight);
 }
