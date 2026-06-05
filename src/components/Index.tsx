@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
-import { getProjectImage } from '../types'
+import { getProjectMedia } from '../types'
+import { ProjectMedia } from './ProjectMedia'
 import { PageNav } from './PageNav'
 import { ThemeToggle } from './ThemeToggle'
 import '../styles/page.css'
@@ -27,9 +28,9 @@ export function Index() {
       {hoveredItem && (
         <div className="index__preview fit-media" aria-hidden="true">
           <figure className="index__preview-figure">
-            <img
+            <ProjectMedia
+              media={getProjectMedia(hoveredItem)}
               className="index__preview-image fit-media__image"
-              src={getProjectImage(hoveredItem)}
               alt=""
             />
           </figure>

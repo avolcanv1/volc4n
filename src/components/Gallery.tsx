@@ -2,7 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
-import { getProjectImage } from '../types'
+import { getProjectMedia } from '../types'
+import { ProjectMedia } from './ProjectMedia'
 import { plainTextToBlocks } from '../lib/richText'
 import { PageNav } from './PageNav'
 import { RichText } from './RichText'
@@ -38,13 +39,14 @@ export function Gallery() {
     current?.description && current.description.length > 0
       ? current.description
       : plainTextToBlocks('Lorem ipsum dolor sit amet')
-  const imageCount = current?.images.length ?? 0
-  const safeImageIndex = Math.min(view.image, Math.max(imageCount - 1, 0))
-  const totalImages = projects.reduce((sum, project) => sum + project.images.length, 0)
+  const mediaCount = current?.media.length ?? 0
+  const safeImageIndex = Math.min(view.image, Math.max(mediaCount - 1, 0))
+  const totalImages = projects.reduce((sum, project) => sum + project.media.length, 0)
   const currentImageNumber =
     projects
       .slice(0, projectIndex)
-      .reduce((sum, project) => sum + project.images.length, 0) + safeImageIndex + 1
+      .reduce((sum, project) => sum + project.media.length, 0) + safeImageIndex + 1
+  const currentMedia = current ? getProjectMedia(current, safeImageIndex) : null
 
   const goTo = useCallback(
     (nextProjectIndex: number, nextImageIndex: number) => {
@@ -52,7 +54,7 @@ export function Gallery() {
 
       const wrappedProject = (nextProjectIndex + total) % total
       const nextProject = projects[wrappedProject]
-      const clampedImage = Math.max(0, Math.min(nextImageIndex, nextProject.images.length - 1))
+      const clampedImage = Math.max(0, Math.min(nextImageIndex, nextProject.media.length - 1))
 
       setView({ project: wrappedProject, image: clampedImage })
 
@@ -73,19 +75,19 @@ export function Gallery() {
 
     const prevProjectIndex = (projectIndex - 1 + total) % total
     const prevProject = projects[prevProjectIndex]
-    goTo(prevProjectIndex, prevProject.images.length - 1)
+    goTo(prevProjectIndex, prevProject.media.length - 1)
   }, [goTo, projectIndex, projects, safeImageIndex, total])
 
   const goNext = useCallback(() => {
     if (total === 0) return
 
-    if (safeImageIndex < imageCount - 1) {
+    if (safeImageIndex < mediaCount - 1) {
       setView((currentView) => ({ ...currentView, image: safeImageIndex + 1 }))
       return
     }
 
     goTo(projectIndex + 1, 0)
-  }, [goTo, imageCount, projectIndex, safeImageIndex, total])
+  }, [goTo, mediaCount, projectIndex, safeImageIndex, total])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -134,13 +136,14 @@ export function Gallery() {
           onClick={goNext}
         />
         <figure className="gallery__figure">
-          <img
-            key={`${current.id}-${safeImageIndex}`}
-            className="gallery__image fit-media__image"
-            src={getProjectImage(current, safeImageIndex)}
-            alt={current.imageAlt}
-            draggable={false}
-          />
+          {currentMedia && (
+            <ProjectMedia
+              key={`${current.id}-${safeImageIndex}`}
+              media={currentMedia}
+              className="gallery__image fit-media__image"
+              alt={current.imageAlt}
+            />
+          )}
         </figure>
       </div>
 

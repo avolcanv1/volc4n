@@ -1,4 +1,6 @@
-import type { GalleryItem } from '../types'
+import type { GalleryItem, ProjectMedia } from '../types'
+
+const image = (src: string): ProjectMedia => ({ kind: 'image', src })
 import { plainTextToBlocks } from '../lib/richText'
 
 const placeholders = {
@@ -16,7 +18,7 @@ export const galleryItems: GalleryItem[] = [
     title: 'Great Nation. Carlos Martiel',
     year: '2026',
     description: plainTextToBlocks('Lorem ipsum dolor sit amet'),
-    images: [placeholders.checker, placeholders.diagonal, placeholders.frame],
+    media: [image(placeholders.checker), image(placeholders.diagonal), image(placeholders.frame)],
     imageAlt: 'Great Nation. Carlos Martiel',
   },
   {
@@ -24,7 +26,7 @@ export const galleryItems: GalleryItem[] = [
     category: 'Editorial Design',
     title: 'Project 2',
     year: '2026',
-    images: [placeholders.split, placeholders.grid],
+    media: [image(placeholders.split), image(placeholders.grid)],
     imageAlt: 'Project 2',
   },
   {
@@ -32,7 +34,7 @@ export const galleryItems: GalleryItem[] = [
     category: 'Visual Identity',
     title: 'Project 3',
     year: '2025',
-    images: [placeholders.frame, placeholders.checker, placeholders.grid],
+    media: [image(placeholders.frame), image(placeholders.checker), image(placeholders.grid)],
     imageAlt: 'Project 3',
   },
   {
@@ -40,7 +42,7 @@ export const galleryItems: GalleryItem[] = [
     category: 'Editorial Design',
     title: 'Project 4',
     year: '2025',
-    images: [placeholders.diagonal],
+    media: [image(placeholders.diagonal)],
     imageAlt: 'Project 4',
   },
   {
@@ -48,7 +50,7 @@ export const galleryItems: GalleryItem[] = [
     category: 'Art Direction',
     title: 'Project 5',
     year: '2024',
-    images: [placeholders.grid, placeholders.split],
+    media: [image(placeholders.grid), image(placeholders.split)],
     imageAlt: 'Project 5',
   },
   ...Array.from({ length: 25 }, (_, index) => {
@@ -60,7 +62,7 @@ export const galleryItems: GalleryItem[] = [
       category: 'Category',
       title: `Project ${offset + 1}`,
       year: '2026',
-      images: [pool[offset % pool.length]],
+      media: [image(pool[offset % pool.length])],
       imageAlt: `Project ${offset + 1}`,
     }
   }),

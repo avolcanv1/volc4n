@@ -1,6 +1,6 @@
 import type { PortableTextBlock } from '@portabletext/types'
 import imageUrlBuilder from '@sanity/image-url'
-import type { GalleryItem, RichText } from '../types'
+import type { GalleryItem, ProjectMedia, RichText } from '../types'
 import { sanityClient } from './sanity'
 
 const builder = sanityClient ? imageUrlBuilder(sanityClient) : null
@@ -11,7 +11,7 @@ type SanityProject = {
   category: string
   year: string
   description?: RichText
-  images: Parameters<NonNullable<typeof builder>['image']>[0][]
+  images: unknown[]
 }
 
 type SanityAbout = {
@@ -28,16 +28,35 @@ export function mapProject(doc: SanityProject): GalleryItem {
     year: doc.year,
     description: normalizeRichText(doc.description),
     imageAlt: doc.title,
-    images: doc.images.map((image) =>
-      builder!
-        .image(image)
+    media: doc.images.map(mapMediaItem).filter((item): item is ProjectMedia => item !== null),
+  }
+}
+
+function mapMediaItem(item: unknown): ProjectMedia | null {
+  if (!item || typeof item !== 'object') {
+    return null
+  }
+
+  const record = item as Record<string, unknown>
+
+  if (record._type === 'videoUrl' && typeof record.url === 'string' && record.url) {
+    return { kind: 'video', src: record.url }
+  }
+
+  if (builder && record.asset) {
+    return {
+      kind: 'image',
+      src: builder
+        .image(item as Parameters<typeof builder.image>[0])
         .ignoreImageParams()
         .width(2400)
         .fit('max')
         .auto('format')
         .url(),
-    ),
+    }
   }
+
+  return null
 }
 
 export function mapAbout(doc: SanityAbout) {

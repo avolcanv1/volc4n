@@ -15,6 +15,10 @@ dist-ssr
 .env
 .env.*
 !.env.example
+.env.vercel
+.env.production.local
+
+.vercel
 
 # Logs
 logs
@@ -31,3 +35,4 @@ npm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+.vercel
