@@ -17,8 +17,8 @@
 }
 
 .index__preview {
-  --index-preview-width: min(64.22vw, 57.46rem);
-  --index-preview-height: min(57.46vh, 40.56rem);
+  --index-preview-width: min(54.34vw, 48.62rem);
+  --index-preview-height: min(48.62vh, 34.32rem);
 
   position: fixed;
   top: 0;
