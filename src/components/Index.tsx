@@ -54,18 +54,25 @@ export function Index() {
     }
 
     function updatePreviewBounds() {
-      const about = header.querySelector<HTMLElement>('[data-nav-about]')
-      const toggle = header.querySelector<HTMLElement>('.theme-toggle')
+      const currentHeader = headerRef.current
+      const currentPreview = previewRef.current
 
-      if (!about || !toggle || !preview) {
+      if (!currentHeader || !currentPreview) {
+        return
+      }
+
+      const about = currentHeader.querySelector<HTMLElement>('[data-nav-about]')
+      const toggle = currentHeader.querySelector<HTMLElement>('.theme-toggle')
+
+      if (!about || !toggle) {
         return
       }
 
       const aboutRect = about.getBoundingClientRect()
       const toggleRect = toggle.getBoundingClientRect()
 
-      preview.style.setProperty('--index-preview-left', `${aboutRect.right + PREVIEW_EDGE_GAP}px`)
-      preview.style.setProperty(
+      currentPreview.style.setProperty('--index-preview-left', `${aboutRect.right + PREVIEW_EDGE_GAP}px`)
+      currentPreview.style.setProperty(
         '--index-preview-right',
         `${window.innerWidth - toggleRect.left + PREVIEW_EDGE_GAP}px`,
       )
