@@ -17,17 +17,39 @@
 }
 
 .index__preview {
-  --index-preview-width: min(54.34vw, 48.62rem);
-  --index-preview-height: min(48.62vh, 34.32rem);
+  --index-preview-width: clamp(7rem, 15vw, 15rem);
+  --index-preview-height: clamp(5.25rem, 11.25vw, 11.25rem);
+  --index-preview-inset-right: clamp(5.5rem, 12vw, 9rem);
 
   position: fixed;
   top: 0;
-  left: 62%;
+  right: calc(var(--page-padding) + var(--index-preview-inset-right));
+  left: auto;
   width: var(--index-preview-width);
   height: var(--index-preview-height);
+  max-width: calc(50vw - 6rem);
+  max-height: min(28vh, var(--index-preview-height));
   background: #000;
   z-index: 0;
   pointer-events: none;
+}
+
+@media (max-width: 1100px) {
+  .index__preview {
+    --index-preview-width: clamp(6rem, 18vw, 12rem);
+    --index-preview-height: clamp(4.5rem, 13.5vw, 9rem);
+    --index-preview-inset-right: clamp(4.5rem, 10vw, 7rem);
+    max-width: calc(42vw - 4rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .index__preview {
+    --index-preview-width: clamp(5rem, 24vw, 9rem);
+    --index-preview-height: clamp(3.75rem, 18vw, 6.75rem);
+    --index-preview-inset-right: clamp(3.5rem, 8vw, 5rem);
+    max-width: calc(38vw - 2rem);
+  }
 }
 
 .page.index.page--dark .index__preview {
