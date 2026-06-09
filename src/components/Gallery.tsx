@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type TouchEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
@@ -28,12 +28,8 @@ function getAdjacentMedia(
   projects: GalleryItem[],
   projectIndex: number,
   imageIndex: number,
-): ProjectMediaItem[] {
+): [ProjectMediaItem, ProjectMediaItem] {
   const total = projects.length
-  if (total === 0) {
-    return []
-  }
-
   const current = projects[projectIndex]
   const adjacent: ProjectMediaItem[] = []
 
@@ -51,7 +47,7 @@ function getAdjacentMedia(
     adjacent.push(getProjectMedia(nextProject, 0))
   }
 
-  return adjacent
+  return [adjacent[0], adjacent[1]]
 }
 
 function getInitialView(
@@ -67,6 +63,9 @@ function getInitialView(
 }
 
 const SWIPE_THRESHOLD = 48
+const SWIPE_LOCK_PX = 10
+
+type SlideDirection = 'prev' | 'next'
 
 export function Gallery() {
   const { isDark } = useTheme()
@@ -78,7 +77,17 @@ export function Gallery() {
   const [view, setView] = useState(() => getInitialView(slide, hasSlideParam, total))
   const [infoOpen, setInfoOpen] = useState(false)
   const [displayedMedia, setDisplayedMedia] = useState<ProjectMediaItem | null>(null)
+  const [slideWidth, setSlideWidth] = useState(0)
+  const [dragOffset, setDragOffset] = useState(0)
+  const [isDragging, setIsDragging] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false)
+
+  const viewportRef = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
+  const dragOffsetRef = useRef(0)
+  const isDraggingRef = useRef(false)
+  const isAnimatingRef = useRef(false)
 
   const projectIndex = total === 0 ? 0 : Math.min(view.project, total - 1)
   const current = projects[projectIndex]
@@ -95,6 +104,8 @@ export function Gallery() {
       .reduce((sum, project) => sum + project.media.length, 0) + safeImageIndex + 1
   const currentMedia = current ? getProjectMedia(current, safeImageIndex) : null
   const currentCaption = currentMedia?.caption
+  const [prevMedia, nextMedia] = getAdjacentMedia(projects, projectIndex, safeImageIndex)
+  const centerMedia = displayedMedia ?? currentMedia
 
   const goTo = useCallback(
     (nextProjectIndex: number, nextImageIndex: number) => {
@@ -137,41 +148,173 @@ export function Gallery() {
     goTo(projectIndex + 1, 0)
   }, [goTo, mediaCount, projectIndex, safeImageIndex, total])
 
-  const handleTouchStart = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
-    if (event.touches.length !== 1) {
+  useLayoutEffect(() => {
+    const viewport = viewportRef.current
+
+    if (!viewport) {
+      return
+    }
+
+    const updateWidth = () => setSlideWidth(viewport.clientWidth)
+    updateWidth()
+
+    const observer = new ResizeObserver(updateWidth)
+    observer.observe(viewport)
+
+    return () => observer.disconnect()
+  }, [])
+
+  const waitForTrackTransition = useCallback((onComplete: () => void) => {
+    const track = trackRef.current
+
+    if (!track) {
+      onComplete()
+      return
+    }
+
+    let completed = false
+
+    const finish = () => {
+      if (completed) {
+        return
+      }
+
+      completed = true
+      window.clearTimeout(fallbackTimer)
+      track.removeEventListener('transitionend', onTransitionEnd)
+      onComplete()
+    }
+
+    const onTransitionEnd = (event: TransitionEvent) => {
+      if (event.target !== track || event.propertyName !== 'transform') {
+        return
+      }
+
+      finish()
+    }
+
+    const fallbackTimer = window.setTimeout(finish, 400)
+    track.addEventListener('transitionend', onTransitionEnd)
+  }, [])
+
+  const snapToOffset = useCallback(
+    (offset: number, onComplete?: () => void) => {
+      if (slideWidth === 0) {
+        onComplete?.()
+        return
+      }
+
+      if (offset === dragOffsetRef.current) {
+        onComplete?.()
+        return
+      }
+
+      isAnimatingRef.current = true
+      setIsAnimating(true)
+      dragOffsetRef.current = offset
+      setDragOffset(offset)
+
+      waitForTrackTransition(() => {
+        isAnimatingRef.current = false
+        setIsAnimating(false)
+        onComplete?.()
+      })
+    },
+    [slideWidth, waitForTrackTransition],
+  )
+
+  const navigateWithAnimation = useCallback(
+    (direction: SlideDirection) => {
+      if (isAnimatingRef.current || isDraggingRef.current) {
+        return
+      }
+
+      if (slideWidth === 0) {
+        direction === 'next' ? goNext() : goPrev()
+        return
+      }
+
+      snapToOffset(direction === 'next' ? -slideWidth : slideWidth, () => {
+        direction === 'next' ? goNext() : goPrev()
+        dragOffsetRef.current = 0
+        setDragOffset(0)
+      })
+    },
+    [goNext, goPrev, slideWidth, snapToOffset],
+  )
+
+  const handleTouchStart = useCallback((event: TouchEvent<HTMLDivElement>) => {
+    if (isAnimatingRef.current || event.touches.length !== 1) {
       touchStartRef.current = null
       return
     }
 
     const touch = event.touches[0]
     touchStartRef.current = { x: touch.clientX, y: touch.clientY }
+    isDraggingRef.current = false
+    setIsDragging(false)
   }, [])
 
-  const handleTouchEnd = useCallback(
-    (event: React.TouchEvent<HTMLDivElement>) => {
-      const start = touchStartRef.current
+  const handleTouchMove = useCallback((event: TouchEvent<HTMLDivElement>) => {
+    const start = touchStartRef.current
+
+    if (!start || isAnimatingRef.current || event.touches.length !== 1) {
+      return
+    }
+
+    const touch = event.touches[0]
+    const deltaX = touch.clientX - start.x
+    const deltaY = touch.clientY - start.y
+
+    if (!isDraggingRef.current) {
+      if (Math.abs(deltaX) < SWIPE_LOCK_PX || Math.abs(deltaX) < Math.abs(deltaY)) {
+        return
+      }
+
+      isDraggingRef.current = true
+      setIsDragging(true)
+    }
+
+    if (event.cancelable) {
+      event.preventDefault()
+    }
+
+    dragOffsetRef.current = deltaX
+    setDragOffset(deltaX)
+  }, [])
+
+  const resetTouch = useCallback(() => {
+    touchStartRef.current = null
+    isDraggingRef.current = false
+    setIsDragging(false)
+  }, [])
+
+  const handleTouchEnd = useCallback(() => {
+    if (!isDraggingRef.current) {
       touchStartRef.current = null
+      return
+    }
 
-      if (!start || event.changedTouches.length !== 1) {
-        return
-      }
+    const deltaX = dragOffsetRef.current
+    resetTouch()
 
-      const touch = event.changedTouches[0]
-      const deltaX = touch.clientX - start.x
-      const deltaY = touch.clientY - start.y
+    if (Math.abs(deltaX) >= SWIPE_THRESHOLD) {
+      navigateWithAnimation(deltaX < 0 ? 'next' : 'prev')
+      return
+    }
 
-      if (Math.abs(deltaX) < SWIPE_THRESHOLD || Math.abs(deltaX) < Math.abs(deltaY)) {
-        return
-      }
+    snapToOffset(0)
+  }, [navigateWithAnimation, resetTouch, snapToOffset])
 
-      if (deltaX < 0) {
-        goNext()
-      } else {
-        goPrev()
-      }
-    },
-    [goNext, goPrev],
-  )
+  const handleTouchCancel = useCallback(() => {
+    if (!isDraggingRef.current) {
+      touchStartRef.current = null
+      return
+    }
+
+    resetTouch()
+    snapToOffset(0)
+  }, [resetTouch, snapToOffset])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -180,13 +323,13 @@ export function Gallery() {
         return
       }
 
-      if (event.key === 'ArrowLeft') goPrev()
-      if (event.key === 'ArrowRight') goNext()
+      if (event.key === 'ArrowLeft') navigateWithAnimation('prev')
+      if (event.key === 'ArrowRight') navigateWithAnimation('next')
     }
 
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [goNext, goPrev])
+  }, [navigateWithAnimation])
 
   useEffect(() => {
     setInfoOpen(false)
@@ -226,14 +369,15 @@ export function Gallery() {
   }, [currentMedia, displayedMedia?.kind, displayedMedia?.src])
 
   useEffect(() => {
-    getAdjacentMedia(projects, projectIndex, safeImageIndex).forEach((media) => {
-      void preloadImageMedia(media)
-    })
-  }, [projectIndex, projects, safeImageIndex])
+    void preloadImageMedia(prevMedia)
+    void preloadImageMedia(nextMedia)
+  }, [nextMedia, prevMedia])
 
-  if (total === 0 || !current) {
+  if (total === 0 || !current || !centerMedia) {
     return null
   }
+
+  const trackOffset = slideWidth > 0 ? -slideWidth + dragOffset : dragOffset
 
   return (
     <div className={`page gallery${isDark ? ' page--dark' : ''}`}>
@@ -245,41 +389,74 @@ export function Gallery() {
         <ThemeToggle />
       </header>
 
-      <div
-        className="gallery__stage fit-media"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
+      <div className="gallery__stage fit-media">
         <button
           type="button"
           className="gallery__nav gallery__nav--prev"
           aria-label="Previous image"
           onPointerDown={(event) => event.preventDefault()}
-          onClick={goPrev}
+          onClick={() => navigateWithAnimation('prev')}
         />
         <button
           type="button"
           className="gallery__nav gallery__nav--next"
           aria-label="Next image"
           onPointerDown={(event) => event.preventDefault()}
-          onClick={goNext}
+          onClick={() => navigateWithAnimation('next')}
         />
         <figure className="gallery__figure">
-          {displayedMedia && (
-            <div className="gallery__media-wrap">
-              <ProjectMedia
-                key={displayedMedia.kind === 'video' ? `${current.id}-${safeImageIndex}` : current.id}
-                media={displayedMedia}
-                className="gallery__image fit-media__image"
-                alt={currentCaption ?? current.imageAlt}
-              />
-              {currentCaption && (
-                <div className="gallery__caption-rail">
-                  <p className="gallery__caption">{currentCaption}</p>
+          <div
+            ref={viewportRef}
+            className="gallery__viewport"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchCancel}
+          >
+            <div
+              ref={trackRef}
+              className={`gallery__track${isAnimating ? ' gallery__track--animating' : ''}${isDragging ? ' gallery__track--dragging' : ''}`}
+              style={{ transform: `translate3d(${trackOffset}px, 0, 0)` }}
+            >
+              <div className="gallery__slide" aria-hidden="true">
+                <div className="gallery__media-wrap">
+                  <ProjectMedia
+                    media={prevMedia}
+                    className="gallery__image fit-media__image"
+                    alt=""
+                  />
                 </div>
-              )}
+              </div>
+              <div className="gallery__slide">
+                <div className="gallery__media-wrap">
+                  <ProjectMedia
+                    key={
+                      centerMedia.kind === 'video'
+                        ? `${current.id}-${safeImageIndex}`
+                        : centerMedia.src
+                    }
+                    media={centerMedia}
+                    className="gallery__image fit-media__image"
+                    alt={currentCaption ?? current.imageAlt}
+                  />
+                  {currentCaption && (
+                    <div className="gallery__caption-rail">
+                      <p className="gallery__caption">{currentCaption}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="gallery__slide" aria-hidden="true">
+                <div className="gallery__media-wrap">
+                  <ProjectMedia
+                    media={nextMedia}
+                    className="gallery__image fit-media__image"
+                    alt=""
+                  />
+                </div>
+              </div>
             </div>
-          )}
+          </div>
         </figure>
       </div>
 
