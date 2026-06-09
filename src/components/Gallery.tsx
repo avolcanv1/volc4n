@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
-import { getProjectMedia } from '../types'
+import { getProjectMedia, type GalleryItem, type ProjectMedia } from '../types'
 import { ProjectMedia } from './ProjectMedia'
 import { plainTextToBlocks } from '../lib/richText'
 import { PageNav } from './PageNav'
@@ -10,6 +10,49 @@ import { RichText } from './RichText'
 import { ThemeToggle } from './ThemeToggle'
 import '../styles/page.css'
 import './Gallery.css'
+
+function preloadImageMedia(media: ProjectMedia) {
+  if (media.kind !== 'image') {
+    return Promise.resolve()
+  }
+
+  return new Promise<void>((resolve) => {
+    const image = new Image()
+    image.onload = () => resolve()
+    image.onerror = () => resolve()
+    image.src = media.src
+  })
+}
+
+function getAdjacentMedia(
+  projects: GalleryItem[],
+  projectIndex: number,
+  imageIndex: number,
+): ProjectMedia[] {
+  const total = projects.length
+  if (total === 0) {
+    return []
+  }
+
+  const current = projects[projectIndex]
+  const adjacent: ProjectMedia[] = []
+
+  if (imageIndex > 0) {
+    adjacent.push(getProjectMedia(current, imageIndex - 1))
+  } else {
+    const prevProject = projects[(projectIndex - 1 + total) % total]
+    adjacent.push(getProjectMedia(prevProject, prevProject.media.length - 1))
+  }
+
+  if (imageIndex < current.media.length - 1) {
+    adjacent.push(getProjectMedia(current, imageIndex + 1))
+  } else {
+    const nextProject = projects[(projectIndex + 1) % total]
+    adjacent.push(getProjectMedia(nextProject, 0))
+  }
+
+  return adjacent
+}
 
 function getInitialView(
   slide: number,
@@ -32,6 +75,7 @@ export function Gallery() {
   const hasSlideParam = searchParams.has('slide') && slide >= 1 && slide <= total
   const [view, setView] = useState(() => getInitialView(slide, hasSlideParam, total))
   const [infoOpen, setInfoOpen] = useState(false)
+  const [displayedMedia, setDisplayedMedia] = useState<ProjectMedia | null>(null)
 
   const projectIndex = total === 0 ? 0 : Math.min(view.project, total - 1)
   const current = projects[projectIndex]
@@ -108,6 +152,45 @@ export function Gallery() {
     setInfoOpen(false)
   }, [projectIndex, safeImageIndex])
 
+  useEffect(() => {
+    if (!currentMedia) {
+      setDisplayedMedia(null)
+      return
+    }
+
+    if (displayedMedia?.src === currentMedia.src && displayedMedia.kind === currentMedia.kind) {
+      return
+    }
+
+    if (currentMedia.kind === 'video') {
+      setDisplayedMedia(currentMedia)
+      return
+    }
+
+    if (!displayedMedia) {
+      setDisplayedMedia(currentMedia)
+      return
+    }
+
+    let cancelled = false
+
+    preloadImageMedia(currentMedia).then(() => {
+      if (!cancelled) {
+        setDisplayedMedia(currentMedia)
+      }
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [currentMedia, displayedMedia?.kind, displayedMedia?.src])
+
+  useEffect(() => {
+    getAdjacentMedia(projects, projectIndex, safeImageIndex).forEach((media) => {
+      void preloadImageMedia(media)
+    })
+  }, [projectIndex, projects, safeImageIndex])
+
   if (total === 0 || !current) {
     return null
   }
@@ -136,10 +219,10 @@ export function Gallery() {
           onClick={goNext}
         />
         <figure className="gallery__figure">
-          {currentMedia && (
+          {displayedMedia && (
             <ProjectMedia
-              key={`${current.id}-${safeImageIndex}`}
-              media={currentMedia}
+              key={displayedMedia.kind === 'video' ? `${current.id}-${safeImageIndex}` : current.id}
+              media={displayedMedia}
               className="gallery__image fit-media__image"
               alt={current.imageAlt}
             />
