@@ -1,0 +1,20 @@
+.dvd-floater {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.dvd-floater__image {
+  display: block;
+  width: min(280px, 72vw);
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.28);
+}
+
+.page--dark .dvd-floater__image {
+  box-shadow: 0 10px 40px rgba(255, 255, 255, 0.12);
+}

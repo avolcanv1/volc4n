@@ -25,6 +25,10 @@
   margin: 0;
 }
 
+.about__name-trigger {
+  cursor: default;
+}
+
 @media (max-width: 768px) {
   .about__main {
     align-items: flex-start;
