@@ -145,6 +145,7 @@
 
 .gallery__media-wrap {
   --gallery-caption-gap: 5px;
+  --gallery-caption-bleed: 1em;
 
   position: relative;
   display: inline-block;
@@ -161,7 +162,7 @@
 
 .gallery__caption {
   position: absolute;
-  left: calc(100% + var(--gallery-caption-gap) + 1em);
+  left: calc(100% + var(--gallery-caption-gap) + var(--gallery-caption-bleed));
   bottom: 0;
   margin: 0;
   font-family: ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, monospace;
@@ -170,6 +171,7 @@
   white-space: nowrap;
   transform: rotate(-90deg);
   transform-origin: left bottom;
+  z-index: 3;
   pointer-events: none;
 }
 
