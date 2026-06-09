@@ -27,6 +27,7 @@
 
 .about__name-trigger {
   cursor: default;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @media (max-width: 768px) {
