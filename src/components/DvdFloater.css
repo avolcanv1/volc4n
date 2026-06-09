@@ -12,5 +12,4 @@
   width: min(280px, 72vw);
   height: auto;
   border-radius: 10px;
-  mix-blend-mode: lighten;
 }
