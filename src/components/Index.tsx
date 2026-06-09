@@ -149,10 +149,10 @@ export function Index() {
 
       <main className="index__list">
         {projects.map((item, itemIndex) => (
-          <div
+          <Link
             key={item.id}
+            to={`/?slide=${itemIndex + 1}`}
             className="index__row"
-            tabIndex={0}
             onMouseEnter={() => setHoveredIndex(itemIndex)}
             onMouseLeave={() => setHoveredIndex(null)}
             onFocus={() => setHoveredIndex(itemIndex)}
@@ -161,7 +161,7 @@ export function Index() {
             <span className="index__category">{item.category}</span>
             <span className="index__title">{item.title}</span>
             <span className="index__year">{item.year}</span>
-          </div>
+          </Link>
         ))}
       </main>
     </div>

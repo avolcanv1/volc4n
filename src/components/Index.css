@@ -56,7 +56,8 @@
   gap: 1rem;
   width: 100%;
   color: inherit;
-  cursor: default;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .index__row:focus-visible {
