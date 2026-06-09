@@ -129,6 +129,7 @@
   position: relative;
   margin-block: 0;
   overflow: visible;
+  touch-action: pan-y pinch-zoom;
 }
 
 .gallery__figure {

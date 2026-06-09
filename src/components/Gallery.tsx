@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
@@ -66,6 +66,8 @@ function getInitialView(
   return { project: 0, image: 0 }
 }
 
+const SWIPE_THRESHOLD = 48
+
 export function Gallery() {
   const { isDark } = useTheme()
   const { projects } = useContent()
@@ -76,6 +78,7 @@ export function Gallery() {
   const [view, setView] = useState(() => getInitialView(slide, hasSlideParam, total))
   const [infoOpen, setInfoOpen] = useState(false)
   const [displayedMedia, setDisplayedMedia] = useState<ProjectMediaItem | null>(null)
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null)
 
   const projectIndex = total === 0 ? 0 : Math.min(view.project, total - 1)
   const current = projects[projectIndex]
@@ -133,6 +136,42 @@ export function Gallery() {
 
     goTo(projectIndex + 1, 0)
   }, [goTo, mediaCount, projectIndex, safeImageIndex, total])
+
+  const handleTouchStart = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
+    if (event.touches.length !== 1) {
+      touchStartRef.current = null
+      return
+    }
+
+    const touch = event.touches[0]
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY }
+  }, [])
+
+  const handleTouchEnd = useCallback(
+    (event: React.TouchEvent<HTMLDivElement>) => {
+      const start = touchStartRef.current
+      touchStartRef.current = null
+
+      if (!start || event.changedTouches.length !== 1) {
+        return
+      }
+
+      const touch = event.changedTouches[0]
+      const deltaX = touch.clientX - start.x
+      const deltaY = touch.clientY - start.y
+
+      if (Math.abs(deltaX) < SWIPE_THRESHOLD || Math.abs(deltaX) < Math.abs(deltaY)) {
+        return
+      }
+
+      if (deltaX < 0) {
+        goNext()
+      } else {
+        goPrev()
+      }
+    },
+    [goNext, goPrev],
+  )
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -206,7 +245,11 @@ export function Gallery() {
         <ThemeToggle />
       </header>
 
-      <div className="gallery__stage fit-media">
+      <div
+        className="gallery__stage fit-media"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <button
           type="button"
           className="gallery__nav gallery__nav--prev"
