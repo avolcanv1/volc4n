@@ -221,12 +221,15 @@ export function Gallery() {
         />
         <figure className="gallery__figure">
           {displayedMedia && (
-            <ProjectMedia
-              key={displayedMedia.kind === 'video' ? `${current.id}-${safeImageIndex}` : current.id}
-              media={displayedMedia}
-              className="gallery__image fit-media__image"
-              alt={currentCaption ?? current.imageAlt}
-            />
+            <div className="gallery__media-wrap">
+              <ProjectMedia
+                key={displayedMedia.kind === 'video' ? `${current.id}-${safeImageIndex}` : current.id}
+                media={displayedMedia}
+                className="gallery__image fit-media__image"
+                alt={currentCaption ?? current.imageAlt}
+              />
+              {currentCaption && <p className="gallery__caption">{currentCaption}</p>}
+            </div>
           )}
         </figure>
       </div>
@@ -257,7 +260,6 @@ export function Gallery() {
           </span>
         </p>
         <p className="gallery__year page__bar-end">{current.year}</p>
-        {currentCaption && <p className="gallery__caption">{currentCaption}</p>}
         <div className="gallery__description-wrap">
           <RichText value={description} className="gallery__description" />
         </div>
