@@ -211,12 +211,14 @@ export function Gallery() {
           type="button"
           className="gallery__nav gallery__nav--prev"
           aria-label="Previous image"
+          onPointerDown={(event) => event.preventDefault()}
           onClick={goPrev}
         />
         <button
           type="button"
           className="gallery__nav gallery__nav--next"
           aria-label="Next image"
+          onPointerDown={(event) => event.preventDefault()}
           onClick={goNext}
         />
         <figure className="gallery__figure">
