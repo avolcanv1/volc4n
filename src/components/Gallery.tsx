@@ -56,16 +56,11 @@ function getAdjacentMedia(
 
 function getInitialView(
   slide: number,
-  image: number,
   hasSlideParam: boolean,
-  projects: GalleryItem[],
+  total: number,
 ) {
-  if (hasSlideParam && slide >= 1 && slide <= projects.length) {
-    const projectIndex = slide - 1
-    const mediaCount = projects[projectIndex]?.media.length ?? 0
-    const imageIndex =
-      mediaCount > 0 && image >= 0 && image < mediaCount ? image : 0
-    return { project: projectIndex, image: imageIndex }
+  if (hasSlideParam && slide >= 1 && slide <= total) {
+    return { project: slide - 1, image: 0 }
   }
 
   return { project: 0, image: 0 }
@@ -76,10 +71,9 @@ export function Gallery() {
   const { projects } = useContent()
   const [searchParams, setSearchParams] = useSearchParams()
   const slide = Number(searchParams.get('slide'))
-  const image = Number(searchParams.get('image'))
   const total = projects.length
   const hasSlideParam = searchParams.has('slide') && slide >= 1 && slide <= total
-  const [view, setView] = useState(() => getInitialView(slide, image, hasSlideParam, projects))
+  const [view, setView] = useState(() => getInitialView(slide, hasSlideParam, total))
   const [infoOpen, setInfoOpen] = useState(false)
   const [displayedMedia, setDisplayedMedia] = useState<ProjectMediaItem | null>(null)
 
@@ -110,11 +104,7 @@ export function Gallery() {
       setView({ project: wrappedProject, image: clampedImage })
 
       if (searchParams.has('slide')) {
-        const params: Record<string, string> = { slide: String(wrappedProject + 1) }
-        if (clampedImage > 0 || searchParams.has('image')) {
-          params.image = String(clampedImage)
-        }
-        setSearchParams(params, { replace: true })
+        setSearchParams({ slide: String(wrappedProject + 1) }, { replace: true })
       }
     },
     [projects, searchParams, setSearchParams, total],

@@ -4,7 +4,6 @@ export function PageNav() {
   const { pathname } = useLocation()
   const isGallery = pathname === '/'
   const isIndex = pathname === '/index'
-  const isGrid = pathname === '/grid'
   const isAbout = pathname === '/about'
 
   return (
@@ -20,12 +19,6 @@ export function PageNav() {
         className={`page__nav-link${isIndex ? ' page__nav--current' : ''}`}
       >
         Index
-      </Link>
-      <Link
-        to="/grid"
-        className={`page__nav-link${isGrid ? ' page__nav--current' : ''}`}
-      >
-        Grid
       </Link>
       <Link
         to="/about"
