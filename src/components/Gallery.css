@@ -154,10 +154,6 @@
   overflow: visible;
 }
 
-.gallery__media-wrap:has(.gallery__caption) {
-  padding-right: calc(var(--gallery-caption-gap) + 1em);
-}
-
 .gallery__image {
   user-select: none;
   pointer-events: none;
