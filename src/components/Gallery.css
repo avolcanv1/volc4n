@@ -161,7 +161,7 @@
 
 .gallery__caption {
   position: absolute;
-  left: calc(100% + var(--gallery-caption-gap));
+  left: calc(100% + var(--gallery-caption-gap) + 1em);
   bottom: 0;
   margin: 0;
   font-family: ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, monospace;
