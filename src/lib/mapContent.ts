@@ -39,8 +39,11 @@ function mapMediaItem(item: unknown): ProjectMedia | null {
 
   const record = item as Record<string, unknown>
 
+  const caption =
+    typeof record.caption === 'string' && record.caption.trim() ? record.caption.trim() : undefined
+
   if (record._type === 'videoUrl' && typeof record.url === 'string' && record.url) {
-    return { kind: 'video', src: record.url }
+    return { kind: 'video', src: record.url, caption }
   }
 
   if (builder && record.asset) {
@@ -53,6 +56,7 @@ function mapMediaItem(item: unknown): ProjectMedia | null {
         .fit('max')
         .auto('format')
         .url(),
+      caption,
     }
   }
 

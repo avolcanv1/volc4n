@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
-import { getProjectMedia, type GalleryItem, type ProjectMedia } from '../types'
+import { getProjectMedia, type GalleryItem, type ProjectMedia as ProjectMediaItem } from '../types'
 import { ProjectMedia } from './ProjectMedia'
 import { plainTextToBlocks } from '../lib/richText'
 import { PageNav } from './PageNav'
@@ -11,7 +11,7 @@ import { ThemeToggle } from './ThemeToggle'
 import '../styles/page.css'
 import './Gallery.css'
 
-function preloadImageMedia(media: ProjectMedia) {
+function preloadImageMedia(media: ProjectMediaItem) {
   if (media.kind !== 'image') {
     return Promise.resolve()
   }
@@ -28,14 +28,14 @@ function getAdjacentMedia(
   projects: GalleryItem[],
   projectIndex: number,
   imageIndex: number,
-): ProjectMedia[] {
+): ProjectMediaItem[] {
   const total = projects.length
   if (total === 0) {
     return []
   }
 
   const current = projects[projectIndex]
-  const adjacent: ProjectMedia[] = []
+  const adjacent: ProjectMediaItem[] = []
 
   if (imageIndex > 0) {
     adjacent.push(getProjectMedia(current, imageIndex - 1))
@@ -75,7 +75,7 @@ export function Gallery() {
   const hasSlideParam = searchParams.has('slide') && slide >= 1 && slide <= total
   const [view, setView] = useState(() => getInitialView(slide, hasSlideParam, total))
   const [infoOpen, setInfoOpen] = useState(false)
-  const [displayedMedia, setDisplayedMedia] = useState<ProjectMedia | null>(null)
+  const [displayedMedia, setDisplayedMedia] = useState<ProjectMediaItem | null>(null)
 
   const projectIndex = total === 0 ? 0 : Math.min(view.project, total - 1)
   const current = projects[projectIndex]
@@ -91,6 +91,7 @@ export function Gallery() {
       .slice(0, projectIndex)
       .reduce((sum, project) => sum + project.media.length, 0) + safeImageIndex + 1
   const currentMedia = current ? getProjectMedia(current, safeImageIndex) : null
+  const currentCaption = currentMedia?.caption
 
   const goTo = useCallback(
     (nextProjectIndex: number, nextImageIndex: number) => {
@@ -224,7 +225,7 @@ export function Gallery() {
               key={displayedMedia.kind === 'video' ? `${current.id}-${safeImageIndex}` : current.id}
               media={displayedMedia}
               className="gallery__image fit-media__image"
-              alt={current.imageAlt}
+              alt={currentCaption ?? current.imageAlt}
             />
           )}
         </figure>
@@ -256,6 +257,7 @@ export function Gallery() {
           </span>
         </p>
         <p className="gallery__year page__bar-end">{current.year}</p>
+        {currentCaption && <p className="gallery__caption">{currentCaption}</p>}
         <div className="gallery__description-wrap">
           <RichText value={description} className="gallery__description" />
         </div>

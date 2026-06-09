@@ -3,8 +3,8 @@ import type { PortableTextBlock } from '@portabletext/types'
 export type RichText = PortableTextBlock[]
 
 export type ProjectMedia =
-  | { kind: 'image'; src: string }
-  | { kind: 'video'; src: string }
+  | { kind: 'image'; src: string; caption?: string }
+  | { kind: 'video'; src: string; caption?: string }
 
 export type GalleryItem = {
   id: string

@@ -2,6 +2,7 @@
 .gallery__category,
 .gallery__title,
 .gallery__year,
+.gallery__caption,
 .gallery__description {
   margin: 0;
 }
@@ -107,6 +108,13 @@
 .gallery__footer--open .gallery__description {
   opacity: 1;
   margin-top: 0.75rem;
+}
+
+.gallery__caption {
+  grid-column: 1 / -1;
+  margin-top: 0.35rem;
+  max-width: min(100%, 36rem);
+  white-space: normal;
 }
 
 .gallery__footer:focus-visible {
