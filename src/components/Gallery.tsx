@@ -228,7 +228,11 @@ export function Gallery() {
                 className="gallery__image fit-media__image"
                 alt={currentCaption ?? current.imageAlt}
               />
-              {currentCaption && <p className="gallery__caption">{currentCaption}</p>}
+              {currentCaption && (
+                <div className="gallery__caption-rail">
+                  <p className="gallery__caption">{currentCaption}</p>
+                </div>
+              )}
             </div>
           )}
         </figure>
