@@ -1,5 +1,5 @@
 .index {
-  --index-list-offset-top: calc(var(--page-padding) + 14px + 29px);
+  --index-list-offset-top: calc(var(--page-header-block) + 1.5rem);
 
   grid-template-rows: minmax(0, 1fr);
   position: relative;
@@ -72,9 +72,10 @@
 
 .index__title {
   grid-column: 2;
-  font-size: 34px;
+  font-size: var(--page-display-font-size);
   text-align: center;
   white-space: nowrap;
+  line-height: 1.1;
 }
 
 .index__category {
@@ -93,4 +94,37 @@
 .page--dark .index__category,
 .page--dark .index__year {
   text-shadow: var(--shadow-soft), var(--shadow-tight);
+}
+
+@media (max-width: 768px) {
+  .index__list {
+    gap: 2rem;
+  }
+
+  .index__preview {
+    display: none;
+  }
+
+  .index__row {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 0.25rem;
+  }
+
+  .index__category,
+  .index__title,
+  .index__year {
+    grid-column: 1;
+    justify-self: start;
+    text-align: left;
+    white-space: normal;
+  }
+
+  .index__title {
+    line-height: 1.2;
+  }
+
+  .index__year {
+    opacity: 0.85;
+  }
 }
