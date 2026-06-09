@@ -72,7 +72,7 @@
 
 .index__title {
   grid-column: 2;
-  font-size: var(--page-display-font-size);
+  font-size: calc(var(--page-display-font-size) + 6px);
   text-align: center;
   white-space: nowrap;
   line-height: 1.1;
