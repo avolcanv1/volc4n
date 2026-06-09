@@ -144,7 +144,7 @@
 }
 
 .gallery__media-wrap {
-  --gallery-caption-gap: 10px;
+  --gallery-caption-gap: 5px;
 
   position: relative;
   display: inline-block;
