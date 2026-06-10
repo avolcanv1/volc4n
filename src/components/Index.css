@@ -9,10 +9,10 @@
 }
 
 .page.index.page--dark {
-  --index-preview-bg: #1e1e1e;
+  --index-preview-bg: #363636;
   --index-preview-shadow:
-    0 0 64px rgba(255, 255, 255, 0.24),
-    0 0 28px rgba(255, 255, 255, 0.18),
+    0 0 64px rgba(255, 255, 255, 0.28),
+    0 0 28px rgba(255, 255, 255, 0.2),
     0 0 10px rgba(255, 255, 255, 0.14);
 }
 
