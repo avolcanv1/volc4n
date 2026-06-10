@@ -25,12 +25,13 @@ export function About() {
         <AboutBio value={about.bio} className="about__text" />
       </main>
 
-      <footer className="page__bar page__bar--bottom">
-        <a className="page__link" href={`mailto:${about.email}`}>
+      <footer className="about__footer">
+        <a className="page__link about__footer-item" href={`mailto:${about.email}`}>
           {about.email}
         </a>
-        <span aria-hidden="true" />
-        <p className="about__address page__bar-end">{about.address}</p>
+        <p className="about__footer-item about__address">{about.address}</p>
+        <p className="about__footer-item about__credit">Design and web development by volc4n</p>
+        <p className="about__footer-item about__copyright">© 2026</p>
       </footer>
     </div>
   )

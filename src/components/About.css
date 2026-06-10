@@ -25,6 +25,17 @@
   margin: 0;
 }
 
+.about__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.about__footer-item {
+  margin: 0;
+}
+
 .about__name-trigger {
   cursor: default;
   -webkit-tap-highlight-color: transparent;
