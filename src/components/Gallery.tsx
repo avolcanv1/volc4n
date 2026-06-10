@@ -193,7 +193,7 @@ export function Gallery() {
       finish()
     }
 
-    const fallbackTimer = window.setTimeout(finish, 400)
+    const fallbackTimer = window.setTimeout(finish, 650)
     track.addEventListener('transitionend', onTransitionEnd)
   }, [])
 
