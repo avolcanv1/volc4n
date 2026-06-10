@@ -10,7 +10,10 @@
 
 .page.index.page--dark {
   --index-preview-bg: #111;
-  --index-preview-shadow: 0 0 32px rgba(255, 255, 255, 0.07), 0 0 12px rgba(255, 255, 255, 0.04);
+  --index-preview-shadow:
+    0 0 48px rgba(255, 255, 255, 0.14),
+    0 0 20px rgba(255, 255, 255, 0.1),
+    0 0 6px rgba(255, 255, 255, 0.08);
 }
 
 .index__header {
