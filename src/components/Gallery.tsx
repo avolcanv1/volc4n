@@ -67,6 +67,22 @@ const SWIPE_LOCK_PX = 10
 
 type SlideDirection = 'prev' | 'next'
 
+function useMobileGalleryNav() {
+  const [enabled, setEnabled] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches,
+  )
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 768px)')
+    const onChange = () => setEnabled(media.matches)
+
+    media.addEventListener('change', onChange)
+    return () => media.removeEventListener('change', onChange)
+  }, [])
+
+  return enabled
+}
+
 export function Gallery() {
   const { isDark } = useTheme()
   const { projects } = useContent()
@@ -88,6 +104,7 @@ export function Gallery() {
   const dragOffsetRef = useRef(0)
   const isDraggingRef = useRef(false)
   const isAnimatingRef = useRef(false)
+  const mobileGalleryNav = useMobileGalleryNav()
 
   const projectIndex = total === 0 ? 0 : Math.min(view.project, total - 1)
   const current = projects[projectIndex]
@@ -209,6 +226,13 @@ export function Gallery() {
         return
       }
 
+      if (!mobileGalleryNav) {
+        dragOffsetRef.current = offset
+        setDragOffset(offset)
+        onComplete?.()
+        return
+      }
+
       isAnimatingRef.current = true
       setIsAnimating(true)
       dragOffsetRef.current = offset
@@ -220,7 +244,7 @@ export function Gallery() {
         onComplete?.()
       })
     },
-    [slideWidth, waitForTrackTransition],
+    [mobileGalleryNav, slideWidth, waitForTrackTransition],
   )
 
   const navigateWithAnimation = useCallback(
@@ -229,8 +253,10 @@ export function Gallery() {
         return
       }
 
-      if (slideWidth === 0) {
+      if (!mobileGalleryNav || slideWidth === 0) {
         direction === 'next' ? goNext() : goPrev()
+        dragOffsetRef.current = 0
+        setDragOffset(0)
         return
       }
 
@@ -240,48 +266,54 @@ export function Gallery() {
         setDragOffset(0)
       })
     },
-    [goNext, goPrev, slideWidth, snapToOffset],
+    [goNext, goPrev, mobileGalleryNav, slideWidth, snapToOffset],
   )
 
-  const handleTouchStart = useCallback((event: TouchEvent<HTMLDivElement>) => {
-    if (isAnimatingRef.current || event.touches.length !== 1) {
-      touchStartRef.current = null
-      return
-    }
-
-    const touch = event.touches[0]
-    touchStartRef.current = { x: touch.clientX, y: touch.clientY }
-    isDraggingRef.current = false
-    setIsDragging(false)
-  }, [])
-
-  const handleTouchMove = useCallback((event: TouchEvent<HTMLDivElement>) => {
-    const start = touchStartRef.current
-
-    if (!start || isAnimatingRef.current || event.touches.length !== 1) {
-      return
-    }
-
-    const touch = event.touches[0]
-    const deltaX = touch.clientX - start.x
-    const deltaY = touch.clientY - start.y
-
-    if (!isDraggingRef.current) {
-      if (Math.abs(deltaX) < SWIPE_LOCK_PX || Math.abs(deltaX) < Math.abs(deltaY)) {
+  const handleTouchStart = useCallback(
+    (event: TouchEvent<HTMLDivElement>) => {
+      if (!mobileGalleryNav || isAnimatingRef.current || event.touches.length !== 1) {
+        touchStartRef.current = null
         return
       }
 
-      isDraggingRef.current = true
-      setIsDragging(true)
-    }
+      const touch = event.touches[0]
+      touchStartRef.current = { x: touch.clientX, y: touch.clientY }
+      isDraggingRef.current = false
+      setIsDragging(false)
+    },
+    [mobileGalleryNav],
+  )
 
-    if (event.cancelable) {
-      event.preventDefault()
-    }
+  const handleTouchMove = useCallback(
+    (event: TouchEvent<HTMLDivElement>) => {
+      const start = touchStartRef.current
 
-    dragOffsetRef.current = deltaX
-    setDragOffset(deltaX)
-  }, [])
+      if (!mobileGalleryNav || !start || isAnimatingRef.current || event.touches.length !== 1) {
+        return
+      }
+
+      const touch = event.touches[0]
+      const deltaX = touch.clientX - start.x
+      const deltaY = touch.clientY - start.y
+
+      if (!isDraggingRef.current) {
+        if (Math.abs(deltaX) < SWIPE_LOCK_PX || Math.abs(deltaX) < Math.abs(deltaY)) {
+          return
+        }
+
+        isDraggingRef.current = true
+        setIsDragging(true)
+      }
+
+      if (event.cancelable) {
+        event.preventDefault()
+      }
+
+      dragOffsetRef.current = deltaX
+      setDragOffset(deltaX)
+    },
+    [mobileGalleryNav],
+  )
 
   const resetTouch = useCallback(() => {
     touchStartRef.current = null
