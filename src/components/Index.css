@@ -1,6 +1,7 @@
 .index {
   --index-list-offset-top: calc(var(--page-header-block) + 1.5rem);
   --index-preview-bg: #fff;
+  --index-preview-shadow: 0 10px 28px rgba(0, 0, 0, 0.1);
 
   grid-template-rows: minmax(0, 1fr);
   position: relative;
@@ -9,6 +10,7 @@
 
 .page.index.page--dark {
   --index-preview-bg: #111;
+  --index-preview-shadow: 0 0 32px rgba(255, 255, 255, 0.07), 0 0 12px rgba(255, 255, 255, 0.04);
 }
 
 .index__header {
@@ -28,6 +30,7 @@
   width: var(--index-preview-width, auto);
   height: var(--index-preview-height, auto);
   background: var(--index-preview-bg);
+  box-shadow: var(--index-preview-shadow);
   overflow: hidden;
   z-index: 0;
   pointer-events: none;
