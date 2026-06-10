@@ -9,11 +9,11 @@
 }
 
 .page.index.page--dark {
-  --index-preview-bg: #111;
+  --index-preview-bg: #1e1e1e;
   --index-preview-shadow:
-    0 0 48px rgba(255, 255, 255, 0.14),
-    0 0 20px rgba(255, 255, 255, 0.1),
-    0 0 6px rgba(255, 255, 255, 0.08);
+    0 0 64px rgba(255, 255, 255, 0.24),
+    0 0 28px rgba(255, 255, 255, 0.18),
+    0 0 10px rgba(255, 255, 255, 0.14);
 }
 
 .index__header {
