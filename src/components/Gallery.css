@@ -157,12 +157,10 @@
 
 .gallery__clip {
   width: 100%;
-  height: 100%;
+  height: calc(100% + 2 * var(--gallery-image-shadow-bleed));
+  margin-top: calc(-1 * var(--gallery-image-shadow-bleed));
   min-width: 0;
-  overflow: visible;
-  clip-path: inset(
-    calc(-1 * var(--gallery-image-shadow-bleed)) 0 calc(-1 * var(--gallery-image-shadow-bleed)) 0
-  );
+  overflow: hidden;
 }
 
 .gallery__track {
