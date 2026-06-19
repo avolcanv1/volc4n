@@ -445,11 +445,12 @@ export function Gallery() {
             onTouchEnd={handleTouchEnd}
             onTouchCancel={handleTouchCancel}
           >
-            <div
-              ref={trackRef}
-              className={`gallery__track${isAnimating ? ' gallery__track--animating' : ''}${isDragging ? ' gallery__track--dragging' : ''}`}
-              style={{ transform: `translate3d(${trackOffset}px, 0, 0)` }}
-            >
+            <div className="gallery__clip">
+              <div
+                ref={trackRef}
+                className={`gallery__track${isAnimating ? ' gallery__track--animating' : ''}${isDragging ? ' gallery__track--dragging' : ''}`}
+                style={{ transform: `translate3d(${trackOffset}px, 0, 0)` }}
+              >
               <div className="gallery__slide" aria-hidden="true">
                 <div className="gallery__media-wrap">
                   <ProjectMedia
@@ -486,6 +487,7 @@ export function Gallery() {
                     alt=""
                   />
                 </div>
+              </div>
               </div>
             </div>
           </div>
