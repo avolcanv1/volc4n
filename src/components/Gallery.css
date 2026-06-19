@@ -123,6 +123,13 @@
   overflow: hidden;
   --gallery-image-footer-gap: 5px;
   --gallery-footer-open-extra: 3.5rem;
+  --gallery-image-shadow: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.12));
+}
+
+.page.gallery.page--dark {
+  --gallery-image-shadow:
+    drop-shadow(0 0 32px rgba(255, 255, 255, 0.22))
+    drop-shadow(0 0 12px rgba(255, 255, 255, 0.14));
 }
 
 .gallery__stage {
@@ -134,7 +141,7 @@
 .gallery__viewport {
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow: visible;
   touch-action: pan-y pinch-zoom;
 }
 
@@ -205,6 +212,7 @@
   user-select: none;
   pointer-events: none;
   background: var(--page-bg);
+  filter: var(--gallery-image-shadow);
 }
 
 .gallery__caption {
