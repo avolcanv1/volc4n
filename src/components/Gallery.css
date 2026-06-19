@@ -57,6 +57,8 @@
 
 .gallery .page__bar:not(.gallery__footer) {
   padding-inline: var(--page-padding);
+  position: relative;
+  z-index: 2;
 }
 
 .gallery__footer {
@@ -123,6 +125,8 @@
   overflow: visible;
   --gallery-image-footer-gap: 5px;
   --gallery-footer-open-extra: 3.5rem;
+  --gallery-stage-top-gap: 30px;
+  --gallery-image-shadow-bleed: 56px;
   --gallery-image-shadow: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.12));
 }
 
@@ -134,6 +138,8 @@
 
 .gallery__stage {
   position: relative;
+  box-sizing: border-box;
+  padding-top: var(--gallery-stage-top-gap);
   margin-block: 0;
   overflow: visible;
 }
@@ -141,8 +147,10 @@
 .gallery__viewport {
   width: 100%;
   height: 100%;
-  overflow-x: hidden;
-  overflow-y: visible;
+  overflow: visible;
+  clip-path: inset(
+    calc(-1 * var(--gallery-image-shadow-bleed)) 0 calc(-1 * var(--gallery-image-shadow-bleed)) 0
+  );
   touch-action: pan-y pinch-zoom;
 }
 
