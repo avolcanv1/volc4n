@@ -1,69 +1,79 @@
 import type { GalleryItem, ProjectMedia } from '../types'
 
 const image = (src: string): ProjectMedia => ({ kind: 'image', src })
-import { plainTextToBlocks } from '../lib/richText'
 
-const placeholders = {
-  checker: '/images/placeholder.png',
-  diagonal: '/images/placeholder-a.svg',
-  split: '/images/placeholder-b.svg',
-  frame: '/images/placeholder-c.svg',
-  grid: '/images/placeholder-d.svg',
-} as const
+const images = (...paths: string[]): ProjectMedia[] => paths.map(image)
 
 export const galleryItems: GalleryItem[] = [
   {
-    id: 'great-nation',
-    category: 'Editorial Desgin',
-    title: 'Great Nation. Carlos Martiel',
-    year: '2026',
-    description: plainTextToBlocks('Lorem ipsum dolor sit amet'),
-    media: [image(placeholders.checker), image(placeholders.diagonal), image(placeholders.frame)],
-    imageAlt: 'Great Nation. Carlos Martiel',
-  },
-  {
-    id: 'project-2',
+    id: 'cristina-flores-pescoran',
     category: 'Editorial Design',
-    title: 'Project 2',
+    title: 'Cristina Flores Pescorán',
     year: '2026',
-    media: [image(placeholders.split), image(placeholders.grid)],
-    imageAlt: 'Project 2',
+    media: images(
+      '/images/projects/cfp/cfp-1.png',
+      '/images/projects/cfp/cfp-2.png',
+      '/images/projects/cfp/cfp-3.png',
+      '/images/projects/cfp/cfp-4.png',
+    ),
+    imageAlt: 'Cristina Flores Pescorán',
   },
   {
-    id: 'project-3',
-    category: 'Visual Identity',
-    title: 'Project 3',
-    year: '2025',
-    media: [image(placeholders.frame), image(placeholders.checker), image(placeholders.grid)],
-    imageAlt: 'Project 3',
-  },
-  {
-    id: 'project-4',
+    id: 'oleajes',
     category: 'Editorial Design',
-    title: 'Project 4',
+    title: 'Oleajes. Los gestos del mar',
     year: '2025',
-    media: [image(placeholders.diagonal)],
-    imageAlt: 'Project 4',
+    media: images(
+      '/images/projects/oleajes/oleajes.png',
+      '/images/projects/oleajes/oleajes-1.png',
+      '/images/projects/oleajes/oleajes-2.png',
+    ),
+    imageAlt: 'Oleajes. Los gestos del mar',
   },
   {
-    id: 'project-5',
-    category: 'Art Direction',
-    title: 'Project 5',
+    id: 'guerra',
+    category: 'Editorial Design',
+    title: 'Una película de amor y guerra',
     year: '2024',
-    media: [image(placeholders.grid), image(placeholders.split)],
-    imageAlt: 'Project 5',
+    media: images(
+      '/images/projects/guerra/guerra-1.png',
+      '/images/projects/guerra/guerra-2.png',
+      '/images/projects/guerra/guerra-3.png',
+      '/images/projects/guerra/guerra-4.png',
+    ),
+    imageAlt: 'Una película de amor y guerra',
   },
-  ...Array.from({ length: 25 }, (_, index) => {
-    const pool = Object.values(placeholders)
-    const offset = index + 5
-
-    return {
-      id: `project-${offset + 1}`,
-      category: 'Category',
-      title: `Project ${offset + 1}`,
-      year: '2026',
-      media: [image(pool[offset % pool.length])],
-      imageAlt: `Project ${offset + 1}`,
-    }
-  }),
+  {
+    id: 'ficunam',
+    category: 'Editorial Design',
+    title: 'FICUNAM',
+    year: '2024',
+    media: images(
+      '/images/projects/ficunam/ficunam-1.png',
+      '/images/projects/ficunam/ficunam-2.png',
+      '/images/projects/ficunam/ficunam-3.png',
+      '/images/projects/ficunam/ficunam-4.png',
+      '/images/projects/ficunam/ficunam-5.png',
+      '/images/projects/ficunam/ficunam-6.png',
+      '/images/projects/ficunam/ficunam-7.png',
+      '/images/projects/ficunam/ficunam-8.png',
+      '/images/projects/ficunam/ficunam-9.png',
+    ),
+    imageAlt: 'FICUNAM',
+  },
+  {
+    id: 'el-cine-probablemente',
+    category: 'Editorial Design',
+    title: 'El cine probablemente',
+    year: '2021',
+    media: images(
+      '/images/projects/ecp/ecp-1.png',
+      '/images/projects/ecp/ecp-2.png',
+      '/images/projects/ecp/ecp-3.png',
+      '/images/projects/ecp/ecp-4.png',
+      '/images/projects/ecp/ecp-5.png',
+      '/images/projects/ecp/ecp-6.png',
+    ),
+    imageAlt: 'El cine probablemente',
+  },
 ]
