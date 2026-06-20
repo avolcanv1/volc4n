@@ -81,7 +81,6 @@
 
 .gallery__footer--open {
   padding-top: calc(var(--page-padding) + 0.5rem);
-  background: var(--page-bg);
 }
 
 .gallery__description-wrap {
