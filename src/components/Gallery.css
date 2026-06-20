@@ -219,10 +219,10 @@
 .gallery__image {
   user-select: none;
   pointer-events: none;
-  background: var(--page-bg);
   filter: var(--gallery-image-shadow);
+  display: block;
   width: auto;
-  height: 100cqh;
+  height: auto;
   max-width: 100cqw;
   max-height: 100cqh;
   object-fit: contain;
