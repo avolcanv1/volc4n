@@ -4,7 +4,7 @@ import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
 import { getProjectMedia, type GalleryItem, type ProjectMedia as ProjectMediaItem } from '../types'
 import { ProjectMedia } from './ProjectMedia'
-import { plainTextToBlocks } from '../lib/richText'
+import { hasRichTextContent } from '../lib/richText'
 import { PageNav } from './PageNav'
 import { RichText } from './RichText'
 import { ThemeToggle } from './ThemeToggle'
@@ -108,10 +108,8 @@ export function Gallery() {
 
   const projectIndex = total === 0 ? 0 : Math.min(view.project, total - 1)
   const current = projects[projectIndex]
-  const description =
-    current?.description && current.description.length > 0
-      ? current.description
-      : plainTextToBlocks('Lorem ipsum dolor sit amet')
+  const description = current?.description
+  const hasDescription = hasRichTextContent(description)
   const mediaCount = current?.media.length ?? 0
   const safeImageIndex = Math.min(view.image, Math.max(mediaCount - 1, 0))
   const totalImages = projects.reduce((sum, project) => sum + project.media.length, 0)
@@ -495,17 +493,21 @@ export function Gallery() {
       </div>
 
       <footer
-        className={`gallery__footer page__bar page__bar--bottom gallery__footer--expandable${infoOpen ? ' gallery__footer--open' : ''}`}
-        aria-expanded={infoOpen}
-        onClick={() => setInfoOpen((open) => !open)}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault()
-            setInfoOpen((open) => !open)
-          }
-        }}
-        role="button"
-        tabIndex={0}
+        className={`gallery__footer page__bar page__bar--bottom${hasDescription ? ' gallery__footer--expandable' : ''}${infoOpen ? ' gallery__footer--open' : ''}`}
+        aria-expanded={hasDescription ? infoOpen : undefined}
+        onClick={hasDescription ? () => setInfoOpen((open) => !open) : undefined}
+        onKeyDown={
+          hasDescription
+            ? (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  setInfoOpen((open) => !open)
+                }
+              }
+            : undefined
+        }
+        role={hasDescription ? 'button' : undefined}
+        tabIndex={hasDescription ? 0 : undefined}
       >
         <p className="gallery__meta">
           <span className="gallery__counter" aria-live="polite">
@@ -515,14 +517,18 @@ export function Gallery() {
         </p>
         <p className="gallery__title">
           <span className="gallery__title-text">{current.title}</span>
-          <span className="gallery__expand-icon" aria-hidden="true">
-            {infoOpen ? '—' : '+'}
-          </span>
+          {hasDescription && (
+            <span className="gallery__expand-icon" aria-hidden="true">
+              {infoOpen ? '—' : '+'}
+            </span>
+          )}
         </p>
         <p className="gallery__year page__bar-end">{current.year}</p>
-        <div className="gallery__description-wrap">
-          <RichText value={description} className="gallery__description" />
-        </div>
+        {hasDescription && description && (
+          <div className="gallery__description-wrap">
+            <RichText value={description} className="gallery__description" />
+          </div>
+        )}
       </footer>
     </div>
   )
