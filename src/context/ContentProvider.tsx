@@ -3,6 +3,7 @@ import { defaultAbout } from '../data/defaultAbout'
 import { galleryItems as fallbackProjects } from '../data/gallery'
 import { mapAbout, mapProject } from '../lib/mapContent'
 import { aboutQuery, projectsQuery } from '../lib/queries'
+import { sortProjectsChronologically } from '../lib/sortProjects'
 import { isSanityConfigured, sanityClient } from '../lib/sanity'
 import type { AboutContent, GalleryItem } from '../types'
 import { ContentContext } from './ContentContext'
@@ -47,7 +48,9 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 
 export function ContentProvider({ children }: { children: ReactNode }) {
   const usesSanity = isSanityConfigured
-  const [projects, setProjects] = useState<GalleryItem[]>(fallbackProjects)
+  const [projects, setProjects] = useState<GalleryItem[]>(() =>
+    sortProjectsChronologically(fallbackProjects),
+  )
   const [about, setAbout] = useState<AboutContent>(defaultAbout)
   const [isLoading, setIsLoading] = useState(usesSanity)
 
@@ -69,9 +72,9 @@ export function ContentProvider({ children }: { children: ReactNode }) {
         if (cancelled) return
 
         const mappedProjects = Array.isArray(rawProjects)
-          ? withFallbackDescriptions(rawProjects.map(mapProject))
+          ? sortProjectsChronologically(withFallbackDescriptions(rawProjects.map(mapProject)))
           : []
-        setProjects(mappedProjects.length > 0 ? mappedProjects : fallbackProjects)
+        setProjects(mappedProjects.length > 0 ? mappedProjects : sortProjectsChronologically(fallbackProjects))
 
         if (rawAbout) {
           setAbout(mapAbout(rawAbout))
@@ -80,7 +83,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       .catch(() => {
         if (cancelled) return
 
-        setProjects(fallbackProjects)
+        setProjects(sortProjectsChronologically(fallbackProjects))
         setAbout(defaultAbout)
       })
       .finally(() => {
