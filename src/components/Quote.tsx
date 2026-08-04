@@ -498,7 +498,7 @@ export function Quote() {
             </section>
 
             {showWeb && (
-              <section className="quote__section quote__section--service" aria-labelledby="quote-web">
+              <section className="quote__section quote__section--service quote__reveal" aria-labelledby="quote-web">
                 <h2 id="quote-web" className="quote__section-title quote__section-title--sticky">
                   {t.sections.web}
                 </h2>
@@ -795,7 +795,7 @@ export function Quote() {
             )}
 
             {showBook && (
-              <section className="quote__section quote__section--service" aria-labelledby="quote-book">
+              <section className="quote__section quote__section--service quote__reveal" aria-labelledby="quote-book">
                 <h2 id="quote-book" className="quote__section-title quote__section-title--sticky">
                   {t.sections.book}
                 </h2>
@@ -989,7 +989,7 @@ export function Quote() {
             )}
 
             {showBrand && (
-              <section className="quote__section quote__section--service" aria-labelledby="quote-brand">
+              <section className="quote__section quote__section--service quote__reveal" aria-labelledby="quote-brand">
                 <h2 id="quote-brand" className="quote__section-title quote__section-title--sticky">
                   {t.sections.brand}
                 </h2>

@@ -179,6 +179,27 @@
   animation: quote-reveal 280ms ease-out both;
 }
 
+@keyframes quote-choice-check {
+  0% {
+    transform: scale(0.72);
+  }
+  55% {
+    transform: scale(1.06);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes quote-choice-label {
+  from {
+    opacity: 0.62;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .quote__reveal {
     animation: none;
@@ -301,17 +322,34 @@
   border-radius: 50%;
   background: transparent;
   flex-shrink: 0;
+  transition:
+    border-color 220ms ease,
+    background-color 220ms ease,
+    box-shadow 220ms ease;
 }
 
 .quote__choice input:checked {
   border-color: var(--quote-text);
   background: var(--quote-text);
   box-shadow: inset 0 0 0 3px var(--quote-bg);
+  animation: quote-choice-check 240ms ease-out;
+}
+
+.quote__choice:has(input:checked) {
+  animation: quote-choice-label 220ms ease-out;
 }
 
 .quote__choice input:focus-visible {
   outline: 2px solid var(--quote-focus);
   outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quote__choice input,
+  .quote__choice:has(input:checked) {
+    transition: none;
+    animation: none;
+  }
 }
 
 .quote__error {
