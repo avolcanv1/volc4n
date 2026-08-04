@@ -403,7 +403,7 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
       merch: 'Merchandising and objects',
     },
     fields: {
-      services: 'Which service(s) are you interested in?',
+      services: 'Which services are you interested in?',
       organizationName: 'Organization or project name',
       organizationDescription: 'What do you do?',
       siteType: 'What kind of site do you need?',
