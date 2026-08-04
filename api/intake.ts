@@ -1,4 +1,5 @@
 import { createClient } from '@sanity/client'
+import nodemailer from 'nodemailer'
 
 declare const process: { env: Record<string, string | undefined> }
 
@@ -7,6 +8,8 @@ const SERVICE_BOOK = 'Libro/editorial'
 const SERVICE_BRAND = 'Identidad de marca'
 const BRAND_NEEDS_DESIGN = 'No, hay que diseñarla'
 const INTAKE_TO_EMAIL = 'andrea@volc4n.com'
+const DEFAULT_SMTP_HOST = 'smtp.gmail.com'
+const DEFAULT_SMTP_PORT = 465
 
 type IntakeBody = {
   services?: string[]
@@ -77,14 +80,21 @@ function line(label: string, value: unknown) {
 }
 
 function formatEmailBody(body: IntakeBody, services: string[]) {
+  const pushSection = (blocks: string[], title: string, rows: Array<string | null>) => {
+    const filled = rows.filter((item): item is string => item !== null)
+    if (!filled.length) return
+    blocks.push('', `— ${title} —`, ...filled)
+  }
+
   const blocks: string[] = [
     'Nuevo brief recibido desde volc4n.com/quote',
     `Fecha: ${new Date().toISOString()}`,
     `Idioma del formulario: ${body.locale || 'es'}`,
     '',
     line('Servicios', services),
-    '',
-    '— Contacto —',
+  ].filter((item): item is string => item !== null)
+
+  pushSection(blocks, 'Contacto', [
     line('Nombre', body.contactName),
     line('Correo', body.contactEmail),
     line('Quién aprueba', body.decisionMaker),
@@ -94,12 +104,10 @@ function formatEmailBody(body: IntakeBody, services: string[]) {
     line('Presupuesto', body.budgetRange),
     line('Mantenimiento', body.needsMaintenance),
     line('Conocimientos técnicos', body.hasTechnicalKnowledge),
-  ].filter((item): item is string => item !== null)
+  ])
 
   if (hasService(services, SERVICE_WEB)) {
-    blocks.push(
-      '',
-      '— Sitio web —',
+    pushSection(blocks, 'Sitio web', [
       line('Organización / proyecto', body.organizationName),
       line('A qué se dedican', body.organizationDescription),
       line('Tipo de sitio', body.siteType),
@@ -118,13 +126,11 @@ function formatEmailBody(body: IntakeBody, services: string[]) {
       line('Identidad de marca (web)', body.brandIdentity),
       line('Contenidos listos', body.contentReadiness),
       line('Producción de contenido', body.needsContentProduction),
-    )
+    ])
   }
 
   if (hasService(services, SERVICE_BOOK)) {
-    blocks.push(
-      '',
-      '— Libro / editorial —',
+    pushSection(blocks, 'Libro / editorial', [
       line('Tipo de publicación', body.publicationType),
       line('Tipo (otro)', body.publicationTypeOther),
       line('Páginas', body.bookPageCount),
@@ -136,16 +142,14 @@ function formatEmailBody(body: IntakeBody, services: string[]) {
       line('Imprenta seleccionada', body.hasPrinter),
       line('Tiraje', body.printRun),
       line('ISBN / derechos', body.needsIsbn),
-    )
+    ])
   }
 
   if (
     hasService(services, SERVICE_BRAND) ||
     body.brandIdentity === BRAND_NEEDS_DESIGN
   ) {
-    blocks.push(
-      '',
-      '— Identidad de marca —',
+    pushSection(blocks, 'Identidad de marca', [
       line('Nueva o rediseño', body.brandStatus),
       line('Elementos', body.brandElements),
       line('Naming', body.namingDefined),
@@ -153,20 +157,44 @@ function formatEmailBody(body: IntakeBody, services: string[]) {
       line('Aplicaciones (otro)', body.brandApplicationsOther),
       line('Manual de marca', body.needsBrandManual),
       line('Audiencia', body.brandAudience),
-    )
+    ])
   }
 
-  return blocks.filter((item): item is string => item !== null).join('\n')
+  return blocks.join('\n')
+}
+
+function smtpConfig() {
+  const user = process.env.SMTP_USER?.trim()
+  const pass = process.env.SMTP_PASS
+  if (!user || !pass) return null
+
+  const port = Number(process.env.SMTP_PORT) || DEFAULT_SMTP_PORT
+  const secureEnv = process.env.SMTP_SECURE?.trim().toLowerCase()
+  const secure =
+    secureEnv === 'true' || secureEnv === '1'
+      ? true
+      : secureEnv === 'false' || secureEnv === '0'
+        ? false
+        : port === 465
+
+  return {
+    host: process.env.SMTP_HOST?.trim() || DEFAULT_SMTP_HOST,
+    port,
+    secure,
+    user,
+    pass,
+  }
 }
 
 async function sendIntakeEmail(body: IntakeBody, services: string[]) {
-  const apiKey = process.env.RESEND_API_KEY
-  if (!apiKey) {
-    throw new Error('Missing RESEND_API_KEY')
+  const smtp = smtpConfig()
+  if (!smtp) {
+    throw new Error('Missing SMTP_USER or SMTP_PASS')
   }
 
-  const from = process.env.RESEND_FROM || 'volc4n <onboarding@resend.dev>'
-  const to = process.env.INTAKE_TO_EMAIL || INTAKE_TO_EMAIL
+  const from =
+    process.env.INTAKE_FROM_EMAIL?.trim() || smtp.user
+  const to = process.env.INTAKE_TO_EMAIL?.trim() || INTAKE_TO_EMAIL
   const contactName = body.contactName?.trim() || 'Sin nombre'
   const contactEmail = body.contactEmail?.trim().toLowerCase() || ''
   const subjectParts = [
@@ -175,25 +203,23 @@ async function sendIntakeEmail(body: IntakeBody, services: string[]) {
     contactName,
   ]
 
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
+  const transporter = nodemailer.createTransport({
+    host: smtp.host,
+    port: smtp.port,
+    secure: smtp.secure,
+    auth: {
+      user: smtp.user,
+      pass: smtp.pass,
     },
-    body: JSON.stringify({
-      from,
-      to: [to],
-      reply_to: contactEmail || undefined,
-      subject: subjectParts.join(' · '),
-      text: formatEmailBody(body, services),
-    }),
   })
 
-  if (!response.ok) {
-    const detail = await response.text()
-    throw new Error(`Resend failed: ${response.status} ${detail}`)
-  }
+  await transporter.sendMail({
+    from,
+    to,
+    replyTo: contactEmail || undefined,
+    subject: subjectParts.join(' · '),
+    text: formatEmailBody(body, services),
+  })
 }
 
 export default async function handler(
@@ -221,7 +247,7 @@ export default async function handler(
   const projectId = process.env.VITE_SANITY_PROJECT_ID || '3pjczo8m'
   const dataset = process.env.VITE_SANITY_DATASET || 'production'
 
-  if (!process.env.RESEND_API_KEY) {
+  if (!smtpConfig()) {
     res.status(500).json({ error: 'Server misconfigured' })
     return
   }
