@@ -33,7 +33,7 @@
   padding: var(--page-padding);
   background: var(--page-bg);
   color: var(--page-text);
-  font-family: 'Times New Roman', Times, serif;
+  font-family: var(--font-serif);
   font-size: var(--page-font-size);
   line-height: normal;
   transition: background-color 0.2s ease, color 0.2s ease;

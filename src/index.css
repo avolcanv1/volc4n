@@ -1,8 +1,42 @@
+@font-face {
+  font-family: 'Times Newer Roman';
+  src: url('/fonts/TimesNewerRoman-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Times Newer Roman';
+  src: url('/fonts/TimesNewerRoman-Italic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Times Newer Roman';
+  src: url('/fonts/TimesNewerRoman-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Times Newer Roman';
+  src: url('/fonts/TimesNewerRoman-BoldItalic.otf') format('opentype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
 :root {
   --page-bg: #FAFAFA;
   --page-text: #000;
+  --font-serif: 'Times Newer Roman', 'Times New Roman', Times, serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', Courier, monospace;
 
-  font-family: 'Times New Roman', Times, serif;
+  font-family: var(--font-serif);
   line-height: normal;
   font-weight: 400;
   font-synthesis: none;
@@ -28,6 +62,7 @@ body {
   min-height: 100svh;
   background: var(--page-bg);
   color: var(--page-text);
+  font-family: var(--font-serif);
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
@@ -37,4 +72,9 @@ body {
 
 button {
   font: inherit;
+}
+
+::selection {
+  background: #B5FFB5;
+  color: #000;
 }

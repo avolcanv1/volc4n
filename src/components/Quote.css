@@ -22,7 +22,7 @@
   overscroll-behavior: contain;
   background: var(--quote-bg);
   color: var(--quote-text);
-  font-family: 'Times New Roman', Times, serif;
+  font-family: var(--font-serif);
   font-size: 14px;
   font-weight: 400;
   line-height: normal;
@@ -402,7 +402,7 @@
 
 .quote__app-group-title {
   margin: 0;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: var(--font-serif);
   font-size: var(--quote-ui-size);
   font-weight: 400;
   letter-spacing: normal;
@@ -470,11 +470,18 @@
   pointer-events: none;
 }
 
-/* Sticky titles sit in the left column; size it for longest copy on one line. */
+/* Sticky titles sit in the left column; size it for longest copy on one line.
+   "Sobre la identidad de marca" @ 14px Times Newer Roman ≈156px (+0.2em pads ≈162px).
+   Form starts 50px after that title block. */
 @media (min-width: 769px) {
   .quote {
-    --quote-form-offset: clamp(300px, 28vw, 360px);
+    --quote-sticky-title-max: 162px;
+    --quote-form-offset: calc(var(--quote-sticky-title-max) + 50px); /* 212px */
     --quote-form-width: min(640px, calc(100% - var(--quote-form-offset) - var(--quote-pad)));
+  }
+
+  .quote__section-title--sticky {
+    max-width: var(--quote-sticky-title-max);
   }
 }
 
