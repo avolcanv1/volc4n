@@ -13,13 +13,38 @@
   /* Just under the volc4n brand in the fixed header */
   --quote-sticky-top: calc(var(--quote-pad) + 1.35rem);
 
-  min-height: 100svh;
+  /* Scroll inside .quote so the document scrollbar never appears on hover and
+     shrinks the viewport — that was shifting fixed ES/EN + theme controls left. */
+  height: 100svh;
+  max-height: 100svh;
+  overflow-x: clip;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: var(--quote-bg);
   color: var(--quote-text);
   font-family: 'Times New Roman', Times, serif;
   font-size: 14px;
   font-weight: 400;
   line-height: normal;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--quote-text) 20%, transparent) transparent;
+}
+
+.quote::-webkit-scrollbar {
+  width: 4px;
+}
+
+.quote::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.quote::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--quote-text) 18%, transparent);
+  border-radius: 4px;
+}
+
+.quote::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--quote-text) 32%, transparent);
 }
 
 .quote.page--dark {
