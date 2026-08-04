@@ -1,15 +1,20 @@
 import type { PortableTextBlock } from '@portabletext/types'
-import imageUrlBuilder from '@sanity/image-url'
+import { createImageUrlBuilder } from '@sanity/image-url'
 import type { GalleryItem, ProjectMedia, RichText } from '../types'
-import { sanityClient } from './sanity'
+import { isSanityConfigured, sanityDataset, sanityProjectId } from './sanity'
 
-const builder = sanityClient ? imageUrlBuilder(sanityClient) : null
+// Build CDN URLs directly — do not reuse the API client, whose production
+// apiHost proxy would otherwise rewrite image URLs away from cdn.sanity.io.
+const builder = isSanityConfigured
+  ? createImageUrlBuilder({ projectId: sanityProjectId, dataset: sanityDataset })
+  : null
 
 type SanityProject = {
   id: string
   title: string
   category: string
   year: string
+  order?: number
   description?: RichText
   images: unknown[]
 }
@@ -26,6 +31,7 @@ export function mapProject(doc: SanityProject): GalleryItem {
     title: doc.title,
     category: doc.category,
     year: doc.year,
+    order: typeof doc.order === 'number' ? doc.order : undefined,
     description: normalizeRichText(doc.description),
     imageAlt: doc.title,
     media: doc.images.map(mapMediaItem).filter((item): item is ProjectMedia => item !== null),

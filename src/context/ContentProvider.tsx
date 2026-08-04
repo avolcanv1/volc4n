@@ -72,7 +72,11 @@ export function ContentProvider({ children }: { children: ReactNode }) {
         if (cancelled) return
 
         const mappedProjects = Array.isArray(rawProjects)
-          ? sortProjectsChronologically(withFallbackDescriptions(rawProjects.map(mapProject)))
+          ? sortProjectsChronologically(
+              withFallbackDescriptions(rawProjects.map(mapProject)).filter(
+                (project) => project.media.length > 0,
+              ),
+            )
           : []
         setProjects(mappedProjects.length > 0 ? mappedProjects : sortProjectsChronologically(fallbackProjects))
 

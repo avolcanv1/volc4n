@@ -32,20 +32,21 @@ function getAdjacentMedia(
 ): [ProjectMediaItem, ProjectMediaItem] {
   const total = projects.length
   const current = projects[projectIndex]
+  const fallback = getProjectMedia(current, imageIndex) ?? current.media[0]
   const adjacent: ProjectMediaItem[] = []
 
   if (imageIndex > 0) {
-    adjacent.push(getProjectMedia(current, imageIndex - 1))
+    adjacent.push(getProjectMedia(current, imageIndex - 1) ?? fallback)
   } else {
     const prevProject = projects[(projectIndex - 1 + total) % total]
-    adjacent.push(getProjectMedia(prevProject, prevProject.media.length - 1))
+    adjacent.push(getProjectMedia(prevProject, prevProject.media.length - 1) ?? fallback)
   }
 
   if (imageIndex < current.media.length - 1) {
-    adjacent.push(getProjectMedia(current, imageIndex + 1))
+    adjacent.push(getProjectMedia(current, imageIndex + 1) ?? fallback)
   } else {
     const nextProject = projects[(projectIndex + 1) % total]
-    adjacent.push(getProjectMedia(nextProject, 0))
+    adjacent.push(getProjectMedia(nextProject, 0) ?? fallback)
   }
 
   return [adjacent[0], adjacent[1]]
@@ -398,37 +399,36 @@ export function Gallery() {
       return
     }
 
-    if (displayedMedia?.src === currentMedia.src && displayedMedia.kind === currentMedia.kind) {
+    const nextMedia = currentMedia
+
+    if (displayedMedia?.src === nextMedia.src && displayedMedia.kind === nextMedia.kind) {
       return
     }
 
-    if (currentMedia.kind === 'video') {
-      setDisplayedMedia(currentMedia)
-      return
-    }
-
-    if (!displayedMedia) {
-      setDisplayedMedia(currentMedia)
+    if (nextMedia.kind === 'video' || !displayedMedia) {
+      setDisplayedMedia(nextMedia)
       return
     }
 
     let cancelled = false
 
-    preloadImageMedia(currentMedia).then(() => {
+    preloadImageMedia(nextMedia).then(() => {
       if (!cancelled) {
-        setDisplayedMedia(currentMedia)
+        setDisplayedMedia(nextMedia)
       }
     })
 
     return () => {
       cancelled = true
     }
-  }, [currentMedia, displayedMedia?.kind, displayedMedia?.src])
+    // Depend on media identity fields only — a new object each render would
+    // cancel in-flight preloads and leave the gallery stuck on a blank/old frame.
+  }, [currentMedia?.src, currentMedia?.kind, currentMedia?.caption, displayedMedia?.kind, displayedMedia?.src])
 
   useEffect(() => {
     void preloadImageMedia(prevMedia)
     void preloadImageMedia(nextMedia)
-  }, [nextMedia, prevMedia])
+  }, [nextMedia?.src, nextMedia?.kind, prevMedia?.src, prevMedia?.kind])
 
   if (total === 0 || !current || !centerMedia) {
     return null

@@ -2,7 +2,6 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
-import { getProjectMedia } from '../types'
 import { isWebDesignCategory } from '../lib/projectCategory'
 import { ProjectMedia } from './ProjectMedia'
 import { PageNav } from './PageNav'
@@ -138,10 +137,10 @@ export function Index() {
       {hoveredItem && hoveredItem.media.length > 0 && (
         <div ref={previewRef} className="index__preview" aria-hidden="true">
           <figure className="index__preview-figure">
-            {hoveredItem.media.map((_, mediaIndex) => (
+            {hoveredItem.media.map((media, mediaIndex) => (
               <ProjectMedia
                 key={`${hoveredItem.id}-${mediaIndex}`}
-                media={getProjectMedia(hoveredItem, mediaIndex)}
+                media={media}
                 className={`index__preview-image${mediaIndex === previewMediaIndex ? ' index__preview-image--active' : ''}`}
                 alt=""
                 roundedVideo={isWebDesignCategory(hoveredItem.category)}

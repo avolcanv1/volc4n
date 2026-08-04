@@ -11,6 +11,7 @@ export type GalleryItem = {
   category: string
   title: string
   year: string
+  order?: number
   description?: RichText
   media: ProjectMedia[]
   imageAlt: string
@@ -22,6 +23,10 @@ export type AboutContent = {
   address: string
 }
 
-export function getProjectMedia(item: GalleryItem, mediaIndex = 0): ProjectMedia {
-  return item.media[Math.min(mediaIndex, item.media.length - 1)] ?? item.media[0]
+export function getProjectMedia(item: GalleryItem, mediaIndex = 0): ProjectMedia | undefined {
+  if (item.media.length === 0) {
+    return undefined
+  }
+
+  return item.media[Math.min(Math.max(mediaIndex, 0), item.media.length - 1)]
 }
