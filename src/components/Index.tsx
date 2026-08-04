@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
 import { getProjectMedia } from '../types'
+import { isWebDesignCategory } from '../lib/projectCategory'
 import { ProjectMedia } from './ProjectMedia'
 import { PageNav } from './PageNav'
 import { ThemeToggle } from './ThemeToggle'
@@ -143,6 +144,7 @@ export function Index() {
                 media={getProjectMedia(hoveredItem, mediaIndex)}
                 className={`index__preview-image${mediaIndex === previewMediaIndex ? ' index__preview-image--active' : ''}`}
                 alt=""
+                roundedVideo={isWebDesignCategory(hoveredItem.category)}
               />
             ))}
           </figure>

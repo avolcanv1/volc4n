@@ -4,6 +4,7 @@ import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
 import { getProjectMedia, type GalleryItem, type ProjectMedia as ProjectMediaItem } from '../types'
 import { ProjectMedia } from './ProjectMedia'
+import { isWebDesignCategory } from '../lib/projectCategory'
 import { hasRichTextContent } from '../lib/richText'
 import { PageNav } from './PageNav'
 import { RichText } from './RichText'
@@ -48,6 +49,30 @@ function getAdjacentMedia(
   }
 
   return [adjacent[0], adjacent[1]]
+}
+
+function getAdjacentProject(
+  projects: GalleryItem[],
+  projectIndex: number,
+  imageIndex: number,
+  direction: 'prev' | 'next',
+): GalleryItem {
+  const total = projects.length
+  const current = projects[projectIndex]
+
+  if (direction === 'prev') {
+    if (imageIndex > 0) {
+      return current
+    }
+
+    return projects[(projectIndex - 1 + total) % total]
+  }
+
+  if (imageIndex < current.media.length - 1) {
+    return current
+  }
+
+  return projects[(projectIndex + 1) % total]
 }
 
 function getInitialView(
@@ -120,6 +145,8 @@ export function Gallery() {
   const currentMedia = current ? getProjectMedia(current, safeImageIndex) : null
   const currentCaption = currentMedia?.caption
   const [prevMedia, nextMedia] = getAdjacentMedia(projects, projectIndex, safeImageIndex)
+  const prevProject = getAdjacentProject(projects, projectIndex, safeImageIndex, 'prev')
+  const nextProject = getAdjacentProject(projects, projectIndex, safeImageIndex, 'next')
   const centerMedia = displayedMedia ?? currentMedia
 
   const goTo = useCallback(
@@ -455,6 +482,7 @@ export function Gallery() {
                     media={prevMedia}
                     className="gallery__image fit-media__image"
                     alt=""
+                    roundedVideo={isWebDesignCategory(prevProject.category)}
                   />
                 </div>
               </div>
@@ -469,6 +497,7 @@ export function Gallery() {
                     media={centerMedia}
                     className="gallery__image fit-media__image"
                     alt={currentCaption ?? current.imageAlt}
+                    roundedVideo={isWebDesignCategory(current.category)}
                   />
                   {currentCaption && (
                     <div className="gallery__caption-rail">
@@ -483,6 +512,7 @@ export function Gallery() {
                     media={nextMedia}
                     className="gallery__image fit-media__image"
                     alt=""
+                    roundedVideo={isWebDesignCategory(nextProject.category)}
                   />
                 </div>
               </div>

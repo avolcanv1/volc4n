@@ -1,0 +1,20 @@
+.project-media__video {
+  display: block;
+}
+
+.project-media__video--rounded {
+  border-radius: 25px;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .project-media__video--rounded {
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .project-media__video--rounded {
+    border-radius: 12px;
+  }
+}
