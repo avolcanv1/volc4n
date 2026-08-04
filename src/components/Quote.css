@@ -473,7 +473,7 @@
 /* Sticky titles sit in the left column; size it for longest copy on one line. */
 @media (min-width: 769px) {
   .quote {
-    --quote-form-offset: clamp(360px, 34vw, 420px);
+    --quote-form-offset: clamp(300px, 28vw, 360px);
   }
 }
 
