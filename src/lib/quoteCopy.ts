@@ -468,7 +468,7 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
     fields: {
       services: '¿Qué servicios te interesan?',
       organizationName: 'Nombre de la organización o proyecto',
-      organizationDescription: '¿A qué se dedican?',
+      organizationDescription: 'Describe tu proyecto',
       siteType: '¿Qué tipo de sitio necesitas?',
       siteTypeOther: 'Especifica el tipo de sitio',
       siteStatus: '¿Es un sitio nuevo o un rediseño?',
@@ -642,7 +642,7 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
     fields: {
       services: 'Which services are you interested in?',
       organizationName: 'Organization or project name',
-      organizationDescription: 'What do you do?',
+      organizationDescription: 'Describe your project',
       siteType: 'What kind of site do you need?',
       siteTypeOther: 'Specify the site type',
       siteStatus: 'Is it a new site or a redesign?',
