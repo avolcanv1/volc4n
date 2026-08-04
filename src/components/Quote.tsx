@@ -540,6 +540,90 @@ export function Quote() {
             />
 
             <section className="quote__section" id="organization">
+              <div className="quote__field">
+                <label className="quote__label" htmlFor="contactName">
+                  <QuestionLabel text={t.fields.contactName} requiredMark={t.requiredMark} />
+                </label>
+                <input
+                  id="contactName"
+                  className="quote__underline"
+                  type="text"
+                  value={form.contactName}
+                  onChange={(event) => update('contactName', event.target.value)}
+                  aria-invalid={Boolean(errors.contactName)}
+                />
+                <FieldError message={errors.contactName} />
+              </div>
+
+              <div className="quote__field quote__field--email">
+                <label className="quote__label" htmlFor="contactEmail">
+                  <QuestionLabel text={t.fields.contactEmail} requiredMark={t.requiredMark} />
+                </label>
+                <input
+                  id="contactEmail"
+                  className="quote__underline"
+                  type="email"
+                  autoComplete="email"
+                  value={form.contactEmail}
+                  onChange={(event) => handleContactEmailChange(event.target.value)}
+                  onBlur={(event) => handleContactEmailBlur(event.target.value)}
+                  onKeyDown={handleContactEmailKeyDown}
+                  aria-invalid={Boolean(errors.contactEmail)}
+                  aria-autocomplete="list"
+                  aria-controls="contactEmail-domain-list"
+                  aria-expanded={emailDomainOpen}
+                  role="combobox"
+                />
+                {emailDomainOpen && emailDomainOptions.length > 0 ? (
+                  <ul
+                    id="contactEmail-domain-list"
+                    className="quote__email-domains quote__reveal"
+                    role="listbox"
+                    aria-label="Email domains"
+                  >
+                    {emailDomainOptions.map((domain, index) => {
+                      const { local } = splitEmail(form.contactEmail)
+                      const full = `${local}@${domain}`
+                      return (
+                        <li key={domain} role="presentation">
+                          <button
+                            type="button"
+                            role="option"
+                            className={`quote__email-domain${
+                              index === emailDomainHighlight ? ' quote__email-domain--active' : ''
+                            }`}
+                            aria-selected={index === emailDomainHighlight}
+                            onMouseDown={(event) => {
+                              event.preventDefault()
+                              if (emailBlurTimerRef.current) clearTimeout(emailBlurTimerRef.current)
+                              applyEmailDomain(domain)
+                            }}
+                            onMouseEnter={() => setEmailDomainHighlight(index)}
+                          >
+                            {full}
+                          </button>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                ) : null}
+                {emailDidYouMean ? (
+                  <p className="quote__helper quote__email-suggest">
+                    <button
+                      type="button"
+                      className="quote__email-suggest-btn"
+                      onClick={() => {
+                        update('contactEmail', emailDidYouMean)
+                        setEmailDidYouMean(null)
+                      }}
+                    >
+                      {t.emailDidYouMean.replace('{email}', emailDidYouMean)}
+                    </button>
+                  </p>
+                ) : null}
+                <FieldError message={errors.contactEmail} />
+              </div>
+
               <OrganizationFields
                 fields={t.fields}
                 requiredMark={t.requiredMark}
@@ -1327,90 +1411,6 @@ export function Quote() {
                       ))}
                     </select>
                     <FieldError message={errors.budgetRange} />
-                  </div>
-
-                  <div className="quote__field">
-                    <label className="quote__label" htmlFor="contactName">
-                      <QuestionLabel text={t.fields.contactName} requiredMark={t.requiredMark} />
-                    </label>
-                    <input
-                      id="contactName"
-                      className="quote__underline"
-                      type="text"
-                      value={form.contactName}
-                      onChange={(event) => update('contactName', event.target.value)}
-                      aria-invalid={Boolean(errors.contactName)}
-                    />
-                    <FieldError message={errors.contactName} />
-                  </div>
-
-                  <div className="quote__field quote__field--email">
-                    <label className="quote__label" htmlFor="contactEmail">
-                      <QuestionLabel text={t.fields.contactEmail} requiredMark={t.requiredMark} />
-                    </label>
-                    <input
-                      id="contactEmail"
-                      className="quote__underline"
-                      type="email"
-                      autoComplete="email"
-                      value={form.contactEmail}
-                      onChange={(event) => handleContactEmailChange(event.target.value)}
-                      onBlur={(event) => handleContactEmailBlur(event.target.value)}
-                      onKeyDown={handleContactEmailKeyDown}
-                      aria-invalid={Boolean(errors.contactEmail)}
-                      aria-autocomplete="list"
-                      aria-controls="contactEmail-domain-list"
-                      aria-expanded={emailDomainOpen}
-                      role="combobox"
-                    />
-                    {emailDomainOpen && emailDomainOptions.length > 0 ? (
-                      <ul
-                        id="contactEmail-domain-list"
-                        className="quote__email-domains quote__reveal"
-                        role="listbox"
-                        aria-label="Email domains"
-                      >
-                        {emailDomainOptions.map((domain, index) => {
-                          const { local } = splitEmail(form.contactEmail)
-                          const full = `${local}@${domain}`
-                          return (
-                            <li key={domain} role="presentation">
-                              <button
-                                type="button"
-                                role="option"
-                                className={`quote__email-domain${
-                                  index === emailDomainHighlight ? ' quote__email-domain--active' : ''
-                                }`}
-                                aria-selected={index === emailDomainHighlight}
-                                onMouseDown={(event) => {
-                                  event.preventDefault()
-                                  if (emailBlurTimerRef.current) clearTimeout(emailBlurTimerRef.current)
-                                  applyEmailDomain(domain)
-                                }}
-                                onMouseEnter={() => setEmailDomainHighlight(index)}
-                              >
-                                {full}
-                              </button>
-                            </li>
-                          )
-                        })}
-                      </ul>
-                    ) : null}
-                    {emailDidYouMean ? (
-                      <p className="quote__helper quote__email-suggest">
-                        <button
-                          type="button"
-                          className="quote__email-suggest-btn"
-                          onClick={() => {
-                            update('contactEmail', emailDidYouMean)
-                            setEmailDidYouMean(null)
-                          }}
-                        >
-                          {t.emailDidYouMean.replace('{email}', emailDidYouMean)}
-                        </button>
-                      </p>
-                    ) : null}
-                    <FieldError message={errors.contactEmail} />
                   </div>
                 </section>
 
