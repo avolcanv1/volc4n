@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 import { getBudgetRangeOptions } from '../lib/budgetRanges'
@@ -176,6 +176,8 @@ export function Quote() {
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  /** True only when Identidad de marca was auto-added via BRAND_NEEDS_DESIGN. */
+  const brandAutoAddedRef = useRef(false)
 
   const t = quoteCopy[locale]
 
@@ -222,6 +224,10 @@ export function Quote() {
     setForm((current) => {
       const list = current[key]
       const has = list.includes(value)
+      // Manual brand toggle: treat as intentional, never auto-remove later.
+      if (key === 'services' && value === SERVICE_VALUES.brand) {
+        brandAutoAddedRef.current = false
+      }
       return {
         ...current,
         [key]: has ? list.filter((item) => item !== value) : [...list, value],
@@ -231,13 +237,24 @@ export function Quote() {
   }
 
   function updateBrandIdentity(value: string) {
+    const shouldAutoAdd =
+      value === BRAND_NEEDS_DESIGN && !form.services.includes(SERVICE_VALUES.brand)
+    const shouldAutoRemove =
+      value !== BRAND_NEEDS_DESIGN && brandAutoAddedRef.current
+
     setForm((current) => {
       const next = { ...current, brandIdentity: value }
       if (value === BRAND_NEEDS_DESIGN && !current.services.includes(SERVICE_VALUES.brand)) {
         next.services = [...current.services, SERVICE_VALUES.brand]
+      } else if (shouldAutoRemove && current.services.includes(SERVICE_VALUES.brand)) {
+        next.services = current.services.filter((item) => item !== SERVICE_VALUES.brand)
       }
       return next
     })
+
+    if (shouldAutoAdd) brandAutoAddedRef.current = true
+    else if (shouldAutoRemove) brandAutoAddedRef.current = false
+
     clearError('brandIdentity')
     clearError('services')
   }
@@ -265,7 +282,16 @@ export function Quote() {
       })
 
       if (!response.ok) {
-        setSubmitError(t.submitError)
+        let apiMessage = ''
+        try {
+          const payload = (await response.json()) as { error?: string }
+          if (typeof payload.error === 'string' && payload.error.trim()) {
+            apiMessage = payload.error.trim()
+          }
+        } catch {
+          /* ignore non-JSON error bodies */
+        }
+        setSubmitError(apiMessage ? `${t.submitError} (${apiMessage})` : t.submitError)
         return
       }
 
