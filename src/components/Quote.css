@@ -164,6 +164,27 @@
   margin-bottom: 2.75rem;
 }
 
+@keyframes quote-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(0.4rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.quote__reveal {
+  animation: quote-reveal 280ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quote__reveal {
+    animation: none;
+  }
+}
+
 .quote__label {
   font-size: var(--quote-label-size);
   font-weight: 400;
@@ -512,15 +533,14 @@
     z-index: auto;
     box-sizing: border-box;
     width: auto;
-    max-width: 100%;
+    max-width: none;
     height: auto;
     margin: 0 0 1.75rem;
     padding: 0;
     overflow: visible;
     font-size: var(--quote-label-size);
-    /* Prefer one line when viewport allows; wrap only if needed (keeps left align). */
-    white-space: normal;
-    overflow-wrap: normal;
+    /* One line in flow when possible; left-aligned with form (no sticky gutter). */
+    white-space: nowrap;
     background: transparent;
     color: inherit;
   }

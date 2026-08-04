@@ -428,7 +428,7 @@ export function Quote() {
                 </div>
 
                 {showSiteTypeOther && (
-                  <div className="quote__field">
+                  <div className="quote__field quote__reveal">
                     <label className="quote__label" htmlFor="siteTypeOther">
                       <QuestionLabel text={t.fields.siteTypeOther} requiredMark={t.requiredMark} />
                     </label>
@@ -464,7 +464,7 @@ export function Quote() {
                 </fieldset>
 
                 {showCurrentUrl && (
-                  <div className="quote__field">
+                  <div className="quote__field quote__reveal">
                     <label className="quote__label" htmlFor="currentSiteUrl">
                       {t.fields.currentSiteUrl}
                     </label>
@@ -549,7 +549,7 @@ export function Quote() {
                 </fieldset>
 
                 {showUpdateFrequency && (
-                  <div className="quote__field">
+                  <div className="quote__field quote__reveal">
                     <label className="quote__label" htmlFor="updateFrequency">
                       <QuestionLabel text={t.fields.updateFrequency} requiredMark={t.requiredMark} />
                     </label>
@@ -605,7 +605,7 @@ export function Quote() {
                 </fieldset>
 
                 {showFeaturesOther && (
-                  <div className="quote__field">
+                  <div className="quote__field quote__reveal">
                     <label className="quote__label" htmlFor="featuresOther">
                       {t.fields.featuresOther}
                     </label>
@@ -725,7 +725,7 @@ export function Quote() {
                 </div>
 
                 {showPublicationTypeOther && (
-                  <div className="quote__field">
+                  <div className="quote__field quote__reveal">
                     <label className="quote__label" htmlFor="publicationTypeOther">
                       <QuestionLabel text={t.fields.publicationTypeOther} requiredMark={t.requiredMark} />
                     </label>
@@ -986,7 +986,7 @@ export function Quote() {
                 </fieldset>
 
                 {showBrandApplicationsOther && (
-                  <div className="quote__field">
+                  <div className="quote__field quote__reveal">
                     <label className="quote__label" htmlFor="brandApplicationsOther">
                       {t.fields.brandApplicationsOther}
                     </label>
