@@ -375,7 +375,7 @@
   font-weight: 400;
   letter-spacing: normal;
   text-transform: none;
-  opacity: 0.55;
+  color: var(--quote-text);
 }
 
 .quote__app-group .quote__choice {
