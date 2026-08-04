@@ -5,9 +5,9 @@
   --quote-line: rgba(0, 0, 0, 0.2);
   --quote-focus: #b5ffb5;
   --quote-pad: 30px;
-  /* Mobile/small: keep a light indent. Desktop override below fits sticky titles. */
-  --quote-form-offset: clamp(30px, 12vw, 193px);
-  --quote-form-width: min(640px, calc(100% - var(--quote-form-offset) - var(--quote-pad)));
+  /* Mobile-first: form aligned to brand pad. Desktop adds sticky-title gutter. */
+  --quote-form-offset: 0;
+  --quote-form-width: min(640px, 100%);
   --quote-label-size: 24px;
   --quote-ui-size: 12px;
   /* Just under the volc4n brand in the fixed header */
@@ -474,9 +474,11 @@
 @media (min-width: 769px) {
   .quote {
     --quote-form-offset: clamp(300px, 28vw, 360px);
+    --quote-form-width: min(640px, calc(100% - var(--quote-form-offset) - var(--quote-pad)));
   }
 }
 
+/* Mobile: form flush with brand pad; no left gutter / sticky titles. */
 @media (max-width: 768px) {
   .quote {
     --quote-pad: 16px;
@@ -484,10 +486,16 @@
   }
 
   .quote__main {
-    padding-top: var(--quote-pad);
+    width: 100%;
+    margin-left: 0;
+    /* Clear fixed header (pad + brand line + pad) so form starts below volc4n */
+    padding-top: calc(var(--quote-pad) * 2 + 1.5rem);
   }
 
   .quote__section-title--sticky {
+    position: static;
+    top: auto;
+    z-index: auto;
     box-sizing: border-box;
     width: auto;
     max-width: none;
@@ -495,6 +503,9 @@
     margin: 0 0 1.75rem;
     padding: 0;
     overflow: visible;
+    font-size: var(--quote-label-size);
+    background: transparent;
+    color: inherit;
   }
 
   .quote__box {
