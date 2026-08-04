@@ -1,6 +1,7 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
+import { getBudgetRangeOptions } from '../lib/budgetRanges'
 import {
   BRAND_APPLICATION_GROUPS,
   BRAND_NEEDS_DESIGN,
@@ -199,7 +200,6 @@ export function Quote() {
       brandElements: mapOptions(OPTION_VALUES.brandElements, t.options.brandElements),
       namingDefined: mapOptions(OPTION_VALUES.namingDefined, t.options.namingDefined),
       brandApplications: mapOptions(OPTION_VALUES.brandApplications, t.options.brandApplications),
-      budgetRanges: mapOptions(OPTION_VALUES.budgetRanges, t.options.budgetRanges),
     }),
     [t],
   )
@@ -286,6 +286,17 @@ export function Quote() {
   const showFeaturesOther = form.features.includes('Otro')
   const showPublicationTypeOther = form.publicationType === 'Otro'
   const showBrandApplicationsOther = form.brandApplications.includes('Otro')
+
+  const budgetRangeOptions = useMemo(
+    () => getBudgetRangeOptions(form.services, form.bookPageCount, locale),
+    [form.services, form.bookPageCount, locale],
+  )
+
+  useEffect(() => {
+    if (!form.budgetRange) return
+    if (budgetRangeOptions.some((option) => option.value === form.budgetRange)) return
+    setForm((current) => ({ ...current, budgetRange: '' }))
+  }, [budgetRangeOptions, form.budgetRange])
 
   return (
     <div className={`quote${isDark ? ' page--dark' : ''}`}>
@@ -1025,7 +1036,7 @@ export function Quote() {
                       onChange={(event) => update('budgetRange', event.target.value)}
                     >
                       <option value="">{t.fields.budgetOptional}</option>
-                      {labels.budgetRanges.map((option) => (
+                      {budgetRangeOptions.map((option) => (
                         <option key={option.value} value={option.value}>
                           {option.label}
                         </option>

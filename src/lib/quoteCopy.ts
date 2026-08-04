@@ -73,15 +73,6 @@ export const OPTION_VALUES = {
     'Empaque',
     'Otro',
   ],
-  budgetRanges: [
-    'Menos de $20,000 MXN',
-    '$20,000 – $50,000 MXN',
-    '$50,000 – $100,000 MXN',
-    '$100,000 – $200,000 MXN',
-    '$200,000 – $400,000 MXN',
-    'Más de $400,000 MXN',
-    'Prefiero no decirlo',
-  ],
   feedbackMethods: ['Reuniones', 'Correo', 'Comentarios en Figma', 'Otro'],
 } as const
 
@@ -273,7 +264,6 @@ type QuoteCopy = {
     brandElements: string[]
     namingDefined: string[]
     brandApplications: string[]
-    budgetRanges: string[]
     feedbackMethods: string[]
   }
 }
@@ -386,7 +376,6 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
       ],
       namingDefined: [...OPTION_VALUES.namingDefined],
       brandApplications: [...OPTION_VALUES.brandApplications],
-      budgetRanges: [...OPTION_VALUES.budgetRanges],
       feedbackMethods: [...OPTION_VALUES.feedbackMethods],
     },
   },
@@ -523,15 +512,6 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
         'Stickers',
         'Packaging',
         'Other',
-      ],
-      budgetRanges: [
-        'Under $20,000 MXN',
-        '$20,000 – $50,000 MXN',
-        '$50,000 – $100,000 MXN',
-        '$100,000 – $200,000 MXN',
-        '$200,000 – $400,000 MXN',
-        'Over $400,000 MXN',
-        'Prefer not to say',
       ],
       feedbackMethods: ['Meetings', 'Email', 'Figma comments', 'Other'],
     },
