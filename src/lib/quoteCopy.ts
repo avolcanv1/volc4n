@@ -61,7 +61,8 @@ export const OPTION_VALUES = {
     'Tarjetas de presentación',
     'Papelería membretada',
     'Invitaciones',
-    'Programas de mano / folletos de sala',
+    'Programas de mano',
+    'Folletos de sala',
     'Redes sociales',
     'Firma de correo electrónico',
     'Newsletter',
@@ -69,16 +70,11 @@ export const OPTION_VALUES = {
     'Señalética interior',
     'Cédulas',
     'Textos de muro',
-    'Montaje de exposición',
-    'Portada de catálogo o libro',
-    'Plantilla editorial',
     'Playeras',
     'Bolsas de tela',
-    'Postales o stickers',
+    'Postales',
+    'Stickers',
     'Empaque',
-    'Presentaciones',
-    'Certificados o reconocimientos',
-    'Gafetes o credenciales',
     'Otro',
   ],
   budgetRanges: [
@@ -100,7 +96,8 @@ export const BRAND_APPLICATION_GROUPS = [
       'Tarjetas de presentación',
       'Papelería membretada',
       'Invitaciones',
-      'Programas de mano / folletos de sala',
+      'Programas de mano',
+      'Folletos de sala',
     ],
   },
   {
@@ -118,20 +115,11 @@ export const BRAND_APPLICATION_GROUPS = [
       'Señalética interior',
       'Cédulas',
       'Textos de muro',
-      'Montaje de exposición',
     ],
   },
   {
-    key: 'publications',
-    values: ['Portada de catálogo o libro', 'Plantilla editorial'],
-  },
-  {
     key: 'merch',
-    values: ['Playeras', 'Bolsas de tela', 'Postales o stickers', 'Empaque'],
-  },
-  {
-    key: 'institutional',
-    values: ['Presentaciones', 'Certificados o reconocimientos', 'Gafetes o credenciales'],
+    values: ['Playeras', 'Bolsas de tela', 'Postales', 'Stickers', 'Empaque'],
   },
 ] as const
 
@@ -207,9 +195,7 @@ type QuoteCopy = {
     print: string
     digital: string
     space: string
-    publications: string
     merch: string
-    institutional: string
   }
   fields: {
     services: string
@@ -318,9 +304,7 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
       print: 'Impreso y papelería',
       digital: 'Digital',
       space: 'Espacios físicos y exhibición',
-      publications: 'Publicaciones',
       merch: 'Merchandising y objetos',
-      institutional: 'Institucional',
     },
     fields: {
       services: '¿Qué servicios te interesan?',
@@ -427,9 +411,7 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
       print: 'Print and stationery',
       digital: 'Digital',
       space: 'Physical spaces and exhibition',
-      publications: 'Publications',
       merch: 'Merchandising and objects',
-      institutional: 'Institutional',
     },
     fields: {
       services: 'Which service(s) are you interested in?',
@@ -530,7 +512,8 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
         'Business cards',
         'Letterhead stationery',
         'Invitations',
-        'Hand programs / gallery brochures',
+        'Hand programs',
+        'Gallery brochures',
         'Social media',
         'Email signature',
         'Newsletter',
@@ -538,16 +521,11 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
         'Interior signage',
         'Wall labels',
         'Wall texts',
-        'Exhibition design',
-        'Catalogue or book cover',
-        'Editorial template',
         'T-shirts',
         'Tote bags',
-        'Postcards or stickers',
+        'Postcards',
+        'Stickers',
         'Packaging',
-        'Presentations',
-        'Certificates or awards',
-        'Badges or credentials',
         'Other',
       ],
       budgetRanges: [
