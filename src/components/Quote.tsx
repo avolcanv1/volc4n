@@ -118,6 +118,55 @@ function mapOptions(values: readonly string[], labels: string[]) {
   return values.map((value, index) => ({ value, label: labels[index] ?? value }))
 }
 
+function OrganizationFields({
+  fields,
+  requiredMark,
+  organizationName,
+  organizationDescription,
+  errors,
+  onChange,
+}: {
+  fields: { organizationName: string; organizationDescription: string }
+  requiredMark: string
+  organizationName: string
+  organizationDescription: string
+  errors: QuoteFieldErrors
+  onChange: (key: 'organizationName' | 'organizationDescription', value: string) => void
+}) {
+  return (
+    <>
+      <div className="quote__field">
+        <label className="quote__label" htmlFor="organizationName">
+          <QuestionLabel text={fields.organizationName} requiredMark={requiredMark} />
+        </label>
+        <input
+          id="organizationName"
+          className="quote__underline"
+          type="text"
+          value={organizationName}
+          onChange={(event) => onChange('organizationName', event.target.value)}
+          aria-invalid={Boolean(errors.organizationName)}
+        />
+        <FieldError message={errors.organizationName} />
+      </div>
+
+      <div className="quote__field">
+        <label className="quote__label" htmlFor="organizationDescription">
+          <QuestionLabel text={fields.organizationDescription} requiredMark={requiredMark} />
+        </label>
+        <textarea
+          id="organizationDescription"
+          className="quote__box"
+          value={organizationDescription}
+          onChange={(event) => onChange('organizationDescription', event.target.value)}
+          aria-invalid={Boolean(errors.organizationDescription)}
+        />
+        <FieldError message={errors.organizationDescription} />
+      </div>
+    </>
+  )
+}
+
 export function Quote() {
   const { isDark } = useTheme()
   const [locale, setLocale] = useState<QuoteLocale>('es')
@@ -284,6 +333,17 @@ export function Quote() {
               aria-hidden="true"
             />
 
+            <section className="quote__section" id="organization">
+              <OrganizationFields
+                fields={t.fields}
+                requiredMark={t.requiredMark}
+                organizationName={form.organizationName}
+                organizationDescription={form.organizationDescription}
+                errors={errors}
+                onChange={update}
+              />
+            </section>
+
             <section className="quote__section" id="services">
               <fieldset className="quote__fieldset">
                 <legend className="quote__legend">
@@ -308,35 +368,6 @@ export function Quote() {
                 <h2 id="quote-web" className="quote__section-title quote__section-title--sticky">
                   {t.sections.web}
                 </h2>
-
-                <div className="quote__field">
-                  <label className="quote__label" htmlFor="organizationName">
-                    <QuestionLabel text={t.fields.organizationName} requiredMark={t.requiredMark} />
-                  </label>
-                  <input
-                    id="organizationName"
-                    className="quote__underline"
-                    type="text"
-                    value={form.organizationName}
-                    onChange={(event) => update('organizationName', event.target.value)}
-                    aria-invalid={Boolean(errors.organizationName)}
-                  />
-                  <FieldError message={errors.organizationName} />
-                </div>
-
-                <div className="quote__field">
-                  <label className="quote__label" htmlFor="organizationDescription">
-                    <QuestionLabel text={t.fields.organizationDescription} requiredMark={t.requiredMark} />
-                  </label>
-                  <textarea
-                    id="organizationDescription"
-                    className="quote__box"
-                    value={form.organizationDescription}
-                    onChange={(event) => update('organizationDescription', event.target.value)}
-                    aria-invalid={Boolean(errors.organizationDescription)}
-                  />
-                  <FieldError message={errors.organizationDescription} />
-                </div>
 
                 <div className="quote__field">
                   <label className="quote__label" htmlFor="siteType">

@@ -69,11 +69,11 @@ export function validateQuote(data: QuotePayload, locale: QuoteLocale): QuoteFie
   const wantsBrand =
     hasService(data.services, SERVICE_VALUES.brand) || data.brandIdentity === BRAND_NEEDS_DESIGN
 
+  if (!data.organizationName.trim()) errors.organizationName = messages.required
+  if (!data.organizationDescription.trim()) errors.organizationDescription = messages.required
   if (!data.services.length) errors.services = messages.services
 
   if (wantsWeb) {
-    if (!data.organizationName.trim()) errors.organizationName = messages.required
-    if (!data.organizationDescription.trim()) errors.organizationDescription = messages.required
     if (!data.siteType) errors.siteType = messages.select
     if (data.siteType === 'Otro' && !data.siteTypeOther.trim()) {
       errors.siteTypeOther = messages.siteTypeOther
