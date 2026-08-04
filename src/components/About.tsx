@@ -1,15 +1,19 @@
 import { Link } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
+import { useLocale } from '../context/LocaleContext'
 import { useTheme } from '../context/ThemeContext'
+import { siteCopy } from '../lib/siteCopy'
 import { AboutBio } from './AboutBio'
+import { PageControls } from './PageControls'
 import { PageNav } from './PageNav'
-import { ThemeToggle } from './ThemeToggle'
 import '../styles/page.css'
 import './About.css'
 
 export function About() {
   const { isDark } = useTheme()
+  const { locale } = useLocale()
   const { about } = useContent()
+  const t = siteCopy[locale]
 
   return (
     <div className={`page about${isDark ? ' page--dark' : ''}`}>
@@ -18,11 +22,11 @@ export function About() {
           volc4n
         </Link>
         <PageNav />
-        <ThemeToggle />
+        <PageControls />
       </header>
 
       <main className="about__main">
-        <AboutBio value={about.bio} className="about__text" />
+        <AboutBio value={t.aboutBio} className="about__text" />
       </main>
 
       <footer className="about__footer">
@@ -30,7 +34,7 @@ export function About() {
           {about.email}
         </a>
         <p className="about__footer-item about__address">{about.address}</p>
-        <p className="about__footer-item about__credit">Design and web development by volc4n</p>
+        <p className="about__footer-item about__credit">{t.designCredit}</p>
         <p className="about__footer-item about__copyright">© 2026</p>
       </footer>
     </div>

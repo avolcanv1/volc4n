@@ -4,8 +4,8 @@ import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
 import { getProjectMedia } from '../types'
 import { ProjectMedia } from './ProjectMedia'
+import { PageControls } from './PageControls'
 import { PageNav } from './PageNav'
-import { ThemeToggle } from './ThemeToggle'
 import '../styles/page.css'
 import './Index.css'
 
@@ -131,7 +131,7 @@ export function Index() {
           volc4n
         </Link>
         <PageNav />
-        <ThemeToggle />
+        <PageControls />
       </header>
 
       {hoveredItem && hoveredItem.media.length > 0 && (
