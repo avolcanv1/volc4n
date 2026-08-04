@@ -11,7 +11,11 @@ import {
   BRAND_APPLICATION_GROUPS,
   BRAND_NEEDS_DESIGN,
   OPTION_VALUES,
+  PORTFOLIO_ENTRY_FIELD_DEFAULTS,
   SERVICE_VALUES,
+  SITE_SECTION_OTHER,
+  SITE_SECTION_WORKS,
+  getSiteSectionOptions,
   quoteCopy,
   type QuestionHelpKey,
   type QuoteLocale,
@@ -37,6 +41,12 @@ const INITIAL: QuotePayload = {
   references: '',
   mainGoal: '',
   pageCount: '',
+  siteSections: [],
+  siteSectionsOther: '',
+  portfolioProjectCount: '',
+  portfolioEntryFields: [],
+  portfolioEntryFieldsOther: '',
+  portfolioFilterByCategory: '',
   needsCms: '',
   updateFrequency: '',
   multilingual: '',
@@ -45,7 +55,6 @@ const INITIAL: QuotePayload = {
   hasDomainHosting: '',
   brandIdentity: '',
   contentReadiness: '',
-  needsContentProduction: '',
   publicationType: '',
   publicationTypeOther: '',
   bookPageCount: '',
@@ -212,9 +221,23 @@ export function Quote() {
       brandElements: mapOptions(OPTION_VALUES.brandElements, t.options.brandElements),
       namingDefined: mapOptions(OPTION_VALUES.namingDefined, t.options.namingDefined),
       brandApplications: mapOptions(OPTION_VALUES.brandApplications, t.options.brandApplications),
+      portfolioProjectCounts: mapOptions(
+        OPTION_VALUES.portfolioProjectCounts,
+        t.options.portfolioProjectCounts,
+      ),
+      portfolioEntryFields: mapOptions(
+        OPTION_VALUES.portfolioEntryFields,
+        t.options.portfolioEntryFields,
+      ),
     }),
     [t],
   )
+
+  const siteSectionOptions = useMemo(() => {
+    const values = getSiteSectionOptions(form.siteType)
+    const optionLabels = t.options.siteSections[form.siteType] ?? []
+    return mapOptions(values, optionLabels)
+  }, [form.siteType, t])
 
   function clearError(key: keyof QuotePayload) {
     setErrors((current) => {
@@ -230,7 +253,10 @@ export function Quote() {
     clearError(key)
   }
 
-  function toggleInArray(key: 'services' | 'features' | 'brandElements' | 'brandApplications', value: string) {
+  function toggleInArray(
+    key: 'services' | 'features' | 'brandElements' | 'brandApplications' | 'siteSections' | 'portfolioEntryFields',
+    value: string,
+  ) {
     setForm((current) => {
       const list = current[key]
       const has = list.includes(value)
@@ -244,6 +270,16 @@ export function Quote() {
       }
     })
     clearError(key)
+  }
+
+  function updateSiteType(value: string) {
+    setForm((current) => ({
+      ...current,
+      siteType: value,
+      siteSections: [],
+      siteSectionsOther: '',
+    }))
+    clearError('siteType')
   }
 
   function updateBrandIdentity(value: string) {
@@ -396,6 +432,11 @@ export function Quote() {
   const showUpdateFrequency = form.needsCms === 'Sí' || form.needsCms === 'No estoy seguro'
   const showSiteTypeOther = form.siteType === 'Otro'
   const showCurrentUrl = form.siteStatus === 'Rediseño'
+  const showSiteSections = siteSectionOptions.length > 0
+  const showSiteSectionsOther = form.siteSections.includes(SITE_SECTION_OTHER)
+  const showPortfolioProjects =
+    form.siteType === 'Portafolio' && form.siteSections.includes(SITE_SECTION_WORKS)
+  const showPortfolioEntryFieldsOther = form.portfolioEntryFields.includes('Otro')
   const showFeaturesOther = form.features.includes('Otro')
   const showPublicationTypeOther = form.publicationType === 'Otro'
   const showBrandApplicationsOther = form.brandApplications.includes('Otro')
@@ -410,6 +451,37 @@ export function Quote() {
     if (budgetRangeOptions.some((option) => option.value === form.budgetRange)) return
     setForm((current) => ({ ...current, budgetRange: '' }))
   }, [budgetRangeOptions, form.budgetRange])
+
+  useEffect(() => {
+    if (showPortfolioProjects) {
+      setForm((current) => ({
+        ...current,
+        portfolioProjectCount: '',
+        portfolioEntryFields: [...PORTFOLIO_ENTRY_FIELD_DEFAULTS],
+        portfolioEntryFieldsOther: '',
+        portfolioFilterByCategory: '',
+      }))
+      return
+    }
+
+    setForm((current) => {
+      if (
+        !current.portfolioProjectCount &&
+        current.portfolioEntryFields.length === 0 &&
+        !current.portfolioEntryFieldsOther &&
+        !current.portfolioFilterByCategory
+      ) {
+        return current
+      }
+      return {
+        ...current,
+        portfolioProjectCount: '',
+        portfolioEntryFields: [],
+        portfolioEntryFieldsOther: '',
+        portfolioFilterByCategory: '',
+      }
+    })
+  }, [showPortfolioProjects])
 
   return (
     <div className={`quote${isDark ? ' page--dark' : ''}`}>
@@ -511,7 +583,7 @@ export function Quote() {
                     id="siteType"
                     className="quote__select"
                     value={form.siteType}
-                    onChange={(event) => update('siteType', event.target.value)}
+                    onChange={(event) => updateSiteType(event.target.value)}
                     aria-invalid={Boolean(errors.siteType)}
                   >
                     <option value="">{t.selectOption}</option>
@@ -625,6 +697,113 @@ export function Quote() {
                   </select>
                   <FieldError message={errors.pageCount} />
                 </div>
+
+                {showSiteSections && (
+                  <fieldset className="quote__fieldset quote__reveal">
+                    <legend className="quote__legend">{t.fields.siteSections}</legend>
+                    {siteSectionOptions.map((option) => (
+                      <label key={option.value} className="quote__choice">
+                        <input
+                          type="checkbox"
+                          checked={form.siteSections.includes(option.value)}
+                          onChange={() => toggleInArray('siteSections', option.value)}
+                        />
+                        {option.label}
+                      </label>
+                    ))}
+                  </fieldset>
+                )}
+
+                {showSiteSectionsOther && (
+                  <div className="quote__field quote__reveal">
+                    <label className="quote__label" htmlFor="siteSectionsOther">
+                      {t.fields.siteSectionsOther}
+                    </label>
+                    <input
+                      id="siteSectionsOther"
+                      className="quote__underline"
+                      type="text"
+                      value={form.siteSectionsOther}
+                      onChange={(event) => update('siteSectionsOther', event.target.value)}
+                    />
+                  </div>
+                )}
+
+                {showPortfolioProjects && (
+                  <div className="quote__group quote__reveal">
+                    <div className="quote__field">
+                      <label className="quote__label" htmlFor="portfolioProjectCount">
+                        {t.fields.portfolioProjectCount}
+                      </label>
+                      <select
+                        id="portfolioProjectCount"
+                        className="quote__select"
+                        value={form.portfolioProjectCount}
+                        onChange={(event) => update('portfolioProjectCount', event.target.value)}
+                      >
+                        <option value="">{t.selectOption}</option>
+                        {labels.portfolioProjectCounts.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <fieldset className="quote__fieldset">
+                      <legend className="quote__legend">{t.fields.portfolioEntryFields}</legend>
+                      {labels.portfolioEntryFields.map((option) => (
+                        <label key={option.value} className="quote__choice">
+                          <input
+                            type="checkbox"
+                            checked={form.portfolioEntryFields.includes(option.value)}
+                            onChange={() => toggleInArray('portfolioEntryFields', option.value)}
+                          />
+                          {option.label}
+                        </label>
+                      ))}
+                    </fieldset>
+
+                    {showPortfolioEntryFieldsOther && (
+                      <div className="quote__field quote__reveal">
+                        <label className="quote__label" htmlFor="portfolioEntryFieldsOther">
+                          {t.fields.portfolioEntryFieldsOther}
+                        </label>
+                        <input
+                          id="portfolioEntryFieldsOther"
+                          className="quote__underline"
+                          type="text"
+                          value={form.portfolioEntryFieldsOther}
+                          onChange={(event) =>
+                            update('portfolioEntryFieldsOther', event.target.value)
+                          }
+                        />
+                      </div>
+                    )}
+
+                    <fieldset className="quote__fieldset">
+                      <legend className="quote__legend">
+                        <QuestionLabel
+                          text={t.fields.portfolioFilterByCategory}
+                          helpKey="portfolioFilterByCategory"
+                          locale={locale}
+                        />
+                      </legend>
+                      {labels.yesNoUnsure.map((option) => (
+                        <label key={option.value} className="quote__choice">
+                          <input
+                            type="radio"
+                            name="portfolioFilterByCategory"
+                            value={option.value}
+                            checked={form.portfolioFilterByCategory === option.value}
+                            onChange={() => update('portfolioFilterByCategory', option.value)}
+                          />
+                          {option.label}
+                        </label>
+                      ))}
+                    </fieldset>
+                  </div>
+                )}
 
                 <fieldset className="quote__fieldset">
                   <legend className="quote__legend">
@@ -771,25 +950,6 @@ export function Quote() {
                     </label>
                   ))}
                   <FieldError message={errors.contentReadiness} />
-                </fieldset>
-
-                <fieldset className="quote__fieldset">
-                  <legend className="quote__legend">
-                    <QuestionLabel text={t.fields.needsContentProduction} requiredMark={t.requiredMark} helpKey="needsContentProduction" locale={locale} />
-                  </legend>
-                  {labels.yesNoUnsure.map((option) => (
-                    <label key={option.value} className="quote__choice">
-                      <input
-                        type="radio"
-                        name="needsContentProduction"
-                        value={option.value}
-                        checked={form.needsContentProduction === option.value}
-                        onChange={() => update('needsContentProduction', option.value)}
-                      />
-                      {option.label}
-                    </label>
-                  ))}
-                  <FieldError message={errors.needsContentProduction} />
                 </fieldset>
               </section>
             )}

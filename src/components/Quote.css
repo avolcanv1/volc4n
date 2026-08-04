@@ -4,6 +4,7 @@
   --quote-border: rgba(0, 0, 0, 0.3);
   --quote-line: rgba(0, 0, 0, 0.2);
   --quote-focus: #b5ffb5;
+  --quote-error: #a86a6a;
   --quote-pad: 30px;
   /* Mobile-first: form aligned to brand pad. Desktop adds sticky-title gutter. */
   --quote-form-offset: 0;
@@ -52,6 +53,7 @@
   --quote-text: #fff;
   --quote-border: rgba(255, 255, 255, 0.3);
   --quote-line: rgba(255, 255, 255, 0.25);
+  --quote-error: #c49494;
 }
 
 .quote__top {
@@ -125,6 +127,16 @@
 
 .quote__section--service {
   position: relative;
+}
+
+.quote__group {
+  margin: 0 0 1.75rem;
+}
+
+.quote__group-title {
+  margin: 0 0 1.25rem;
+  font-size: var(--quote-label-size);
+  font-weight: 400;
 }
 
 .quote__section-title {
@@ -354,6 +366,7 @@
 
 .quote__error {
   margin: 0;
+  color: var(--quote-error);
   font-family: 'IBM Plex Mono', 'Courier New', Courier, monospace;
   font-size: var(--quote-ui-size);
   font-weight: 300;

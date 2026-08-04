@@ -74,7 +74,171 @@ export const OPTION_VALUES = {
     'Otro',
   ],
   feedbackMethods: ['Reuniones', 'Correo', 'Comentarios en Figma', 'Otro'],
+  portfolioProjectCounts: ['1–5', '6–15', '16–30', 'Más de 30'],
+  portfolioEntryFields: [
+    'Título del proyecto',
+    'Cliente',
+    'Año',
+    'Categoría / Tipo de proyecto',
+    'Descripción breve',
+    'Descripción larga',
+    'Galería de imágenes',
+    'Video',
+    'Rol / Créditos',
+    'Herramientas o técnicas usadas',
+    'Link externo',
+    'Marcar como proyecto destacado',
+    'Otro',
+  ],
 } as const
+
+/** Stable slug for the free-text "Other" site section option. */
+export const SITE_SECTION_OTHER = 'other'
+
+/** Portfolio "Trabajos / Proyectos" section value — gates the portfolio projects group. */
+export const SITE_SECTION_WORKS = 'works'
+
+/** Pre-checked when the portfolio projects group first appears. */
+export const PORTFOLIO_ENTRY_FIELD_DEFAULTS = [
+  'Título del proyecto',
+  'Galería de imágenes',
+  'Descripción breve',
+] as const
+
+/**
+ * Site section option values by site type (Spanish siteType values).
+ * Each list ends with SITE_SECTION_OTHER.
+ */
+export const SITE_SECTIONS_BY_TYPE: Record<string, readonly string[]> = {
+  Portafolio: [
+    'home',
+    'about-bio',
+    'works',
+    'process',
+    'contact',
+    'press',
+    'cv',
+    SITE_SECTION_OTHER,
+  ],
+  'Sitio institucional': [
+    'home',
+    'about-us',
+    'programs',
+    'team',
+    'exhibitions',
+    'history',
+    'press',
+    'contact',
+    'calls',
+    'donations',
+    SITE_SECTION_OTHER,
+  ],
+  Editorial: [
+    'home',
+    'catalog',
+    'about-publisher',
+    'authors',
+    'where-to-buy',
+    'blog',
+    'contact',
+    'distribution',
+    SITE_SECTION_OTHER,
+  ],
+  'Tienda en línea': [
+    'home',
+    'product-catalog',
+    'product-page',
+    'cart-checkout',
+    'about-brand',
+    'shipping',
+    'contact',
+    'user-account',
+    SITE_SECTION_OTHER,
+  ],
+  'Landing page': [
+    'hero',
+    'about-project',
+    'features-benefits',
+    'testimonials',
+    'cta',
+    'faq',
+    'contact',
+    SITE_SECTION_OTHER,
+  ],
+}
+
+/** Spanish labels for email / Sanity display (keyed by siteType → option value). */
+export const SITE_SECTION_LABELS_ES: Record<string, Record<string, string>> = {
+  Portafolio: {
+    home: 'Inicio',
+    'about-bio': 'Sobre mí / Bio',
+    works: 'Trabajos / Proyectos',
+    process: 'Proceso',
+    contact: 'Contacto',
+    press: 'Prensa / Menciones',
+    cv: 'CV / Currículum',
+    [SITE_SECTION_OTHER]: 'Otro',
+  },
+  'Sitio institucional': {
+    home: 'Inicio',
+    'about-us': 'Sobre nosotros',
+    programs: 'Programas / Actividades',
+    team: 'Equipo',
+    exhibitions: 'Exposiciones / Eventos',
+    history: 'Historia',
+    press: 'Prensa',
+    contact: 'Contacto',
+    calls: 'Convocatorias',
+    donations: 'Donaciones / Apoyo',
+    [SITE_SECTION_OTHER]: 'Otro',
+  },
+  Editorial: {
+    home: 'Inicio',
+    catalog: 'Catálogo / Publicaciones',
+    'about-publisher': 'Sobre la editorial',
+    authors: 'Autores',
+    'where-to-buy': 'Dónde comprar',
+    blog: 'Blog / Novedades',
+    contact: 'Contacto',
+    distribution: 'Distribución',
+    [SITE_SECTION_OTHER]: 'Otro',
+  },
+  'Tienda en línea': {
+    home: 'Inicio',
+    'product-catalog': 'Catálogo de productos',
+    'product-page': 'Ficha de producto',
+    'cart-checkout': 'Carrito / Checkout',
+    'about-brand': 'Sobre la marca',
+    shipping: 'Envíos y devoluciones',
+    contact: 'Contacto',
+    'user-account': 'Cuenta de usuario',
+    [SITE_SECTION_OTHER]: 'Otro',
+  },
+  'Landing page': {
+    hero: 'Hero / Encabezado',
+    'about-project': 'Sobre el proyecto',
+    'features-benefits': 'Características / Beneficios',
+    testimonials: 'Testimonios',
+    cta: 'Llamado a la acción',
+    faq: 'Preguntas frecuentes',
+    contact: 'Contacto',
+    [SITE_SECTION_OTHER]: 'Otro',
+  },
+}
+
+export function getSiteSectionOptions(siteType: string): readonly string[] {
+  return SITE_SECTIONS_BY_TYPE[siteType] ?? []
+}
+
+export function formatSiteSectionsForEmail(
+  siteType: string | undefined,
+  sections: string[] | undefined,
+): string | undefined {
+  if (!siteType || !sections?.length) return undefined
+  const labels = SITE_SECTION_LABELS_ES[siteType]
+  if (!labels) return sections.join(', ')
+  return sections.map((value) => labels[value] ?? value).join(', ')
+}
 
 export const BRAND_APPLICATION_GROUPS = [
   {
@@ -114,12 +278,12 @@ export type QuestionHelpKey =
   | 'brandIdentity'
   | 'needsCms'
   | 'hasDomainHosting'
-  | 'needsContentProduction'
   | 'editorialCare'
   | 'printScope'
   | 'needsIsbn'
   | 'needsBrandManual'
   | 'needsMaintenance'
+  | 'portfolioFilterByCategory'
 
 /** Help copy for QuestionHelp (?), keyed by locale. */
 export const QUESTION_HELP: Record<QuoteLocale, Record<QuestionHelpKey, string>> = {
@@ -129,8 +293,6 @@ export const QUESTION_HELP: Record<QuoteLocale, Record<QuestionHelpKey, string>>
     needsCms: 'Un CMS te permite editar textos e imágenes del sitio sin necesitar a un desarrollador.',
     hasDomainHosting:
       'El dominio es la dirección de tu sitio (ej. tuestudio.com) y el hosting es donde vive el sitio en internet. Si no los tienes, podemos ayudarte a conseguirlos.',
-    needsContentProduction:
-      'Esto se refiere a tomar fotos nuevas o escribir textos para el sitio, en caso de que no tengas material propio listo para usar.',
     editorialCare:
       'El cuidado editorial es la revisión de estilo, consistencia y coherencia del texto antes de maquetarlo.',
     printScope:
@@ -140,6 +302,8 @@ export const QUESTION_HELP: Record<QuoteLocale, Record<QuestionHelpKey, string>>
       'Un manual de marca documenta cómo debe usarse tu identidad (logo, colores, tipografía) para mantener consistencia en cualquier aplicación futura.',
     needsMaintenance:
       'El mantenimiento incluye actualizaciones de contenido, correcciones o cambios pequeños después de que el proyecto esté finalizado.',
+    portfolioFilterByCategory:
+      'Por ejemplo, poder filtrar los proyectos por tipología (branding, editorial, web) o por año.',
   },
   en: {
     brandIdentity:
@@ -147,8 +311,6 @@ export const QUESTION_HELP: Record<QuoteLocale, Record<QuestionHelpKey, string>>
     needsCms: 'A CMS lets you edit the site’s text and images yourself without needing a developer.',
     hasDomainHosting:
       'The domain is your site’s address (e.g. yourstudio.com) and hosting is where the site lives on the internet. If you don’t have them, we can help you get them.',
-    needsContentProduction:
-      'This means taking new photos or writing copy for the site when you don’t already have material ready to use.',
     editorialCare:
       'Editorial care is the review of style, consistency, and coherence of the text before layout.',
     printScope:
@@ -158,6 +320,8 @@ export const QUESTION_HELP: Record<QuoteLocale, Record<QuestionHelpKey, string>>
       'A brand manual documents how your identity should be used (logo, colors, typography) so it stays consistent across future applications.',
     needsMaintenance:
       'Maintenance covers content updates, fixes, or small changes after the project is delivered.',
+    portfolioFilterByCategory:
+      'For example, being able to filter projects by typology (branding, editorial, web) or by year.',
   },
 }
 
@@ -196,6 +360,12 @@ type QuoteCopy = {
     references: string
     mainGoal: string
     pageCount: string
+    siteSections: string
+    siteSectionsOther: string
+    portfolioProjectCount: string
+    portfolioEntryFields: string
+    portfolioEntryFieldsOther: string
+    portfolioFilterByCategory: string
     needsCms: string
     updateFrequency: string
     multilingual: string
@@ -204,7 +374,6 @@ type QuoteCopy = {
     hasDomainHosting: string
     brandIdentity: string
     contentReadiness: string
-    needsContentProduction: string
     publicationType: string
     publicationTypeOther: string
     bookPageCount: string
@@ -266,6 +435,9 @@ type QuoteCopy = {
     namingDefined: string[]
     brandApplications: string[]
     feedbackMethods: string[]
+    siteSections: Record<string, string[]>
+    portfolioProjectCounts: string[]
+    portfolioEntryFields: string[]
   }
 }
 
@@ -305,6 +477,12 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
       references: 'Referencias o sitios que te gusten',
       mainGoal: '¿Cuál es el objetivo principal del sitio?',
       pageCount: 'Número aproximado de páginas o secciones',
+      siteSections: '¿Qué secciones te gustaría incluir?',
+      siteSectionsOther: 'Otra sección',
+      portfolioProjectCount: '¿Cuántos proyectos aproximadamente quieres incluir al inicio?',
+      portfolioEntryFields: '¿Qué información necesita cada proyecto?',
+      portfolioEntryFieldsOther: 'Otra información',
+      portfolioFilterByCategory: '¿Los proyectos deben poder filtrarse o agruparse por tipología?',
       needsCms: '¿Necesitas actualizar el contenido tú mismo a través de un CMS?',
       updateFrequency: '¿Con qué frecuencia actualizarías el contenido?',
       multilingual: '¿Necesitas el sitio en más de un idioma?',
@@ -313,7 +491,6 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
       hasDomainHosting: '¿Ya tienes dominio y hosting?',
       brandIdentity: '¿Ya cuentas con identidad de marca?',
       contentReadiness: '¿Tienes los contenidos listos (textos, imágenes)?',
-      needsContentProduction: '¿Necesitas producción fotográfica o de contenido?',
       publicationType: 'Tipo de publicación',
       publicationTypeOther: 'Especifica el tipo de publicación',
       bookPageCount: 'Número aproximado de páginas',
@@ -379,6 +556,65 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
       namingDefined: [...OPTION_VALUES.namingDefined],
       brandApplications: [...OPTION_VALUES.brandApplications],
       feedbackMethods: [...OPTION_VALUES.feedbackMethods],
+      siteSections: {
+        Portafolio: [
+          'Inicio',
+          'Sobre mí / Bio',
+          'Trabajos / Proyectos',
+          'Proceso',
+          'Contacto',
+          'Prensa / Menciones',
+          'CV / Currículum',
+          'Otro',
+        ],
+        'Sitio institucional': [
+          'Inicio',
+          'Sobre nosotros',
+          'Programas / Actividades',
+          'Equipo',
+          'Exposiciones / Eventos',
+          'Historia',
+          'Prensa',
+          'Contacto',
+          'Convocatorias',
+          'Donaciones / Apoyo',
+          'Otro',
+        ],
+        Editorial: [
+          'Inicio',
+          'Catálogo / Publicaciones',
+          'Sobre la editorial',
+          'Autores',
+          'Dónde comprar',
+          'Blog / Novedades',
+          'Contacto',
+          'Distribución',
+          'Otro',
+        ],
+        'Tienda en línea': [
+          'Inicio',
+          'Catálogo de productos',
+          'Ficha de producto',
+          'Carrito / Checkout',
+          'Sobre la marca',
+          'Envíos y devoluciones',
+          'Contacto',
+          'Cuenta de usuario',
+          'Otro',
+        ],
+        'Landing page': [
+          'Hero / Encabezado',
+          'Sobre el proyecto',
+          'Características / Beneficios',
+          'Testimonios',
+          'Llamado a la acción',
+          'Preguntas frecuentes',
+          'Contacto',
+          'Otro',
+        ],
+      },
+      portfolioProjectCounts: [...OPTION_VALUES.portfolioProjectCounts],
+      portfolioEntryFields: [...OPTION_VALUES.portfolioEntryFields],
     },
   },
   en: {
@@ -416,6 +652,12 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
       references: 'References or sites you like',
       mainGoal: 'What is the main goal of the site?',
       pageCount: 'Approximate number of pages or sections',
+      siteSections: 'Which sections would you like to include?',
+      siteSectionsOther: 'Other section',
+      portfolioProjectCount: 'About how many projects do you want to include at launch?',
+      portfolioEntryFields: 'What information does each project need?',
+      portfolioEntryFieldsOther: 'Other information',
+      portfolioFilterByCategory: 'Should projects be filterable or groupable by typology?',
       needsCms: 'Do you need to update the content yourself through a CMS?',
       updateFrequency: 'How often would you update the content?',
       multilingual: 'Do you need the site in more than one language?',
@@ -424,7 +666,6 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
       hasDomainHosting: 'Do you already have a domain and hosting?',
       brandIdentity: 'Do you already have a brand identity?',
       contentReadiness: 'Is your content ready (texts, images)?',
-      needsContentProduction: 'Do you need photography or content production?',
       publicationType: 'Publication type',
       publicationTypeOther: 'Specify the publication type',
       bookPageCount: 'Approximate number of pages',
@@ -517,6 +758,79 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
         'Other',
       ],
       feedbackMethods: ['Meetings', 'Email', 'Figma comments', 'Other'],
+      siteSections: {
+        Portafolio: [
+          'Home',
+          'About me / Bio',
+          'Work / Projects',
+          'Process',
+          'Contact',
+          'Press / Mentions',
+          'CV / Resume',
+          'Other',
+        ],
+        'Sitio institucional': [
+          'Home',
+          'About us',
+          'Programs / Activities',
+          'Team',
+          'Exhibitions / Events',
+          'History',
+          'Press',
+          'Contact',
+          'Open calls',
+          'Donations / Support',
+          'Other',
+        ],
+        Editorial: [
+          'Home',
+          'Catalogue / Publications',
+          'About the publisher',
+          'Authors',
+          'Where to buy',
+          'Blog / News',
+          'Contact',
+          'Distribution',
+          'Other',
+        ],
+        'Tienda en línea': [
+          'Home',
+          'Product catalogue',
+          'Product page',
+          'Cart / Checkout',
+          'About the brand',
+          'Shipping & returns',
+          'Contact',
+          'User account',
+          'Other',
+        ],
+        'Landing page': [
+          'Hero / Header',
+          'About the project',
+          'Features / Benefits',
+          'Testimonials',
+          'Call to action',
+          'FAQ',
+          'Contact',
+          'Other',
+        ],
+      },
+      portfolioProjectCounts: ['1–5', '6–15', '16–30', 'More than 30'],
+      portfolioEntryFields: [
+        'Project title',
+        'Client',
+        'Year',
+        'Category / Project type',
+        'Short description',
+        'Long description',
+        'Image gallery',
+        'Video',
+        'Role / Credits',
+        'Tools or techniques used',
+        'External link',
+        'Mark as featured project',
+        'Other',
+      ],
     },
   },
 }

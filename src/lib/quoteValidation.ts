@@ -16,6 +16,12 @@ export type QuotePayload = {
   references: string
   mainGoal: string
   pageCount: string
+  siteSections: string[]
+  siteSectionsOther: string
+  portfolioProjectCount: string
+  portfolioEntryFields: string[]
+  portfolioEntryFieldsOther: string
+  portfolioFilterByCategory: string
   needsCms: string
   updateFrequency: string
   multilingual: string
@@ -24,7 +30,6 @@ export type QuotePayload = {
   hasDomainHosting: string
   brandIdentity: string
   contentReadiness: string
-  needsContentProduction: string
   publicationType: string
   publicationTypeOther: string
   bookPageCount: string
@@ -99,7 +104,6 @@ export function validateQuote(data: QuotePayload, locale: QuoteLocale): QuoteFie
     if (!data.hasDomainHosting) errors.hasDomainHosting = messages.select
     if (!data.brandIdentity) errors.brandIdentity = messages.select
     if (!data.contentReadiness) errors.contentReadiness = messages.select
-    if (!data.needsContentProduction) errors.needsContentProduction = messages.select
   }
 
   if (wantsBook) {
