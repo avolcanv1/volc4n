@@ -169,6 +169,7 @@ type QuoteCopy = {
   submitting: string
   confirmation: string
   submitError: string
+  emailDidYouMean: string
   langEs: string
   langEn: string
   sections: {
@@ -277,6 +278,7 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
     submitting: 'Enviando…',
     confirmation: 'Gracias. Recibimos tu información y nos pondremos en contacto pronto.',
     submitError: 'No pudimos enviar el formulario. Inténtalo de nuevo.',
+    emailDidYouMean: '¿Quisiste decir {email}?',
     langEs: 'ES',
     langEn: 'EN',
     sections: {
@@ -387,6 +389,7 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
     submitting: 'Sending…',
     confirmation: 'Thank you. We received your information and will be in touch soon.',
     submitError: 'We could not submit the form. Please try again.',
+    emailDidYouMean: 'Did you mean {email}?',
     langEs: 'ES',
     langEn: 'EN',
     sections: {

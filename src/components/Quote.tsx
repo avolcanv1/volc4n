@@ -1,7 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 import { getBudgetRangeOptions } from '../lib/budgetRanges'
+import {
+  getDomainSuggestions,
+  splitEmail,
+  suggestEmailCorrection,
+} from '../lib/emailDomainAssist'
 import {
   BRAND_APPLICATION_GROUPS,
   BRAND_NEEDS_DESIGN,
@@ -176,8 +181,13 @@ export function Quote() {
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [emailDomainOpen, setEmailDomainOpen] = useState(false)
+  const [emailDomainOptions, setEmailDomainOptions] = useState<string[]>([])
+  const [emailDomainHighlight, setEmailDomainHighlight] = useState(0)
+  const [emailDidYouMean, setEmailDidYouMean] = useState<string | null>(null)
   /** True only when Identidad de marca was auto-added via BRAND_NEEDS_DESIGN. */
   const brandAutoAddedRef = useRef(false)
+  const emailBlurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const t = quoteCopy[locale]
 
@@ -258,6 +268,83 @@ export function Quote() {
     clearError('brandIdentity')
     clearError('services')
   }
+
+  function applyEmailDomain(domain: string) {
+    setForm((current) => {
+      const { local } = splitEmail(current.contactEmail)
+      return { ...current, contactEmail: `${local}@${domain}` }
+    })
+    clearError('contactEmail')
+    setEmailDomainOpen(false)
+    setEmailDomainOptions([])
+    setEmailDidYouMean(null)
+  }
+
+  function handleContactEmailChange(value: string) {
+    update('contactEmail', value)
+    setEmailDidYouMean(null)
+    const { hasAt, domain } = splitEmail(value)
+    if (!hasAt) {
+      setEmailDomainOpen(false)
+      setEmailDomainOptions([])
+      return
+    }
+    const options = getDomainSuggestions(domain)
+    setEmailDomainOptions(options)
+    setEmailDomainHighlight(0)
+    setEmailDomainOpen(options.length > 0)
+  }
+
+  function handleContactEmailBlur(value: string) {
+    if (emailBlurTimerRef.current) clearTimeout(emailBlurTimerRef.current)
+    emailBlurTimerRef.current = setTimeout(() => {
+      setEmailDomainOpen(false)
+      const corrected = suggestEmailCorrection(value)
+      if (corrected && corrected.toLowerCase() !== value.trim().toLowerCase()) {
+        setEmailDidYouMean(corrected)
+      } else {
+        setEmailDidYouMean(null)
+      }
+    }, 120)
+  }
+
+  function handleContactEmailKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (!emailDomainOpen || emailDomainOptions.length === 0) {
+      if (event.key === 'Escape') setEmailDidYouMean(null)
+      return
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      setEmailDomainHighlight((current) => (current + 1) % emailDomainOptions.length)
+      return
+    }
+    if (event.key === 'ArrowUp') {
+      event.preventDefault()
+      setEmailDomainHighlight((current) =>
+        current <= 0 ? emailDomainOptions.length - 1 : current - 1,
+      )
+      return
+    }
+    if (event.key === 'Enter') {
+      const choice = emailDomainOptions[emailDomainHighlight]
+      if (choice) {
+        event.preventDefault()
+        applyEmailDomain(choice)
+      }
+      return
+    }
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      setEmailDomainOpen(false)
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      if (emailBlurTimerRef.current) clearTimeout(emailBlurTimerRef.current)
+    }
+  }, [])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -1085,7 +1172,7 @@ export function Quote() {
                     <FieldError message={errors.contactName} />
                   </div>
 
-                  <div className="quote__field">
+                  <div className="quote__field quote__field--email">
                     <label className="quote__label" htmlFor="contactEmail">
                       <QuestionLabel text={t.fields.contactEmail} requiredMark={t.requiredMark} />
                     </label>
@@ -1093,10 +1180,64 @@ export function Quote() {
                       id="contactEmail"
                       className="quote__underline"
                       type="email"
+                      autoComplete="email"
                       value={form.contactEmail}
-                      onChange={(event) => update('contactEmail', event.target.value)}
+                      onChange={(event) => handleContactEmailChange(event.target.value)}
+                      onBlur={(event) => handleContactEmailBlur(event.target.value)}
+                      onKeyDown={handleContactEmailKeyDown}
                       aria-invalid={Boolean(errors.contactEmail)}
+                      aria-autocomplete="list"
+                      aria-controls="contactEmail-domain-list"
+                      aria-expanded={emailDomainOpen}
+                      role="combobox"
                     />
+                    {emailDomainOpen && emailDomainOptions.length > 0 ? (
+                      <ul
+                        id="contactEmail-domain-list"
+                        className="quote__email-domains quote__reveal"
+                        role="listbox"
+                        aria-label="Email domains"
+                      >
+                        {emailDomainOptions.map((domain, index) => {
+                          const { local } = splitEmail(form.contactEmail)
+                          const full = `${local}@${domain}`
+                          return (
+                            <li key={domain} role="presentation">
+                              <button
+                                type="button"
+                                role="option"
+                                className={`quote__email-domain${
+                                  index === emailDomainHighlight ? ' quote__email-domain--active' : ''
+                                }`}
+                                aria-selected={index === emailDomainHighlight}
+                                onMouseDown={(event) => {
+                                  event.preventDefault()
+                                  if (emailBlurTimerRef.current) clearTimeout(emailBlurTimerRef.current)
+                                  applyEmailDomain(domain)
+                                }}
+                                onMouseEnter={() => setEmailDomainHighlight(index)}
+                              >
+                                {full}
+                              </button>
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    ) : null}
+                    {emailDidYouMean ? (
+                      <p className="quote__helper quote__email-suggest">
+                        <button
+                          type="button"
+                          className="quote__email-suggest-btn"
+                          onClick={() => {
+                            update('contactEmail', emailDidYouMean)
+                            setEmailDidYouMean(null)
+                          }}
+                        >
+                          {t.emailDidYouMean.replace('{email}', emailDidYouMean)}
+                        </button>
+                      </p>
+                    ) : null}
                     <FieldError message={errors.contactEmail} />
                   </div>
                 </section>

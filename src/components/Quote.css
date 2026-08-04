@@ -324,6 +324,78 @@
   text-underline-offset: 2px;
 }
 
+.quote__field--email {
+  position: relative;
+}
+
+.quote__email-domains {
+  list-style: none;
+  margin: -0.35rem 0 0;
+  padding: 0.15rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.quote__email-domain {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0.35rem 0;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-family: 'IBM Plex Mono', 'Courier New', Courier, monospace;
+  font-size: var(--quote-ui-size);
+  font-weight: 300;
+  letter-spacing: 0.12px;
+  text-align: left;
+  text-transform: none;
+  opacity: 0.55;
+  cursor: pointer;
+}
+
+.quote__email-domain:hover,
+.quote__email-domain--active {
+  opacity: 1;
+  border-bottom-color: var(--quote-line);
+}
+
+.quote__email-domain:focus-visible {
+  outline: 2px solid var(--quote-focus);
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+.quote__email-suggest {
+  margin-top: -0.35rem;
+}
+
+.quote__email-suggest-btn {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  opacity: 0.75;
+}
+
+.quote__email-suggest-btn:hover {
+  opacity: 1;
+}
+
+.quote__email-suggest-btn:focus-visible {
+  outline: 2px solid var(--quote-focus);
+  outline-offset: 2px;
+}
+
 .quote__helper {
   margin: 0;
   max-width: 36em;
