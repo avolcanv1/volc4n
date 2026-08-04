@@ -443,7 +443,17 @@ export function Quote() {
 
       <main className="quote__main">
         {submitted ? (
-          <p className="quote__confirmation">{t.confirmation}</p>
+          <div className="quote__confirmation-wrap">
+            <p className="quote__confirmation">{t.confirmation}</p>
+            <img
+              className="quote__confirmation-media"
+              src="/quote-confirmed.gif"
+              alt=""
+              width={220}
+              height={165}
+              decoding="async"
+            />
+          </div>
         ) : (
           <form onSubmit={handleSubmit} noValidate>
             <input

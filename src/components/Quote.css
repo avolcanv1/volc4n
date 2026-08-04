@@ -553,10 +553,24 @@
   outline-offset: 2px;
 }
 
+.quote__confirmation-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .quote__confirmation {
   margin: 0;
   font-size: var(--quote-label-size);
   max-width: 28rem;
+}
+
+.quote__confirmation-media {
+  display: block;
+  margin-top: 1.25rem;
+  max-width: min(240px, 100%);
+  width: 100%;
+  height: auto;
 }
 
 .quote__honeypot {
