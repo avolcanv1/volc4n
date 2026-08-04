@@ -112,7 +112,7 @@
   position: sticky;
   top: var(--quote-sticky-top);
   z-index: 5;
-  /* content-box so padding-bottom can host multi-line paint without flow height */
+  /* Match .quote__brand size; single-line so height:0 pad can be tight */
   box-sizing: content-box;
   width: max-content;
   /* Pull left by form offset so title X matches .quote__brand (pad), not form fields.
@@ -120,10 +120,15 @@
   max-width: calc(var(--quote-form-offset) - 0.75rem);
   height: 0;
   /* Zero net flow height: first field label/legend shares the same top Y */
-  margin: 0 0 -3.5em calc(-1 * var(--quote-form-offset));
-  padding: 0 0.75rem 3.5em 0;
+  margin: 0 0 -1.2em calc(-1 * var(--quote-form-offset));
+  padding: 0 0.2em 1.2em 0.2em;
   overflow: visible;
-  background: var(--quote-bg);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: normal;
+  /* Same green as ::selection (index.css) */
+  background: #B5FFB5;
+  color: #000;
 }
 
 .quote__field {
