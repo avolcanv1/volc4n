@@ -88,10 +88,12 @@ function QuestionLabel({
   text,
   requiredMark,
   helpKey,
+  locale,
 }: {
   text: string
   requiredMark?: string
   helpKey?: QuestionHelpKey
+  locale?: QuoteLocale
 }) {
   const words = text.trim().split(/\s+/).filter(Boolean)
   const keepCount = Math.min(Math.max(words.length, 1), 3)
@@ -106,7 +108,7 @@ function QuestionLabel({
       <span className="quote__label-end">
         {tail}
         {requiredMark ? <Required mark={requiredMark} /> : null}
-        {helpKey ? <QuestionHelp helpKey={helpKey} /> : null}
+        {helpKey && locale ? <QuestionHelp helpKey={helpKey} locale={locale} /> : null}
       </span>
     </>
   )
@@ -461,7 +463,7 @@ export function Quote() {
 
                 <fieldset className="quote__fieldset">
                   <legend className="quote__legend">
-                    <QuestionLabel text={t.fields.needsCms} requiredMark={t.requiredMark} helpKey="needsCms" />
+                    <QuestionLabel text={t.fields.needsCms} requiredMark={t.requiredMark} helpKey="needsCms" locale={locale} />
                   </legend>
                   {labels.yesNoUnsure.map((option) => (
                     <label key={option.value} className="quote__choice">
@@ -551,7 +553,7 @@ export function Quote() {
 
                 <fieldset className="quote__fieldset">
                   <legend className="quote__legend">
-                    <QuestionLabel text={t.fields.hasDomainHosting} requiredMark={t.requiredMark} helpKey="hasDomainHosting" />
+                    <QuestionLabel text={t.fields.hasDomainHosting} requiredMark={t.requiredMark} helpKey="hasDomainHosting" locale={locale} />
                   </legend>
                   {labels.yesNoUnsure.map((option) => (
                     <label key={option.value} className="quote__choice">
@@ -570,7 +572,7 @@ export function Quote() {
 
                 <fieldset className="quote__fieldset">
                   <legend className="quote__legend">
-                    <QuestionLabel text={t.fields.brandIdentity} requiredMark={t.requiredMark} helpKey="brandIdentity" />
+                    <QuestionLabel text={t.fields.brandIdentity} requiredMark={t.requiredMark} helpKey="brandIdentity" locale={locale} />
                   </legend>
                   {labels.brandIdentity.map((option) => (
                     <label key={option.value} className="quote__choice">
@@ -608,7 +610,7 @@ export function Quote() {
 
                 <fieldset className="quote__fieldset">
                   <legend className="quote__legend">
-                    <QuestionLabel text={t.fields.needsContentProduction} requiredMark={t.requiredMark} helpKey="needsContentProduction" />
+                    <QuestionLabel text={t.fields.needsContentProduction} requiredMark={t.requiredMark} helpKey="needsContentProduction" locale={locale} />
                   </legend>
                   {labels.yesNoUnsure.map((option) => (
                     <label key={option.value} className="quote__choice">
@@ -730,7 +732,7 @@ export function Quote() {
 
                 <fieldset className="quote__fieldset">
                   <legend className="quote__legend">
-                    <QuestionLabel text={t.fields.editorialCare} requiredMark={t.requiredMark} helpKey="editorialCare" />
+                    <QuestionLabel text={t.fields.editorialCare} requiredMark={t.requiredMark} helpKey="editorialCare" locale={locale} />
                   </legend>
                   {labels.editorialCare.map((option) => (
                     <label key={option.value} className="quote__choice">
@@ -749,7 +751,7 @@ export function Quote() {
 
                 <fieldset className="quote__fieldset">
                   <legend className="quote__legend">
-                    <QuestionLabel text={t.fields.printScope} requiredMark={t.requiredMark} helpKey="printScope" />
+                    <QuestionLabel text={t.fields.printScope} requiredMark={t.requiredMark} helpKey="printScope" locale={locale} />
                   </legend>
                   {labels.printScope.map((option) => (
                     <label key={option.value} className="quote__choice">
@@ -802,7 +804,7 @@ export function Quote() {
 
                 <fieldset className="quote__fieldset">
                   <legend className="quote__legend">
-                    <QuestionLabel text={t.fields.needsIsbn} requiredMark={t.requiredMark} helpKey="needsIsbn" />
+                    <QuestionLabel text={t.fields.needsIsbn} requiredMark={t.requiredMark} helpKey="needsIsbn" locale={locale} />
                   </legend>
                   {labels.yesNoUnsure.map((option) => (
                     <label key={option.value} className="quote__choice">
@@ -932,7 +934,7 @@ export function Quote() {
 
                 <fieldset className="quote__fieldset">
                   <legend className="quote__legend">
-                    <QuestionLabel text={t.fields.needsBrandManual} requiredMark={t.requiredMark} helpKey="needsBrandManual" />
+                    <QuestionLabel text={t.fields.needsBrandManual} requiredMark={t.requiredMark} helpKey="needsBrandManual" locale={locale} />
                   </legend>
                   {labels.yesNoUnsure.map((option) => (
                     <label key={option.value} className="quote__choice">
@@ -1034,7 +1036,7 @@ export function Quote() {
                 <section className="quote__section">
                   <fieldset className="quote__fieldset">
                     <legend className="quote__legend">
-                      <QuestionLabel text={t.fields.needsMaintenance} requiredMark={t.requiredMark} helpKey="needsMaintenance" />
+                      <QuestionLabel text={t.fields.needsMaintenance} requiredMark={t.requiredMark} helpKey="needsMaintenance" locale={locale} />
                     </legend>
                     {labels.yesNoUnsure.map((option) => (
                       <label key={option.value} className="quote__choice">

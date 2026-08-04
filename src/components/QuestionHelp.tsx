@@ -1,18 +1,20 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { QUESTION_HELP, type QuestionHelpKey } from '../lib/quoteCopy'
+import { QUESTION_HELP, type QuestionHelpKey, type QuoteLocale } from '../lib/quoteCopy'
 
 type QuestionHelpProps = {
   helpKey: QuestionHelpKey
+  locale: QuoteLocale
 }
 
-export function QuestionHelp({ helpKey }: QuestionHelpProps) {
+export function QuestionHelp({ helpKey, locale }: QuestionHelpProps) {
   const [open, setOpen] = useState(false)
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(null)
   const rootRef = useRef<HTMLSpanElement>(null)
   const tipRef = useRef<HTMLSpanElement>(null)
   const tipId = useId()
-  const text = QUESTION_HELP[helpKey]
+  const text = QUESTION_HELP[locale][helpKey]
+  const moreInfoLabel = locale === 'en' ? 'More information' : 'Más información'
 
   useLayoutEffect(() => {
     if (!open || !rootRef.current) {
@@ -67,7 +69,7 @@ export function QuestionHelp({ helpKey }: QuestionHelpProps) {
         className="quote__help-btn"
         aria-expanded={open}
         aria-controls={tipId}
-        aria-label="Más información"
+        aria-label={moreInfoLabel}
         onClick={() => setOpen((current) => !current)}
       >
         ?

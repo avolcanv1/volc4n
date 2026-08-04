@@ -66,13 +66,15 @@ export const OPTION_VALUES = {
     'Redes sociales',
     'Firma de correo electrónico',
     'Newsletter',
+    'Deck de presentación',
     'Señalética interior',
     'Cédulas o textos de pared',
     'Vinilos o gráfica de gran formato',
     'Montaje de exposición',
     'Portada de catálogo o libro',
     'Plantilla editorial',
-    'Playeras o bolsas de tela',
+    'Playeras',
+    'Bolsas de tela',
     'Postales o stickers',
     'Empaque',
     'Presentaciones',
@@ -104,7 +106,13 @@ export const BRAND_APPLICATION_GROUPS = [
   },
   {
     key: 'digital',
-    values: ['Sitio web', 'Redes sociales', 'Firma de correo electrónico', 'Newsletter'],
+    values: [
+      'Sitio web',
+      'Redes sociales',
+      'Firma de correo electrónico',
+      'Newsletter',
+      'Deck de presentación',
+    ],
   },
   {
     key: 'space',
@@ -121,7 +129,7 @@ export const BRAND_APPLICATION_GROUPS = [
   },
   {
     key: 'merch',
-    values: ['Playeras o bolsas de tela', 'Postales o stickers', 'Empaque'],
+    values: ['Playeras', 'Bolsas de tela', 'Postales o stickers', 'Empaque'],
   },
   {
     key: 'institutional',
@@ -129,27 +137,56 @@ export const BRAND_APPLICATION_GROUPS = [
   },
 ] as const
 
-/** Spanish help copy for QuestionHelp (?). Always Spanish regardless of locale. */
-export const QUESTION_HELP = {
-  brandIdentity:
-    'La identidad de marca incluye tu logotipo, paleta de colores y tipografía. Si no cuentas con ella, la podemos diseñar como parte del proyecto.',
-  needsCms: 'Un CMS te permite editar textos e imágenes del sitio sin necesitar a un desarrollador.',
-  hasDomainHosting:
-    'El dominio es la dirección de tu sitio (ej. tuestudio.com) y el hosting es donde vive el sitio en internet. Si no los tienes, podemos ayudarte a conseguirlos.',
-  needsContentProduction:
-    'Esto se refiere a tomar fotos nuevas o escribir textos para el sitio, en caso de que no tengas material propio listo para usar.',
-  editorialCare:
-    'El cuidado editorial es la revisión de estilo, consistencia y coherencia del texto antes de maquetarlo.',
-  printScope:
-    'Preprensa es la preparación técnica del archivo final para impresión (perfiles de color, sangrados, marcas de corte).',
-  needsIsbn: 'El ISBN es el número que identifica una publicación para su venta y distribución formal.',
-  needsBrandManual:
-    'Un manual de marca documenta cómo debe usarse tu identidad (logo, colores, tipografía) para mantener consistencia en cualquier aplicación futura.',
-  needsMaintenance:
-    'El mantenimiento incluye actualizaciones de contenido, correcciones o cambios pequeños después de que el proyecto esté finalizado.',
-} as const
+export type QuestionHelpKey =
+  | 'brandIdentity'
+  | 'needsCms'
+  | 'hasDomainHosting'
+  | 'needsContentProduction'
+  | 'editorialCare'
+  | 'printScope'
+  | 'needsIsbn'
+  | 'needsBrandManual'
+  | 'needsMaintenance'
 
-export type QuestionHelpKey = keyof typeof QUESTION_HELP
+/** Help copy for QuestionHelp (?), keyed by locale. */
+export const QUESTION_HELP: Record<QuoteLocale, Record<QuestionHelpKey, string>> = {
+  es: {
+    brandIdentity:
+      'La identidad de marca incluye tu logotipo, paleta de colores y tipografía. Si no cuentas con ella, la podemos diseñar como parte del proyecto.',
+    needsCms: 'Un CMS te permite editar textos e imágenes del sitio sin necesitar a un desarrollador.',
+    hasDomainHosting:
+      'El dominio es la dirección de tu sitio (ej. tuestudio.com) y el hosting es donde vive el sitio en internet. Si no los tienes, podemos ayudarte a conseguirlos.',
+    needsContentProduction:
+      'Esto se refiere a tomar fotos nuevas o escribir textos para el sitio, en caso de que no tengas material propio listo para usar.',
+    editorialCare:
+      'El cuidado editorial es la revisión de estilo, consistencia y coherencia del texto antes de maquetarlo.',
+    printScope:
+      'Preprensa es la preparación técnica del archivo final para impresión (perfiles de color, sangrados, marcas de corte).',
+    needsIsbn: 'El ISBN es el número que identifica una publicación para su venta y distribución formal.',
+    needsBrandManual:
+      'Un manual de marca documenta cómo debe usarse tu identidad (logo, colores, tipografía) para mantener consistencia en cualquier aplicación futura.',
+    needsMaintenance:
+      'El mantenimiento incluye actualizaciones de contenido, correcciones o cambios pequeños después de que el proyecto esté finalizado.',
+  },
+  en: {
+    brandIdentity:
+      'Brand identity includes your logo, color palette, and typography. If you don’t have one yet, we can design it as part of the project.',
+    needsCms: 'A CMS lets you edit the site’s text and images yourself without needing a developer.',
+    hasDomainHosting:
+      'The domain is your site’s address (e.g. yourstudio.com) and hosting is where the site lives on the internet. If you don’t have them, we can help you get them.',
+    needsContentProduction:
+      'This means taking new photos or writing copy for the site when you don’t already have material ready to use.',
+    editorialCare:
+      'Editorial care is the review of style, consistency, and coherence of the text before layout.',
+    printScope:
+      'Prepress is the technical preparation of the final file for print (color profiles, bleeds, crop marks).',
+    needsIsbn: 'An ISBN is the number that identifies a publication for formal sale and distribution.',
+    needsBrandManual:
+      'A brand manual documents how your identity should be used (logo, colors, typography) so it stays consistent across future applications.',
+    needsMaintenance:
+      'Maintenance covers content updates, fixes, or small changes after the project is delivered.',
+  },
+}
 
 type QuoteCopy = {
   brand: string
@@ -491,7 +528,31 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
         'Other',
       ],
       namingDefined: ['Yes', 'No, we also need help with the name'],
-      brandApplications: [...OPTION_VALUES.brandApplications],
+      brandApplications: [
+        'Business cards',
+        'Letterhead stationery',
+        'Invitations',
+        'Hand programs / gallery brochures',
+        'Website',
+        'Social media',
+        'Email signature',
+        'Newsletter',
+        'Presentation deck',
+        'Interior signage',
+        'Wall labels or texts',
+        'Vinyls or large-format graphics',
+        'Exhibition design',
+        'Catalogue or book cover',
+        'Editorial template',
+        'T-shirts',
+        'Tote bags',
+        'Postcards or stickers',
+        'Packaging',
+        'Presentations',
+        'Certificates or awards',
+        'Badges or credentials',
+        'Other',
+      ],
       budgetRanges: [
         'Under $20,000 MXN',
         '$20,000 – $50,000 MXN',
