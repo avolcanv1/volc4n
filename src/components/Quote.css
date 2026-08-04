@@ -5,6 +5,7 @@
   --quote-line: rgba(0, 0, 0, 0.2);
   --quote-focus: #b5ffb5;
   --quote-pad: 30px;
+  /* Mobile/small: keep a light indent. Desktop override below fits sticky titles. */
   --quote-form-offset: clamp(30px, 12vw, 193px);
   --quote-form-width: min(640px, calc(100% - var(--quote-form-offset) - var(--quote-pad)));
   --quote-label-size: 24px;
@@ -114,8 +115,9 @@
   /* content-box so padding-bottom can host multi-line paint without flow height */
   box-sizing: content-box;
   width: max-content;
-  /* Pull left by form offset so title X matches .quote__brand (pad), not form fields */
-  max-width: min(16rem, calc(var(--quote-form-offset) - 0.75rem));
+  /* Pull left by form offset so title X matches .quote__brand (pad), not form fields.
+     Width tracks the offset column so longest titles (e.g. brand ES/EN) stay one line. */
+  max-width: calc(var(--quote-form-offset) - 0.75rem);
   height: 0;
   /* Zero net flow height: first field label/legend shares the same top Y */
   margin: 0 0 -3.5em calc(-1 * var(--quote-form-offset));
@@ -436,6 +438,13 @@
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
+}
+
+/* Sticky titles sit in the left column; size it for longest copy on one line. */
+@media (min-width: 769px) {
+  .quote {
+    --quote-form-offset: clamp(360px, 34vw, 420px);
+  }
 }
 
 @media (max-width: 768px) {
