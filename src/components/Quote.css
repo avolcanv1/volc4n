@@ -111,12 +111,16 @@
   position: sticky;
   top: var(--quote-sticky-top);
   z-index: 5;
-  box-sizing: border-box;
+  /* content-box so padding-bottom can host multi-line paint without flow height */
+  box-sizing: content-box;
   width: max-content;
   /* Pull left by form offset so title X matches .quote__brand (pad), not form fields */
   max-width: min(16rem, calc(var(--quote-form-offset) - 0.75rem));
-  margin-left: calc(-1 * var(--quote-form-offset));
-  padding-right: 0.75rem;
+  height: 0;
+  /* Zero net flow height: first field label/legend shares the same top Y */
+  margin: 0 0 -3.5em calc(-1 * var(--quote-form-offset));
+  padding: 0 0.75rem 3.5em 0;
+  overflow: visible;
   background: var(--quote-bg);
 }
 
@@ -445,10 +449,13 @@
   }
 
   .quote__section-title--sticky {
+    box-sizing: border-box;
     width: auto;
     max-width: none;
-    margin-left: 0;
-    padding-right: 0;
+    height: auto;
+    margin: 0 0 1.75rem;
+    padding: 0;
+    overflow: visible;
   }
 
   .quote__box {
