@@ -1,15 +1,13 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type TouchEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
-import { useLocale } from '../context/LocaleContext'
 import { useTheme } from '../context/ThemeContext'
 import { getProjectMedia, type GalleryItem, type ProjectMedia as ProjectMediaItem } from '../types'
 import { ProjectMedia } from './ProjectMedia'
 import { hasRichTextContent } from '../lib/richText'
-import { siteCopy } from '../lib/siteCopy'
-import { PageControls } from './PageControls'
 import { PageNav } from './PageNav'
 import { RichText } from './RichText'
+import { ThemeToggle } from './ThemeToggle'
 import '../styles/page.css'
 import './Gallery.css'
 
@@ -87,9 +85,7 @@ function useMobileGalleryNav() {
 
 export function Gallery() {
   const { isDark } = useTheme()
-  const { locale } = useLocale()
   const { projects } = useContent()
-  const t = siteCopy[locale]
   const [searchParams, setSearchParams] = useSearchParams()
   const slide = Number(searchParams.get('slide'))
   const total = projects.length
@@ -420,21 +416,21 @@ export function Gallery() {
           volc4n
         </Link>
         <PageNav />
-        <PageControls />
+        <ThemeToggle />
       </header>
 
       <div className="gallery__stage fit-media">
         <button
           type="button"
           className="gallery__nav gallery__nav--prev"
-          aria-label={t.previousImage}
+          aria-label="Previous image"
           onPointerDown={(event) => event.preventDefault()}
           onClick={() => navigateWithAnimation('prev')}
         />
         <button
           type="button"
           className="gallery__nav gallery__nav--next"
-          aria-label={t.nextImage}
+          aria-label="Next image"
           onPointerDown={(event) => event.preventDefault()}
           onClick={() => navigateWithAnimation('next')}
         />

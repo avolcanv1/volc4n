@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { useLocale } from '../context/LocaleContext'
 import { useTheme } from '../context/ThemeContext'
 import { getBudgetRangeOptions } from '../lib/budgetRanges'
 import {
@@ -27,7 +26,6 @@ import {
   type QuoteFieldErrors,
   type QuotePayload,
 } from '../lib/quoteValidation'
-import { LocaleToggle } from './LocaleToggle'
 import { QuestionHelp } from './QuestionHelp'
 import { ThemeToggle } from './ThemeToggle'
 import './Quote.css'
@@ -186,7 +184,7 @@ function OrganizationFields({
 
 export function Quote() {
   const { isDark } = useTheme()
-  const { locale } = useLocale()
+  const [locale, setLocale] = useState<QuoteLocale>('es')
   const [form, setForm] = useState<QuotePayload>(INITIAL)
   const [errors, setErrors] = useState<QuoteFieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
@@ -492,7 +490,25 @@ export function Quote() {
           {t.brand}
         </Link>
         <div className="quote__controls">
-          <LocaleToggle />
+          <div className="quote__lang" role="group" aria-label="Language">
+            <button
+              type="button"
+              className={`quote__lang-btn${locale === 'es' ? ' quote__lang-btn--active' : ''}`}
+              onClick={() => setLocale('es')}
+            >
+              {t.langEs}
+            </button>
+            <span className="quote__lang-sep" aria-hidden="true">
+              /
+            </span>
+            <button
+              type="button"
+              className={`quote__lang-btn${locale === 'en' ? ' quote__lang-btn--active' : ''}`}
+              onClick={() => setLocale('en')}
+            >
+              {t.langEn}
+            </button>
+          </div>
           <ThemeToggle />
         </div>
       </header>

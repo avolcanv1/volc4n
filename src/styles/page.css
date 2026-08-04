@@ -134,15 +134,8 @@
   outline-offset: 2px;
 }
 
-.page__controls {
-  justify-self: end;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  min-width: 0;
-}
-
 .theme-toggle {
+  justify-self: end;
   margin: 0;
   padding: 0;
   border: 0;

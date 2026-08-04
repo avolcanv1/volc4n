@@ -1,10 +1,10 @@
 import { BrowserRouter, Route, Routes, useSearchParams } from 'react-router-dom'
 import { About } from './components/About'
 import { Gallery } from './components/Gallery'
+import { IdleIdCard } from './components/IdleIdCard'
 import { Index } from './components/Index'
 import { Quote } from './components/Quote'
 import { ContentProvider } from './context/ContentProvider'
-import { LocaleProvider } from './context/LocaleProvider'
 import { ThemeProvider } from './context/ThemeProvider'
 
 function GalleryRoute() {
@@ -26,13 +26,12 @@ function AppRoutes() {
 function App() {
   return (
     <ThemeProvider>
-      <LocaleProvider>
-        <ContentProvider>
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </ContentProvider>
-      </LocaleProvider>
+      <ContentProvider>
+        <BrowserRouter>
+          <AppRoutes />
+          <IdleIdCard />
+        </BrowserRouter>
+      </ContentProvider>
     </ThemeProvider>
   )
 }
