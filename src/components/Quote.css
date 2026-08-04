@@ -151,6 +151,7 @@
   font-size: 14px;
   font-weight: 400;
   line-height: normal;
+  white-space: nowrap;
   /* Same green as ::selection (index.css) */
   background: #B5FFB5;
   color: #000;
@@ -315,16 +316,21 @@
 }
 
 .quote__label-end {
+  display: inline-flex;
+  align-items: center;
   white-space: nowrap;
 }
 
-.quote__label-end .quote__required,
-.quote__label-end .quote__help {
-  display: inline;
+.quote__label-end .quote__required {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
 }
 
 .quote__help {
   position: relative;
+  display: inline-flex;
+  align-items: center;
   margin: 0 0 0 0.35rem;
   vertical-align: middle;
 }
@@ -471,17 +477,18 @@
 }
 
 /* Sticky titles sit in the left column; size it for longest copy on one line.
-   "Sobre la identidad de marca" @ 14px Times Newer Roman ≈156px (+0.2em pads ≈162px).
-   Form starts 50px after that title block. */
+   "Sobre la identidad de marca" @ 14px Times Newer Roman ≈164px (+0.2em pads ≈170px).
+   EN "About the brand identity" is shorter (~145px). Form starts 50px after that title block. */
 @media (min-width: 769px) {
   .quote {
-    --quote-sticky-title-max: 162px;
-    --quote-form-offset: calc(var(--quote-sticky-title-max) + 50px); /* 212px */
+    --quote-sticky-title-max: 176px;
+    --quote-form-offset: calc(var(--quote-sticky-title-max) + 50px); /* 226px */
     --quote-form-width: min(640px, calc(100% - var(--quote-form-offset) - var(--quote-pad)));
   }
 
   .quote__section-title--sticky {
     max-width: var(--quote-sticky-title-max);
+    white-space: nowrap;
   }
 }
 
@@ -505,12 +512,15 @@
     z-index: auto;
     box-sizing: border-box;
     width: auto;
-    max-width: none;
+    max-width: 100%;
     height: auto;
     margin: 0 0 1.75rem;
     padding: 0;
     overflow: visible;
     font-size: var(--quote-label-size);
+    /* Prefer one line when viewport allows; wrap only if needed (keeps left align). */
+    white-space: normal;
+    overflow-wrap: normal;
     background: transparent;
     color: inherit;
   }
