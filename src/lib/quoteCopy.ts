@@ -395,7 +395,6 @@ type QuoteCopy = {
     launchDate: string
     launchDatePlaceholder: string
     budgetRange: string
-    budgetOptional: string
     contactName: string
     contactEmail: string
     decisionMaker: string
@@ -512,7 +511,6 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
       launchDate: 'Fecha ideal de lanzamiento',
       launchDatePlaceholder: 'Ej. marzo 2026 / antes de una exposición',
       budgetRange: 'Rango de presupuesto aproximado',
-      budgetOptional: 'Selecciona una opción (opcional)',
       contactName: 'Nombre de contacto',
       contactEmail: 'Correo de contacto',
       decisionMaker: '¿Quién aprueba las decisiones finales?',
@@ -687,7 +685,6 @@ export const quoteCopy: Record<QuoteLocale, QuoteCopy> = {
       launchDate: 'Ideal launch date',
       launchDatePlaceholder: 'E.g. March 2026 / before an exhibition',
       budgetRange: 'Approximate budget range',
-      budgetOptional: 'Select an option (optional)',
       contactName: 'Contact name',
       contactEmail: 'Contact email',
       decisionMaker: 'Who approves final decisions?',

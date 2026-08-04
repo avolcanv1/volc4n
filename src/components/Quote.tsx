@@ -1310,21 +1310,23 @@ export function Quote() {
 
                   <div className="quote__field">
                     <label className="quote__label" htmlFor="budgetRange">
-                      {t.fields.budgetRange}
+                      <QuestionLabel text={t.fields.budgetRange} requiredMark={t.requiredMark} />
                     </label>
                     <select
                       id="budgetRange"
                       className="quote__select"
                       value={form.budgetRange}
                       onChange={(event) => update('budgetRange', event.target.value)}
+                      aria-invalid={Boolean(errors.budgetRange)}
                     >
-                      <option value="">{t.fields.budgetOptional}</option>
+                      <option value="">{t.selectOption}</option>
                       {budgetRangeOptions.map((option) => (
                         <option key={option.value} value={option.value}>
                           {option.label}
                         </option>
                       ))}
                     </select>
+                    <FieldError message={errors.budgetRange} />
                   </div>
 
                   <div className="quote__field">

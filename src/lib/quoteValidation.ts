@@ -127,6 +127,7 @@ export function validateQuote(data: QuotePayload, locale: QuoteLocale): QuoteFie
     if (!data.needsBrandManual) errors.needsBrandManual = messages.select
   }
 
+  if (!data.budgetRange) errors.budgetRange = messages.select
   if (!data.contactName.trim()) errors.contactName = messages.required
   if (!data.contactEmail.trim()) {
     errors.contactEmail = messages.required

@@ -1,8 +1,5 @@
 import { SERVICE_VALUES, type QuoteLocale } from './quoteCopy'
 
-/** Spanish option values stored in the payload / Sanity. */
-export const BUDGET_PREFER_DISCUSS = 'Prefiero platicarlo'
-
 type BudgetFloorId = 'brand' | 'bookLow' | 'web' | 'bookMid' | 'bookHigh'
 
 type BudgetFloor = {
@@ -22,7 +19,6 @@ const BUDGET_FLOORS: Record<BudgetFloorId, BudgetFloor> = {
       '$25,000 – $50,000 MXN',
       '$50,000 – $80,000 MXN',
       'Más de $80,000 MXN',
-      BUDGET_PREFER_DISCUSS,
     ],
   },
   bookLow: {
@@ -33,7 +29,6 @@ const BUDGET_FLOORS: Record<BudgetFloorId, BudgetFloor> = {
       '$35,000 – $50,000 MXN',
       '$50,000 – $80,000 MXN',
       'Más de $80,000 MXN',
-      BUDGET_PREFER_DISCUSS,
     ],
   },
   web: {
@@ -44,7 +39,6 @@ const BUDGET_FLOORS: Record<BudgetFloorId, BudgetFloor> = {
       '$40,000 – $60,000 MXN',
       '$60,000 – $100,000 MXN',
       'Más de $100,000 MXN',
-      BUDGET_PREFER_DISCUSS,
     ],
   },
   bookMid: {
@@ -55,7 +49,6 @@ const BUDGET_FLOORS: Record<BudgetFloorId, BudgetFloor> = {
       '$60,000 – $100,000 MXN',
       '$100,000 – $150,000 MXN',
       'Más de $150,000 MXN',
-      BUDGET_PREFER_DISCUSS,
     ],
   },
   bookHigh: {
@@ -65,7 +58,6 @@ const BUDGET_FLOORS: Record<BudgetFloorId, BudgetFloor> = {
       '$70,000+ MXN',
       '$100,000 – $150,000 MXN',
       'Más de $150,000 MXN',
-      BUDGET_PREFER_DISCUSS,
     ],
   },
 }
@@ -85,7 +77,6 @@ const BUDGET_RANGE_LABELS_EN: Record<string, string> = {
   'Más de $80,000 MXN': 'Over $80,000 MXN',
   'Más de $100,000 MXN': 'Over $100,000 MXN',
   'Más de $150,000 MXN': 'Over $150,000 MXN',
-  [BUDGET_PREFER_DISCUSS]: 'Prefer to discuss it',
 }
 
 /** Parse free-text / numeric page count; returns null when empty or unparseable. */
