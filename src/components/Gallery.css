@@ -69,6 +69,10 @@
   bottom: 0;
   left: 0;
   z-index: 2;
+  /* Keep column gap only — row gap was lifting collapsed expandable footers
+     because the description occupies a zero-height second grid row. */
+  column-gap: 1rem;
+  row-gap: 0;
   padding: var(--page-padding);
   background: transparent;
   cursor: default;
@@ -175,8 +179,20 @@
 }
 
 @media (max-width: 768px) {
+  .gallery__stage {
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .gallery__nav {
+    pointer-events: none;
+  }
+
+  .gallery__track--dragging {
+    transition: none;
+  }
+
   .gallery__track--animating {
-    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
 
@@ -317,7 +333,8 @@
   .gallery__footer {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto auto;
-    gap: 0.35rem;
+    column-gap: 0;
+    row-gap: 0;
     align-items: start;
   }
 
@@ -333,6 +350,11 @@
     flex-wrap: wrap;
     align-items: baseline;
     gap: 0.35rem;
+    margin-top: 0.35rem;
+  }
+
+  .gallery__year {
+    margin-top: 0.35rem;
   }
 
   .gallery__description-wrap {
@@ -355,9 +377,10 @@
 
   .gallery__caption-rail {
     position: static;
-    width: auto;
-    padding-left: 0;
-    padding-top: 0.5rem;
+    width: 100%;
+    box-sizing: border-box;
+    padding-inline: var(--page-padding);
+    padding-top: 0.35rem;
     align-self: stretch;
   }
 
@@ -367,8 +390,8 @@
     left: auto;
     bottom: auto;
     white-space: normal;
-    font-size: 13px;
-    line-height: 1.35;
+    font-size: 10px;
+    line-height: 1.3;
     text-align: left;
   }
 }
