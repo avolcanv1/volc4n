@@ -19,6 +19,7 @@ function AppRoutes() {
       <Route path="/index" element={<Index />} />
       <Route path="/about" element={<About />} />
       <Route path="/quote" element={<Quote />} />
+      <Route path="/intake" element={<Quote />} />
     </Routes>
   )
 }

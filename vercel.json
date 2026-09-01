@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    {
+      "source": "/intake",
+      "destination": "/quote",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/sanity-api/:path*",
