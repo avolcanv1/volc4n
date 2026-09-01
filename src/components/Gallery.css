@@ -160,6 +160,13 @@
   touch-action: pan-y pinch-zoom;
 }
 
+@media (max-width: 768px) {
+  .gallery__viewport {
+    pointer-events: auto;
+    touch-action: none;
+  }
+}
+
 .gallery__clip {
   width: 100%;
   height: calc(100% + 2 * var(--gallery-image-shadow-bleed));
@@ -229,12 +236,21 @@
   max-width: 100%;
   line-height: 0;
   overflow: visible;
+  filter: var(--gallery-image-shadow);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Rounded videos keep the filter on the element so the shadow follows the radius. */
+.gallery__media-wrap:has(.project-media__video) {
+  filter: none;
+  transform: none;
 }
 
 .gallery__image {
   user-select: none;
   pointer-events: none;
-  filter: var(--gallery-image-shadow);
   display: block;
   width: auto;
   height: auto;
@@ -242,6 +258,13 @@
   max-height: 100cqh;
   object-fit: contain;
   object-position: center;
+}
+
+.gallery__image.project-media__video {
+  filter: var(--gallery-image-shadow);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .gallery__caption-rail {
