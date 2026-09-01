@@ -12,17 +12,41 @@ import { ThemeToggle } from './ThemeToggle'
 import '../styles/page.css'
 import './Gallery.css'
 
+const decodedImageCache = new Map<string, Promise<void>>()
+
 function preloadImageMedia(media: ProjectMediaItem) {
   if (media.kind !== 'image') {
     return Promise.resolve()
   }
 
-  return new Promise<void>((resolve) => {
+  const cached = decodedImageCache.get(media.src)
+  if (cached) {
+    return cached
+  }
+
+  const promise = new Promise<void>((resolve) => {
     const image = new Image()
-    image.onload = () => resolve()
+
+    const finish = () => {
+      if ('decode' in image) {
+        void image.decode().then(resolve).catch(() => resolve())
+        return
+      }
+
+      resolve()
+    }
+
+    image.onload = finish
     image.onerror = () => resolve()
     image.src = media.src
+
+    if (image.complete) {
+      finish()
+    }
   })
+
+  decodedImageCache.set(media.src, promise)
+  return promise
 }
 
 function getAdjacentMedia(
@@ -130,6 +154,7 @@ export function Gallery() {
   const dragOffsetRef = useRef(0)
   const isDraggingRef = useRef(false)
   const isAnimatingRef = useRef(false)
+  const handleTouchMoveRef = useRef<(event: TouchEvent<HTMLDivElement>) => void>(() => {})
   const mobileGalleryNav = useMobileGalleryNav()
 
   const projectIndex = total === 0 ? 0 : Math.min(view.project, total - 1)
@@ -374,6 +399,30 @@ export function Gallery() {
     snapToOffset(0)
   }, [resetTouch, snapToOffset])
 
+  handleTouchMoveRef.current = handleTouchMove
+
+  useEffect(() => {
+    if (!mobileGalleryNav) {
+      return
+    }
+
+    const viewport = viewportRef.current
+
+    if (!viewport) {
+      return
+    }
+
+    const onTouchMove = (event: globalThis.TouchEvent) => {
+      handleTouchMoveRef.current(event as unknown as TouchEvent<HTMLDivElement>)
+    }
+
+    viewport.addEventListener('touchmove', onTouchMove, { passive: false })
+
+    return () => {
+      viewport.removeEventListener('touchmove', onTouchMove)
+    }
+  }, [mobileGalleryNav])
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -413,9 +462,18 @@ export function Gallery() {
     let cancelled = false
 
     preloadImageMedia(nextMedia).then(() => {
-      if (!cancelled) {
-        setDisplayedMedia(nextMedia)
+      if (cancelled) {
+        return
       }
+
+      // Wait for the decoded frame to paint so drop-shadow appears with the image.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (!cancelled) {
+            setDisplayedMedia(nextMedia)
+          }
+        })
+      })
     })
 
     return () => {
@@ -428,7 +486,10 @@ export function Gallery() {
   useEffect(() => {
     void preloadImageMedia(prevMedia)
     void preloadImageMedia(nextMedia)
-  }, [nextMedia?.src, nextMedia?.kind, prevMedia?.src, prevMedia?.kind])
+    if (currentMedia?.kind === 'image') {
+      void preloadImageMedia(currentMedia)
+    }
+  }, [currentMedia?.kind, currentMedia?.src, nextMedia?.kind, nextMedia?.src, prevMedia?.kind, prevMedia?.src])
 
   if (total === 0 || !current || !centerMedia) {
     return null
@@ -466,7 +527,6 @@ export function Gallery() {
             ref={viewportRef}
             className="gallery__viewport"
             onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
             onTouchCancel={handleTouchCancel}
           >
