@@ -173,7 +173,9 @@ export function Gallery() {
   const [prevMedia, nextMedia] = getAdjacentMedia(projects, projectIndex, safeImageIndex)
   const prevProject = getAdjacentProject(projects, projectIndex, safeImageIndex, 'prev')
   const nextProject = getAdjacentProject(projects, projectIndex, safeImageIndex, 'next')
-  const centerMedia = displayedMedia ?? currentMedia
+  // On mobile the carousel already shows adjacent slides while swiping — keep the
+  // center slide in sync with the view to avoid a post-swipe flash.
+  const centerMedia = mobileGalleryNav ? currentMedia : (displayedMedia ?? currentMedia)
 
   const goTo = useCallback(
     (nextProjectIndex: number, nextImageIndex: number) => {
@@ -315,6 +317,8 @@ export function Gallery() {
         direction === 'next' ? goNext() : goPrev()
         dragOffsetRef.current = 0
         setDragOffset(0)
+        setIsDragging(false)
+        isDraggingRef.current = false
       })
     },
     [goNext, goPrev, mobileGalleryNav, slideWidth, snapToOffset],
@@ -443,8 +447,7 @@ export function Gallery() {
   }, [projectIndex, safeImageIndex])
 
   useEffect(() => {
-    if (!currentMedia) {
-      setDisplayedMedia(null)
+    if (!currentMedia || mobileGalleryNav) {
       return
     }
 
@@ -481,7 +484,14 @@ export function Gallery() {
     }
     // Depend on media identity fields only — a new object each render would
     // cancel in-flight preloads and leave the gallery stuck on a blank/old frame.
-  }, [currentMedia?.src, currentMedia?.kind, currentMedia?.caption, displayedMedia?.kind, displayedMedia?.src])
+  }, [
+    currentMedia?.src,
+    currentMedia?.kind,
+    currentMedia?.caption,
+    displayedMedia?.kind,
+    displayedMedia?.src,
+    mobileGalleryNav,
+  ])
 
   useEffect(() => {
     void preloadImageMedia(prevMedia)
