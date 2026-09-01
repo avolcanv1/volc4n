@@ -198,6 +198,20 @@
     transition: none;
   }
 
+  .gallery__track--dragging .gallery__media-wrap,
+  .gallery__track--animating .gallery__media-wrap {
+    transform: none;
+    -webkit-backface-visibility: visible;
+    backface-visibility: visible;
+  }
+
+  .gallery__track--dragging .gallery__image.project-media__video,
+  .gallery__track--animating .gallery__image.project-media__video {
+    transform: none;
+    -webkit-backface-visibility: visible;
+    backface-visibility: visible;
+  }
+
   .gallery__track--animating {
     transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
   }
