@@ -7,6 +7,14 @@ function projectYearValue(year: string) {
 
 export function sortProjectsChronologically(projects: GalleryItem[]): GalleryItem[] {
   return [...projects].sort((left, right) => {
+    const leftOrder = left.order ?? Number.MAX_SAFE_INTEGER
+    const rightOrder = right.order ?? Number.MAX_SAFE_INTEGER
+    const orderDiff = leftOrder - rightOrder
+
+    if (orderDiff !== 0) {
+      return orderDiff
+    }
+
     const yearDiff = projectYearValue(right.year) - projectYearValue(left.year)
 
     if (yearDiff !== 0) {

@@ -6,6 +6,15 @@ const images = (...paths: string[]): ProjectMedia[] => paths.map(image)
 
 export const galleryItems: GalleryItem[] = [
   {
+    id: 'estudio-herrera',
+    category: 'Web design and development',
+    title: 'Estudio Herrera – Coming Soon',
+    year: '2026',
+    order: 1,
+    media: [{ kind: 'video', src: '/videos/estudio-herrera.mov' }],
+    imageAlt: 'Estudio Herrera – Coming Soon',
+  },
+  {
     id: 'cristina-flores-pescoran',
     category: 'Editorial Design',
     title: 'Cristina Flores Pescorán',

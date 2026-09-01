@@ -1,9 +1,10 @@
 export const projectsQuery = `
-  *[_type == "project"] | order(year desc, title asc) {
+  *[_type == "project"] | order(order asc, year desc, title asc) {
     "id": _id,
     title,
     category,
     year,
+    order,
     description,
     images
   }
