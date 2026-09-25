@@ -1,5 +1,7 @@
 .split {
-  --split-header-block: calc(var(--page-padding) * 2 + var(--page-font-size));
+  --split-header-pad-y: 1.125rem;
+  --split-header-block: calc(var(--split-header-pad-y) * 2 + var(--page-font-size) + 1px);
+  --split-label-gap: 1.35rem;
   --split-footer-block: calc(var(--page-padding) * 2 + var(--page-font-size));
   --split-rule: 1px solid color-mix(in srgb, var(--page-text) 12%, transparent);
   --image-ratio-width: 3;
@@ -31,7 +33,7 @@
   right: 0;
   z-index: 10;
   margin: 0;
-  padding: var(--page-padding);
+  padding: var(--split-header-pad-y) var(--page-padding);
   /* Opaque top menu; same rule stroke as the Books | Not books column divider. */
   background: var(--page-bg) !important;
   background-color: var(--page-bg) !important;
@@ -71,7 +73,7 @@
 
 .split__lane-label {
   position: absolute;
-  top: var(--split-header-block);
+  top: calc(var(--split-header-block) + var(--split-label-gap));
   left: var(--page-padding);
   z-index: 2;
   margin: 0;
@@ -111,7 +113,8 @@
 
 .split__empty {
   margin: 0;
-  padding: calc(var(--split-header-block) + var(--page-padding)) var(--page-padding) var(--page-padding);
+  padding: calc(var(--split-header-block) + var(--split-label-gap) + var(--page-padding))
+    var(--page-padding) var(--page-padding);
   color: color-mix(in srgb, var(--page-text) 55%, transparent);
 }
 
@@ -173,7 +176,8 @@
    * Horizontal inset >= shadow bleed so the padded slide clip (and drop-shadows)
    * stay inside the column instead of getting cut by the scroller.
    */
-  inset: calc(var(--split-header-block) + 1.5rem) var(--gallery-image-shadow-bleed) 1.75rem;
+  inset: calc(var(--split-header-block) + var(--split-label-gap) + 1.5rem)
+    var(--gallery-image-shadow-bleed) 1.75rem;
   display: grid;
   place-items: center;
   width: auto;
@@ -288,7 +292,8 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: calc(var(--split-header-block) + 1.5rem) var(--page-padding) 1.75rem;
+  padding: calc(var(--split-header-block) + var(--split-label-gap) + 1.5rem) var(--page-padding)
+    1.75rem;
   display: flex;
   align-items: center;
   justify-content: flex-start;
