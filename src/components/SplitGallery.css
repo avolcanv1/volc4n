@@ -1,5 +1,7 @@
 .split {
   --split-footer-block: calc(var(--page-padding) * 2 + var(--page-font-size));
+  --image-ratio-width: 3;
+  --image-ratio-height: 2;
   height: 100svh;
   max-height: 100svh;
   display: grid;
@@ -78,7 +80,8 @@
   position: relative;
   box-sizing: border-box;
   height: 100%;
-  min-height: 100%;
+  max-height: 100%;
+  overflow: hidden;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   display: grid;
@@ -90,6 +93,7 @@
   position: relative;
   min-width: 0;
   min-height: 0;
+  overflow: hidden;
 }
 
 .split__nav {
@@ -131,21 +135,32 @@
   pointer-events: none;
 }
 
+/* Shared 3:2 landscape frame. Portrait media keeps this height and letterboxes. */
+.split__frame {
+  position: relative;
+  width: min(100cqw, calc(100cqh * var(--image-ratio-width) / var(--image-ratio-height)));
+  height: min(100cqh, calc(100cqw * var(--image-ratio-height) / var(--image-ratio-width)));
+  display: grid;
+  place-items: center;
+}
+
 .split__media-wrap {
   position: relative;
-  display: inline-block;
-  max-width: 100%;
-  max-height: 100%;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
   line-height: 0;
 }
 
 .split__media {
   display: block;
   width: auto;
-  height: auto;
+  height: 100%;
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
+  object-position: center;
 }
 
 .split__media.project-media__video--rounded {
@@ -263,9 +278,13 @@
   }
 
   .split__caption-rail {
-    position: static;
+    top: auto;
+    bottom: 0;
+    right: 0;
+    left: 0;
     transform: none;
-    max-width: 100%;
-    margin-top: 0.35rem;
+    max-width: none;
+    width: auto;
+    padding: 0.25rem 0 0;
   }
 }

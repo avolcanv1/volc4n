@@ -120,19 +120,21 @@ function ProjectPane({ project }: { project: GalleryItem }) {
         ) : null}
 
         <figure className="split__figure">
-          <div className="split__media-wrap">
-            <ProjectMedia
-              key={`${project.id}-${safeIndex}-${currentMedia.src}`}
-              media={currentMedia}
-              className="split__media fit-media__image"
-              alt={currentMedia.caption || project.imageAlt}
-              roundedVideo={isWebDesignCategory(project.category)}
-            />
-            {currentMedia.caption ? (
-              <div className="split__caption-rail">
-                <p className="split__caption">{currentMedia.caption}</p>
-              </div>
-            ) : null}
+          <div className="split__frame">
+            <div className="split__media-wrap">
+              <ProjectMedia
+                key={`${project.id}-${safeIndex}-${currentMedia.src}`}
+                media={currentMedia}
+                className="split__media"
+                alt={currentMedia.caption || project.imageAlt}
+                roundedVideo={isWebDesignCategory(project.category)}
+              />
+              {currentMedia.caption ? (
+                <div className="split__caption-rail">
+                  <p className="split__caption">{currentMedia.caption}</p>
+                </div>
+              ) : null}
+            </div>
           </div>
         </figure>
       </div>
