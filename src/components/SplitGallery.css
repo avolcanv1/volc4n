@@ -232,8 +232,8 @@
   justify-content: center;
   min-width: 0;
   min-height: 0;
-  overflow: visible;
-  /* Keep media inset so lateral shadows stay inside the padded clip. */
+  /* Isolate each slide — wide media must not bleed into neighbors. */
+  overflow: hidden;
   padding-inline: 0;
 }
 
@@ -243,26 +243,28 @@
   align-items: center;
   justify-content: center;
   align-self: stretch;
-  width: max-content;
+  box-sizing: border-box;
+  width: 100%;
   height: 100%;
-  max-width: none;
+  max-width: 100%;
   max-height: 100%;
   min-width: 0;
   min-height: 0;
   line-height: 0;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .split__media {
   display: block;
   /*
-   * Shared stage height for every slide. Ultra-wide spreads keep that height and
-   * grow wider (clipped by .split__clip) instead of letterboxing shorter.
+   * Shared stage height for every slide. Ultra-wide images keep that height and
+   * may extend past the slide width, but .split__slide/.split__media-wrap clip
+   * them so neighbors never overlap when idle.
    */
   width: auto;
   height: 100%;
   max-width: none;
-  max-height: 100cqh;
+  max-height: 100%;
   object-fit: contain;
   object-position: center;
   /* Shadow on the media so it follows portrait width and rounded video corners. */
