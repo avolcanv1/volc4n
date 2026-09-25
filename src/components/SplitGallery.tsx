@@ -165,11 +165,9 @@ function ProjectPane({
         tabIndex={hasDescription ? 0 : undefined}
       >
         <p className="split__meta-line">
-          {mediaCount > 1 ? (
-            <span className="split__counter">
-              ( {String(safeIndex + 1).padStart(2, '0')} / {String(mediaCount).padStart(2, '0')} )
-            </span>
-          ) : null}
+          <span className="split__counter">
+            ( {String(safeIndex + 1).padStart(2, '0')} / {String(mediaCount).padStart(2, '0')} )
+          </span>
           {showCategory ? <span className="split__category">{project.category}</span> : null}
         </p>
         <p className="split__title">
