@@ -1,14 +1,16 @@
-import { forwardRef } from 'react'
+import { forwardRef, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { PageNav } from './PageNav'
 import { ThemeToggle } from './ThemeToggle'
 
 type PageHeaderProps = {
   className?: string
+  /** Replaces the default ThemeToggle in the right column (e.g. lang + theme on Quote). */
+  end?: ReactNode
 }
 
 export const PageHeader = forwardRef<HTMLElement, PageHeaderProps>(function PageHeader(
-  { className = '' },
+  { className = '', end },
   ref,
 ) {
   const classes = ['page__header', 'page__bar', className].filter(Boolean).join(' ')
@@ -19,7 +21,7 @@ export const PageHeader = forwardRef<HTMLElement, PageHeaderProps>(function Page
         volc4n
       </Link>
       <PageNav />
-      <ThemeToggle />
+      {end ?? <ThemeToggle />}
     </header>
   )
 })

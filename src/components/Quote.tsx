@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
-import { Link } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 import { getBudgetRangeOptions } from '../lib/budgetRanges'
 import {
@@ -26,8 +25,10 @@ import {
   type QuoteFieldErrors,
   type QuotePayload,
 } from '../lib/quoteValidation'
+import { PageHeader } from './PageHeader'
 import { QuestionHelp } from './QuestionHelp'
 import { ThemeToggle } from './ThemeToggle'
+import '../styles/page.css'
 import './Quote.css'
 
 const INITIAL: QuotePayload = {
@@ -485,33 +486,33 @@ export function Quote() {
 
   return (
     <div className={`quote${isDark ? ' page--dark' : ''}`}>
-      <header className="quote__top">
-        <Link to="/" className="quote__brand">
-          {t.brand}
-        </Link>
-        <div className="quote__controls">
-          <div className="quote__lang" role="group" aria-label="Language">
-            <button
-              type="button"
-              className={`quote__lang-btn${locale === 'es' ? ' quote__lang-btn--active' : ''}`}
-              onClick={() => setLocale('es')}
-            >
-              {t.langEs}
-            </button>
-            <span className="quote__lang-sep" aria-hidden="true">
-              /
-            </span>
-            <button
-              type="button"
-              className={`quote__lang-btn${locale === 'en' ? ' quote__lang-btn--active' : ''}`}
-              onClick={() => setLocale('en')}
-            >
-              {t.langEn}
-            </button>
+      <PageHeader
+        className="quote__header"
+        end={
+          <div className="page__header-end">
+            <div className="quote__lang" role="group" aria-label="Language">
+              <button
+                type="button"
+                className={`quote__lang-btn${locale === 'es' ? ' quote__lang-btn--active' : ''}`}
+                onClick={() => setLocale('es')}
+              >
+                {t.langEs}
+              </button>
+              <span className="quote__lang-sep" aria-hidden="true">
+                /
+              </span>
+              <button
+                type="button"
+                className={`quote__lang-btn${locale === 'en' ? ' quote__lang-btn--active' : ''}`}
+                onClick={() => setLocale('en')}
+              >
+                {t.langEn}
+              </button>
+            </div>
+            <ThemeToggle />
           </div>
-          <ThemeToggle />
-        </div>
-      </header>
+        }
+      />
 
       <main className="quote__main">
         {submitted ? (

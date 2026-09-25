@@ -98,7 +98,8 @@
 .page__header.page__bar,
 .page > header.page__bar:not(.page__bar--bottom),
 .index__header.page__bar,
-.split__header.page__bar {
+.split__header.page__bar,
+.quote__header.page__bar {
   margin: 0;
   padding: var(--page-header-pad-y) var(--page-padding);
   background: var(--page-bg);
@@ -109,6 +110,14 @@
   border: 0;
   border-bottom: var(--page-rule);
   z-index: 10;
+}
+
+.page__header-end {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
 }
 
 /* Bleed full-width when the page shell still has outer padding (About / Gallery). */

@@ -56,37 +56,11 @@
   --quote-error: #c49494;
 }
 
-.quote__top {
+.quote__header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--page-header-pad-y) var(--quote-pad);
-  background: var(--quote-bg);
-  background-color: var(--quote-bg);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: none;
-  border: 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--quote-text) 12%, transparent);
-}
-
-.quote__brand {
-  margin: 0;
-  color: inherit;
-  font: inherit;
-  font-size: 14px;
-  text-decoration: none;
-}
-
-.quote__controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
 }
 
 .quote__lang {
@@ -155,10 +129,10 @@
   position: sticky;
   top: var(--quote-sticky-top);
   z-index: 5;
-  /* Match .quote__brand size; single-line so height:0 pad can be tight */
+  /* Match .site-logo size; single-line so height:0 pad can be tight */
   box-sizing: content-box;
   width: max-content;
-  /* Pull left by form offset so title X matches .quote__brand (pad), not form fields.
+  /* Pull left by form offset so title X matches the site logo pad, not form fields.
      Width tracks the offset column so longest titles (e.g. brand ES/EN) stay one line. */
   max-width: calc(var(--quote-form-offset) - 0.75rem);
   height: 0;
