@@ -127,22 +127,6 @@ export function Index() {
     <div className={`page index${isDark ? ' page--dark' : ''}`}>
       <PageHeader ref={headerRef} className="index__header" />
 
-      {hoveredItem && hoveredItem.media.length > 0 && (
-        <div ref={previewRef} className="index__preview" aria-hidden="true">
-          <figure className="index__preview-figure">
-            {hoveredItem.media.map((media, mediaIndex) => (
-              <ProjectMedia
-                key={`${hoveredItem.id}-${mediaIndex}`}
-                media={media}
-                className={`index__preview-image${mediaIndex === previewMediaIndex ? ' index__preview-image--active' : ''}`}
-                alt=""
-                roundedVideo={isWebDesignCategory(hoveredItem.category)}
-              />
-            ))}
-          </figure>
-        </div>
-      )}
-
       <main className="index__list">
         {projects.map((item, itemIndex) => (
           <Link
@@ -160,6 +144,22 @@ export function Index() {
           </Link>
         ))}
       </main>
+
+      {hoveredItem && hoveredItem.media.length > 0 && (
+        <div ref={previewRef} className="index__preview" aria-hidden="true">
+          <figure className="index__preview-figure">
+            {hoveredItem.media.map((media, mediaIndex) => (
+              <ProjectMedia
+                key={`${hoveredItem.id}-${mediaIndex}`}
+                media={media}
+                className={`index__preview-image${mediaIndex === previewMediaIndex ? ' index__preview-image--active' : ''}`}
+                alt=""
+                roundedVideo={isWebDesignCategory(hoveredItem.category)}
+              />
+            ))}
+          </figure>
+        </div>
+      )}
     </div>
   )
 }
