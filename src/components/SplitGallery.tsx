@@ -30,7 +30,7 @@ const SWIPE_THRESHOLD = 48
 const SWIPE_LOCK_PX = 10
 const SNAP_LOCK_MS = 620
 const SLIDE_FALLBACK_MS = 520
-const SLIDE_GAP_PX = 4
+const SLIDE_GAP_PX = 8
 
 function trackOffsetForSlide(slideIndex: number, slideWidth: number) {
   if (slideWidth <= 0) {

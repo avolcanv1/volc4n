@@ -219,7 +219,7 @@
 }
 
 .split__track {
-  --split-slide-gap: 4px;
+  --split-slide-gap: 8px;
   display: flex;
   align-items: stretch;
   gap: var(--split-slide-gap);
