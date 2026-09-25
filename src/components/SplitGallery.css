@@ -374,7 +374,7 @@
 
   .split__lane {
     border-left: 0;
-    border-top: 1px solid color-mix(in srgb, var(--page-text) 12%, transparent);
+    border-top: var(--split-rule);
   }
 
   .split__lane:first-child {
