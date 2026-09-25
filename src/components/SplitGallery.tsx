@@ -373,6 +373,9 @@ function ProjectPane({
       >
         {infoOpen && description ? (
           <div className="split__info" role="region" aria-label="Project description">
+            {showCategory && project.category ? (
+              <p className="split__info-category">{project.category}</p>
+            ) : null}
             <RichText value={description} className="split__description" />
           </div>
         ) : (
@@ -469,7 +472,6 @@ function ProjectPane({
         </span>
         <p className="split__title">
           <span className="split__title-text">{project.title}</span>
-          {showCategory ? <span className="split__category">{project.category}</span> : null}
         </p>
         <p className="split__year">{project.year}</p>
       </footer>
