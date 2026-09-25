@@ -6,6 +6,9 @@ type ProjectMediaProps = {
   className?: string
   alt?: string
   roundedVideo?: boolean
+  decoding?: 'async' | 'sync' | 'auto'
+  fetchPriority?: 'high' | 'low' | 'auto'
+  loading?: 'eager' | 'lazy'
 }
 
 export function ProjectMedia({
@@ -13,6 +16,9 @@ export function ProjectMedia({
   className = 'fit-media__image',
   alt = '',
   roundedVideo = false,
+  decoding = 'async',
+  fetchPriority,
+  loading,
 }: ProjectMediaProps) {
   if (media.kind === 'video') {
     return (
@@ -29,5 +35,15 @@ export function ProjectMedia({
     )
   }
 
-  return <img className={className} src={media.src} alt={alt} draggable={false} />
+  return (
+    <img
+      className={className}
+      src={media.src}
+      alt={alt}
+      draggable={false}
+      decoding={decoding}
+      fetchPriority={fetchPriority}
+      loading={loading}
+    />
+  )
 }

@@ -31,13 +31,49 @@ const SWIPE_LOCK_PX = 10
 const SNAP_LOCK_MS = 620
 const SLIDE_FALLBACK_MS = 520
 
-function preloadImageMedia(media: ProjectMediaItem | undefined) {
+const decodedImageCache = new Map<string, Promise<void>>()
+
+function preloadImageMedia(media: ProjectMediaItem | undefined | null) {
   if (!media || media.kind !== 'image') {
-    return
+    return Promise.resolve()
   }
 
-  const image = new Image()
-  image.src = media.src
+  const cached = decodedImageCache.get(media.src)
+  if (cached) {
+    return cached
+  }
+
+  const promise = new Promise<void>((resolve) => {
+    const image = new Image()
+
+    const finish = () => {
+      if ('decode' in image) {
+        void image.decode().then(resolve).catch(() => resolve())
+        return
+      }
+
+      resolve()
+    }
+
+    image.onload = finish
+    image.onerror = () => resolve()
+    image.src = media.src
+
+    if (image.complete) {
+      finish()
+    }
+  })
+
+  decodedImageCache.set(media.src, promise)
+  return promise
+}
+
+function preloadProjectCover(project: GalleryItem | undefined) {
+  if (!project) {
+    return Promise.resolve()
+  }
+
+  return preloadImageMedia(getProjectMedia(project, 0) ?? project.media[0])
 }
 
 function ProjectPane({
@@ -104,9 +140,16 @@ function ProjectPane({
   }, [safeIndex])
 
   useEffect(() => {
-    preloadImageMedia(prevMedia ?? undefined)
-    preloadImageMedia(nextMedia ?? undefined)
-  }, [prevMedia, nextMedia])
+    // Warm current + neighbors immediately; do not gate rendering on decode.
+    void preloadImageMedia(currentMedia)
+    void preloadImageMedia(prevMedia)
+    void preloadImageMedia(nextMedia)
+
+    if (mediaCount > 3) {
+      void preloadImageMedia(getProjectMedia(project, (safeIndex + 2) % mediaCount))
+      void preloadImageMedia(getProjectMedia(project, (safeIndex - 2 + mediaCount) % mediaCount))
+    }
+  }, [currentMedia, mediaCount, nextMedia, prevMedia, project, safeIndex])
 
   const settleAfterSlide = useCallback(() => {
     const direction = pendingDirectionRef.current
@@ -268,6 +311,9 @@ function ProjectPane({
                             className="split__media"
                             alt=""
                             roundedVideo={isWebDesignCategory(project.category)}
+                            decoding="async"
+                            fetchPriority="low"
+                            loading="eager"
                           />
                         </div>
                       </div>
@@ -281,6 +327,9 @@ function ProjectPane({
                           className="split__media"
                           alt={currentMedia.caption || project.imageAlt}
                           roundedVideo={isWebDesignCategory(project.category)}
+                          decoding="async"
+                          fetchPriority="high"
+                          loading="eager"
                         />
                         {currentMedia.caption ? (
                           <div className="split__caption-rail">
@@ -298,6 +347,9 @@ function ProjectPane({
                             className="split__media"
                             alt=""
                             roundedVideo={isWebDesignCategory(project.category)}
+                            decoding="async"
+                            fetchPriority="low"
+                            loading="eager"
                           />
                         </div>
                       </div>
@@ -385,12 +437,44 @@ function LaneColumn({
         return
       }
 
+      const nextIndex = Math.round(nextTop / Math.max(pane, 1))
+      void preloadProjectCover(projects[nextIndex])
+      void preloadProjectCover(projects[nextIndex + direction])
+
       lockRef.current = true
       scroller.scrollTo({ top: nextTop, behavior: 'smooth' })
       unlockSoon()
     },
-    [projects.length, unlockSoon],
+    [projects, unlockSoon],
   )
+
+  useEffect(() => {
+    void preloadProjectCover(projects[0])
+    void preloadProjectCover(projects[1])
+  }, [projects])
+
+  useEffect(() => {
+    const scroller = scrollerRef.current
+
+    if (!scroller || projects.length === 0) {
+      return
+    }
+
+    const warmNearbyCovers = () => {
+      const pane = Math.max(scroller.clientHeight, 1)
+      const index = Math.round(scroller.scrollTop / pane)
+      void preloadProjectCover(projects[index])
+      void preloadProjectCover(projects[index + 1])
+      void preloadProjectCover(projects[index - 1])
+    }
+
+    warmNearbyCovers()
+    scroller.addEventListener('scroll', warmNearbyCovers, { passive: true })
+
+    return () => {
+      scroller.removeEventListener('scroll', warmNearbyCovers)
+    }
+  }, [projects])
 
   useEffect(() => {
     const scroller = scrollerRef.current
