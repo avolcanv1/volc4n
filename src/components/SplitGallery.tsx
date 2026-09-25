@@ -95,54 +95,73 @@ function ProjectPane({
     cycle(deltaX < 0 ? 1 : -1)
   }
 
+  const toggleInfo = useCallback(() => {
+    if (!hasDescription) {
+      return
+    }
+
+    setInfoOpen((open) => !open)
+  }, [hasDescription])
+
   if (!currentMedia) {
     return null
   }
 
   return (
-    <article className="split__project" data-project-id={project.id}>
+    <article
+      className={`split__project${infoOpen ? ' split__project--info' : ''}`}
+      data-project-id={project.id}
+    >
       <div
         className="split__stage"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        onTouchStart={infoOpen ? undefined : handleTouchStart}
+        onTouchEnd={infoOpen ? undefined : handleTouchEnd}
       >
-        {mediaCount > 1 ? (
-          <>
-            <button
-              type="button"
-              className="split__nav split__nav--prev"
-              aria-label="Previous image"
-              onPointerDown={(event) => event.preventDefault()}
-              onClick={() => cycle(-1)}
-            />
-            <button
-              type="button"
-              className="split__nav split__nav--next"
-              aria-label="Next image"
-              onPointerDown={(event) => event.preventDefault()}
-              onClick={() => cycle(1)}
-            />
-          </>
-        ) : null}
-
-        <figure className="split__figure">
-          <div className="split__frame">
-            <div className="split__media-wrap">
-              <ProjectMedia
-                key={`${project.id}-${safeIndex}-${currentMedia.src}`}
-                media={currentMedia}
-                className="split__media"
-                alt={currentMedia.caption || project.imageAlt}
-                roundedVideo={isWebDesignCategory(project.category)}
-              />
-              {currentMedia.caption ? (
-                <div className="split__caption-rail">
-                  <p className="split__caption">{currentMedia.caption}</p>
-                </div>
-              ) : null}
-            </div>
+        {infoOpen && description ? (
+          <div className="split__info" role="region" aria-label="Project description">
+            <RichText value={description} className="split__description" />
           </div>
-        </figure>
+        ) : (
+          <>
+            {mediaCount > 1 ? (
+              <>
+                <button
+                  type="button"
+                  className="split__nav split__nav--prev"
+                  aria-label="Previous image"
+                  onPointerDown={(event) => event.preventDefault()}
+                  onClick={() => cycle(-1)}
+                />
+                <button
+                  type="button"
+                  className="split__nav split__nav--next"
+                  aria-label="Next image"
+                  onPointerDown={(event) => event.preventDefault()}
+                  onClick={() => cycle(1)}
+                />
+              </>
+            ) : null}
+
+            <figure className="split__figure">
+              <div className="split__frame">
+                <div className="split__media-wrap">
+                  <ProjectMedia
+                    key={`${project.id}-${safeIndex}-${currentMedia.src}`}
+                    media={currentMedia}
+                    className="split__media"
+                    alt={currentMedia.caption || project.imageAlt}
+                    roundedVideo={isWebDesignCategory(project.category)}
+                  />
+                  {currentMedia.caption ? (
+                    <div className="split__caption-rail">
+                      <p className="split__caption">{currentMedia.caption}</p>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </figure>
+          </>
+        )}
       </div>
 
       <footer
@@ -150,13 +169,13 @@ function ProjectPane({
           infoOpen ? ' split__footer--open' : ''
         }`}
         aria-expanded={hasDescription ? infoOpen : undefined}
-        onClick={hasDescription ? () => setInfoOpen((open) => !open) : undefined}
+        onClick={hasDescription ? toggleInfo : undefined}
         onKeyDown={
           hasDescription
             ? (event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault()
-                  setInfoOpen((open) => !open)
+                  toggleInfo()
                 }
               }
             : undefined
@@ -179,11 +198,6 @@ function ProjectPane({
           ) : null}
         </p>
         <p className="split__year">{project.year}</p>
-        {hasDescription && description ? (
-          <div className="split__description-wrap">
-            <RichText value={description} className="split__description" />
-          </div>
-        ) : null}
       </footer>
     </article>
   )
@@ -246,6 +260,19 @@ function LaneColumn({
 
       if (Math.abs(event.deltaY) < 8) {
         return
+      }
+
+      const info = (event.target as Element | null)?.closest?.('.split__info')
+
+      if (info instanceof HTMLElement) {
+        const atTop = info.scrollTop <= 0
+        const atBottom = info.scrollTop + info.clientHeight >= info.scrollHeight - 1
+        const scrollingUp = event.deltaY < 0
+        const scrollingDown = event.deltaY > 0
+
+        if ((scrollingDown && !atBottom) || (scrollingUp && !atTop)) {
+          return
+        }
       }
 
       event.preventDefault()
