@@ -96,7 +96,7 @@ function ProjectPane({ project }: { project: GalleryItem }) {
   return (
     <article className="split__project" data-project-id={project.id}>
       <div
-        className="split__stage fit-media"
+        className="split__stage"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
