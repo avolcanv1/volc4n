@@ -229,6 +229,9 @@
 
 .split__meta-line {
   justify-self: start;
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
   white-space: nowrap;
 }
 

@@ -30,7 +30,13 @@ function preloadImageMedia(media: ProjectMediaItem | undefined) {
   image.src = media.src
 }
 
-function ProjectPane({ project }: { project: GalleryItem }) {
+function ProjectPane({
+  project,
+  showCategory,
+}: {
+  project: GalleryItem
+  showCategory: boolean
+}) {
   const [imageIndex, setImageIndex] = useState(0)
   const [infoOpen, setInfoOpen] = useState(false)
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
@@ -163,8 +169,8 @@ function ProjectPane({ project }: { project: GalleryItem }) {
             <span className="split__counter">
               ( {String(safeIndex + 1).padStart(2, '0')} / {String(mediaCount).padStart(2, '0')} )
             </span>
-          ) : null}{' '}
-          <span className="split__category">{project.category}</span>
+          ) : null}
+          {showCategory ? <span className="split__category">{project.category}</span> : null}
         </p>
         <p className="split__title">
           <span className="split__title-text">{project.title}</span>
@@ -282,7 +288,13 @@ function LaneColumn({
         {projects.length === 0 ? (
           <p className="split__empty">No projects yet.</p>
         ) : (
-          projects.map((project) => <ProjectPane key={project.id} project={project} />)
+          projects.map((project) => (
+            <ProjectPane
+              key={project.id}
+              project={project}
+              showCategory={lane !== 'books'}
+            />
+          ))
         )}
       </div>
     </section>
