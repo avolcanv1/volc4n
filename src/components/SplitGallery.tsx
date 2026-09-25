@@ -377,7 +377,7 @@ function ProjectPane({
             {hasCategory ? (
               <p className="split__info-category">{project.category}</p>
             ) : null}
-            {hasDescription ? (
+            {hasDescription && description ? (
               <RichText value={description} className="split__description" />
             ) : null}
           </div>
