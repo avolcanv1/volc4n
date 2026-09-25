@@ -32,7 +32,8 @@
   padding: var(--index-preview-padding);
   box-shadow: var(--index-preview-shadow);
   overflow: visible;
-  z-index: 0;
+  /* Above index rows/dividers (list z-index: 1) and sticky header (page__bar z-index: 10). */
+  z-index: 20;
   pointer-events: none;
 }
 
