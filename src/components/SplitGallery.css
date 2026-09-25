@@ -1,0 +1,141 @@
+.split {
+  height: 100svh;
+  max-height: 100svh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  padding: 0;
+}
+
+.split__header {
+  padding: var(--page-padding);
+  position: relative;
+  z-index: 2;
+}
+
+.split__columns {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.split__lane {
+  min-width: 0;
+  min-height: 0;
+  border-left: 1px solid color-mix(in srgb, var(--page-text) 12%, transparent);
+}
+
+.split__lane:first-child {
+  border-left: 0;
+}
+
+.split__scroller {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 var(--page-padding) calc(var(--page-padding) * 2);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--page-text) 20%, transparent) transparent;
+}
+
+.split__scroller::-webkit-scrollbar {
+  width: 4px;
+}
+
+.split__scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.split__scroller::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--page-text) 18%, transparent);
+  border-radius: 4px;
+}
+
+.split__lane-label {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 0 0 1.5rem;
+  padding: 0.35rem 0 0.75rem;
+  background: var(--page-bg);
+  font-size: var(--page-font-size);
+  font-weight: 400;
+}
+
+.split__empty {
+  margin: 0;
+  color: color-mix(in srgb, var(--page-text) 55%, transparent);
+}
+
+.split__project {
+  margin: 0 0 3.5rem;
+}
+
+.split__project:last-child {
+  margin-bottom: 0;
+}
+
+.split__media-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.split__figure {
+  margin: 0;
+}
+
+.split__media {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  vertical-align: top;
+}
+
+.split__media.project-media__video--rounded {
+  border-radius: 12px;
+}
+
+.split__caption {
+  margin: 0.35rem 0 0;
+  font-size: var(--page-font-size);
+}
+
+.split__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin: 0.75rem 0 0;
+}
+
+.split__title {
+  font-style: italic;
+  min-width: 0;
+}
+
+.split__year {
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .split__columns {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .split__lane {
+    border-left: 0;
+    border-top: 1px solid color-mix(in srgb, var(--page-text) 12%, transparent);
+  }
+
+  .split__lane:first-child {
+    border-top: 0;
+  }
+
+  .split__project {
+    margin-bottom: 2.25rem;
+  }
+}

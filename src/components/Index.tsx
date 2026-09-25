@@ -154,7 +154,7 @@ export function Index() {
         {projects.map((item, itemIndex) => (
           <Link
             key={item.id}
-            to={`/?slide=${itemIndex + 1}`}
+            to={`/?project=${item.id}`}
             className="index__row"
             onMouseEnter={() => setHoveredIndex(itemIndex)}
             onMouseLeave={() => setHoveredIndex(null)}
