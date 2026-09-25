@@ -1,13 +1,18 @@
 .split {
+  --split-header-block: calc(var(--page-padding) * 2 + var(--page-font-size));
   --split-footer-block: calc(var(--page-padding) * 2 + var(--page-font-size));
   --image-ratio-width: 3;
   --image-ratio-height: 2;
   --gallery-image-shadow-bleed: 64px;
   --gallery-image-shadow: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.12));
+  --split-slide-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --split-slide-duration: 0.42s;
+  position: relative;
   height: 100svh;
   max-height: 100svh;
+  /* Columns fill the viewport; header floats on top so scroll runs full height. */
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   overflow: hidden;
   padding: 0;
 }
@@ -18,14 +23,31 @@
     drop-shadow(0 0 12px rgba(255, 255, 255, 0.14));
 }
 
-.split__header {
+.page.split .split__header.page__bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  margin: 0;
   padding: var(--page-padding);
-  position: relative;
-  z-index: 3;
-  background: transparent;
+  background: transparent !important;
+  background-color: transparent !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  border: 0;
+  pointer-events: none;
+}
+
+.page.split .split__header.page__bar > * {
+  pointer-events: auto;
 }
 
 .split__columns {
+  grid-row: 1;
+  grid-column: 1;
+  height: 100%;
   min-height: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -46,12 +68,13 @@
 
 .split__lane-label {
   position: absolute;
-  top: 0;
+  top: var(--split-header-block);
   left: var(--page-padding);
   z-index: 2;
   margin: 0;
   padding: 0.15rem 0 0.4rem;
-  background: transparent;
+  background: transparent !important;
+  background-color: transparent !important;
   font-size: var(--page-font-size);
   font-weight: 400;
   pointer-events: none;
@@ -85,7 +108,7 @@
 
 .split__empty {
   margin: 0;
-  padding: var(--page-padding);
+  padding: calc(var(--split-header-block) + var(--page-padding)) var(--page-padding) var(--page-padding);
   color: color-mix(in srgb, var(--page-text) 55%, transparent);
 }
 
@@ -97,7 +120,8 @@
   height: 100cqh;
   max-height: 100cqh;
   min-height: 0;
-  overflow: hidden;
+  /* Visible so drop-shadows can bleed into the transparent footer zone. */
+  overflow: visible;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   display: flex;
@@ -109,14 +133,14 @@
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .split__nav {
   position: absolute;
   top: 0;
   bottom: 0;
-  z-index: 2;
+  z-index: 3;
   width: 42%;
   margin: 0;
   padding: 0;
@@ -142,8 +166,8 @@
 
 .split__figure {
   position: absolute;
-  /* Bottom inset keeps portraits (and their drop-shadow) clearly above the project footer. */
-  inset: 1.75rem var(--page-padding) 1.75rem;
+  /* Top clears floating header + lane label; bottom keeps pixels above footer, shadow may bleed. */
+  inset: calc(var(--split-header-block) + 1.5rem) var(--page-padding) 1.75rem;
   display: grid;
   place-items: center;
   width: auto;
@@ -153,18 +177,48 @@
   min-height: 0;
   overflow: visible;
   pointer-events: none;
-  container-type: size;
 }
 
-.split__frame {
-  position: relative;
-  box-sizing: border-box;
+.split__viewport {
   width: 100%;
   height: 100%;
   min-width: 0;
   min-height: 0;
+  overflow: visible;
+  container-type: size;
+}
+
+.split__clip {
+  width: 100%;
+  height: calc(100% + 2 * var(--gallery-image-shadow-bleed));
+  margin-top: calc(-1 * var(--gallery-image-shadow-bleed));
+  min-width: 0;
+  min-height: 0;
+  /* Clip only the sliding neighbors horizontally; vertical bleed stays for shadows. */
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+
+.split__track {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+
+.split__track--animating {
+  transition: transform var(--split-slide-duration) var(--split-slide-ease);
+}
+
+.split__slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
   display: grid;
   place-items: center;
+  min-width: 0;
+  min-height: 0;
   overflow: visible;
 }
 
@@ -224,7 +278,7 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 1.75rem var(--page-padding);
+  padding: calc(var(--split-header-block) + 1.5rem) var(--page-padding) 1.75rem;
   display: flex;
   align-items: flex-start;
 }
@@ -236,11 +290,10 @@
   line-height: 1.45;
 }
 
-.split__footer {
+.page.split .split__footer {
   position: relative;
   z-index: 2;
   flex: 0 0 auto;
-  isolation: isolate;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: end;
@@ -248,7 +301,12 @@
   row-gap: 0;
   min-height: var(--split-footer-block);
   padding: var(--page-padding);
-  background: transparent;
+  background: transparent !important;
+  background-color: transparent !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  border: 0;
 }
 
 .split__meta-line,
@@ -312,7 +370,7 @@
     border-top: 0;
   }
 
-  .split__footer {
+  .page.split .split__footer {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
     align-items: start;

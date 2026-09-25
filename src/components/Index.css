@@ -77,8 +77,27 @@
   gap: 50px;
   width: 100%;
   min-height: 100svh;
+  max-height: 100svh;
   padding: var(--index-list-offset-top) var(--page-padding) var(--page-padding);
   overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  /* Match SplitGallery / Gallery column scrollbar chrome exactly. */
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--page-text) 20%, transparent) transparent;
+}
+
+.index__list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.index__list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.index__list::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--page-text) 18%, transparent);
+  border-radius: 4px;
 }
 
 .index__row {

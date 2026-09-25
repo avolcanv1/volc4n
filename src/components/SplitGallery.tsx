@@ -1,4 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type TouchEvent } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type TouchEvent,
+  type TransitionEvent,
+} from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
@@ -20,6 +29,7 @@ const LANE_COPY: Record<ProjectLane, string> = {
 const SWIPE_THRESHOLD = 48
 const SWIPE_LOCK_PX = 10
 const SNAP_LOCK_MS = 620
+const SLIDE_FALLBACK_MS = 520
 
 function preloadImageMedia(media: ProjectMediaItem | undefined) {
   if (!media || media.kind !== 'image') {
@@ -39,35 +49,127 @@ function ProjectPane({
 }) {
   const [imageIndex, setImageIndex] = useState(0)
   const [infoOpen, setInfoOpen] = useState(false)
+  const [slideWidth, setSlideWidth] = useState(0)
+  const [trackOffset, setTrackOffset] = useState(0)
+  const [isAnimating, setIsAnimating] = useState(false)
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
+  const viewportRef = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
+  const isAnimatingRef = useRef(false)
+  const pendingDirectionRef = useRef<-1 | 1 | null>(null)
   const mediaCount = project.media.length
   const safeIndex = Math.min(imageIndex, Math.max(mediaCount - 1, 0))
   const currentMedia = getProjectMedia(project, safeIndex)
+  const prevMedia =
+    mediaCount > 1 ? getProjectMedia(project, (safeIndex - 1 + mediaCount) % mediaCount) : null
+  const nextMedia =
+    mediaCount > 1 ? getProjectMedia(project, (safeIndex + 1) % mediaCount) : null
   const description = project.description
   const hasDescription = hasRichTextContent(description)
+  const restingOffset = mediaCount > 1 && slideWidth > 0 ? -slideWidth : 0
 
-  const cycle = useCallback(
-    (direction: -1 | 1) => {
-      if (mediaCount <= 1) {
-        return
+  useLayoutEffect(() => {
+    const viewport = viewportRef.current
+
+    if (!viewport) {
+      return
+    }
+
+    const updateWidth = () => {
+      const width = viewport.clientWidth
+      setSlideWidth(width)
+
+      if (!isAnimatingRef.current) {
+        setTrackOffset(mediaCount > 1 && width > 0 ? -width : 0)
       }
+    }
 
-      setImageIndex((current) => (current + direction + mediaCount) % mediaCount)
-    },
-    [mediaCount],
-  )
+    updateWidth()
+    const observer = new ResizeObserver(updateWidth)
+    observer.observe(viewport)
+
+    return () => observer.disconnect()
+  }, [project.id, infoOpen, mediaCount])
 
   useEffect(() => {
     setInfoOpen(false)
-  }, [safeIndex, project.id])
+    setImageIndex(0)
+    isAnimatingRef.current = false
+    pendingDirectionRef.current = null
+    setIsAnimating(false)
+  }, [project.id])
 
   useEffect(() => {
-    preloadImageMedia(getProjectMedia(project, safeIndex - 1))
-    preloadImageMedia(getProjectMedia(project, safeIndex + 1))
-  }, [project, safeIndex])
+    setInfoOpen(false)
+  }, [safeIndex])
+
+  useEffect(() => {
+    preloadImageMedia(prevMedia ?? undefined)
+    preloadImageMedia(nextMedia ?? undefined)
+  }, [prevMedia, nextMedia])
+
+  const settleAfterSlide = useCallback(() => {
+    const direction = pendingDirectionRef.current
+    pendingDirectionRef.current = null
+
+    if (direction != null && mediaCount > 1) {
+      setImageIndex((current) => (current + direction + mediaCount) % mediaCount)
+    }
+
+    isAnimatingRef.current = false
+    setIsAnimating(false)
+    setTrackOffset(mediaCount > 1 && slideWidth > 0 ? -slideWidth : 0)
+  }, [mediaCount, slideWidth])
+
+  const navigateWithSlide = useCallback(
+    (direction: -1 | 1) => {
+      if (mediaCount <= 1 || isAnimatingRef.current || infoOpen) {
+        return
+      }
+
+      const width = viewportRef.current?.clientWidth ?? slideWidth
+
+      if (width <= 0) {
+        setImageIndex((current) => (current + direction + mediaCount) % mediaCount)
+        return
+      }
+
+      isAnimatingRef.current = true
+      pendingDirectionRef.current = direction
+      setIsAnimating(true)
+      setTrackOffset(direction === 1 ? -2 * width : 0)
+    },
+    [infoOpen, mediaCount, slideWidth],
+  )
+
+  function handleTrackTransitionEnd(event: TransitionEvent<HTMLDivElement>) {
+    if (event.target !== trackRef.current || event.propertyName !== 'transform') {
+      return
+    }
+
+    if (!isAnimatingRef.current) {
+      return
+    }
+
+    settleAfterSlide()
+  }
+
+  useEffect(() => {
+    if (!isAnimating) {
+      return
+    }
+
+    const timer = window.setTimeout(() => {
+      if (isAnimatingRef.current) {
+        settleAfterSlide()
+      }
+    }, SLIDE_FALLBACK_MS)
+
+    return () => window.clearTimeout(timer)
+  }, [isAnimating, settleAfterSlide])
 
   function handleTouchStart(event: TouchEvent<HTMLDivElement>) {
-    if (event.touches.length !== 1) {
+    if (event.touches.length !== 1 || isAnimatingRef.current) {
       touchStartRef.current = null
       return
     }
@@ -80,7 +182,12 @@ function ProjectPane({
     const start = touchStartRef.current
     touchStartRef.current = null
 
-    if (!start || mediaCount <= 1 || event.changedTouches.length !== 1) {
+    if (
+      !start ||
+      mediaCount <= 1 ||
+      isAnimatingRef.current ||
+      event.changedTouches.length !== 1
+    ) {
       return
     }
 
@@ -92,7 +199,7 @@ function ProjectPane({
       return
     }
 
-    cycle(deltaX < 0 ? 1 : -1)
+    navigateWithSlide(deltaX < 0 ? 1 : -1)
   }
 
   const toggleInfo = useCallback(() => {
@@ -130,33 +237,72 @@ function ProjectPane({
                   className="split__nav split__nav--prev"
                   aria-label="Previous image"
                   onPointerDown={(event) => event.preventDefault()}
-                  onClick={() => cycle(-1)}
+                  onClick={() => navigateWithSlide(-1)}
                 />
                 <button
                   type="button"
                   className="split__nav split__nav--next"
                   aria-label="Next image"
                   onPointerDown={(event) => event.preventDefault()}
-                  onClick={() => cycle(1)}
+                  onClick={() => navigateWithSlide(1)}
                 />
               </>
             ) : null}
 
             <figure className="split__figure">
-              <div className="split__frame">
-                <div className="split__media-wrap">
-                  <ProjectMedia
-                    key={`${project.id}-${safeIndex}-${currentMedia.src}`}
-                    media={currentMedia}
-                    className="split__media"
-                    alt={currentMedia.caption || project.imageAlt}
-                    roundedVideo={isWebDesignCategory(project.category)}
-                  />
-                  {currentMedia.caption ? (
-                    <div className="split__caption-rail">
-                      <p className="split__caption">{currentMedia.caption}</p>
+              <div ref={viewportRef} className="split__viewport">
+                <div className="split__clip">
+                  <div
+                    ref={trackRef}
+                    className={`split__track${isAnimating ? ' split__track--animating' : ''}`}
+                    style={{
+                      transform: `translate3d(${isAnimating ? trackOffset : restingOffset}px, 0, 0)`,
+                    }}
+                    onTransitionEnd={handleTrackTransitionEnd}
+                  >
+                    {mediaCount > 1 && prevMedia ? (
+                      <div className="split__slide" aria-hidden="true">
+                        <div className="split__media-wrap">
+                          <ProjectMedia
+                            media={prevMedia}
+                            className="split__media"
+                            alt=""
+                            roundedVideo={isWebDesignCategory(project.category)}
+                          />
+                        </div>
+                      </div>
+                    ) : null}
+
+                    <div className="split__slide">
+                      <div className="split__media-wrap">
+                        <ProjectMedia
+                          key={`${project.id}-${safeIndex}-${currentMedia.src}`}
+                          media={currentMedia}
+                          className="split__media"
+                          alt={currentMedia.caption || project.imageAlt}
+                          roundedVideo={isWebDesignCategory(project.category)}
+                        />
+                        {currentMedia.caption ? (
+                          <div className="split__caption-rail">
+                            <p className="split__caption">{currentMedia.caption}</p>
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
-                  ) : null}
+
+                    {mediaCount > 1 && nextMedia ? (
+                      <div className="split__slide" aria-hidden="true">
+                        <div className="split__media-wrap">
+                          <ProjectMedia
+                            media={nextMedia}
+                            className="split__media"
+                            alt=""
+                            roundedVideo={isWebDesignCategory(project.category)}
+                          />
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
               </div>
             </figure>
