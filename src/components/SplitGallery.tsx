@@ -137,6 +137,8 @@ function ProjectPane({
   const currentMedia = getProjectMedia(project, safeIndex)
   const description = project.description
   const hasDescription = hasRichTextContent(description)
+  const hasCategory = showCategory && Boolean(project.category?.trim())
+  const canOpenInfo = hasDescription || hasCategory
   const looped = mediaCount > 1
   const trackSlides = useMemo(() => {
     if (!looped) {
@@ -345,12 +347,12 @@ function ProjectPane({
   }
 
   const toggleInfo = useCallback(() => {
-    if (!hasDescription) {
+    if (!canOpenInfo) {
       return
     }
 
     setInfoOpen((open) => !open)
-  }, [hasDescription])
+  }, [canOpenInfo])
 
   if (!currentMedia) {
     return null
@@ -370,12 +372,14 @@ function ProjectPane({
         onTouchStart={infoOpen ? undefined : handleTouchStart}
         onTouchEnd={infoOpen ? undefined : handleTouchEnd}
       >
-        {infoOpen && description ? (
+        {infoOpen && canOpenInfo ? (
           <div className="split__info" role="region" aria-label="Project description">
-            {showCategory && project.category ? (
+            {hasCategory ? (
               <p className="split__info-category">{project.category}</p>
             ) : null}
-            <RichText value={description} className="split__description" />
+            {hasDescription ? (
+              <RichText value={description} className="split__description" />
+            ) : null}
           </div>
         ) : (
           <>
@@ -448,13 +452,13 @@ function ProjectPane({
       </div>
 
       <footer
-        className={`split__footer${hasDescription ? ' split__footer--expandable' : ''}${
+        className={`split__footer${canOpenInfo ? ' split__footer--expandable' : ''}${
           infoOpen ? ' split__footer--open' : ''
         }`}
-        aria-expanded={hasDescription ? infoOpen : undefined}
-        onClick={hasDescription ? toggleInfo : undefined}
+        aria-expanded={canOpenInfo ? infoOpen : undefined}
+        onClick={canOpenInfo ? toggleInfo : undefined}
         onKeyDown={
-          hasDescription
+          canOpenInfo
             ? (event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault()
@@ -463,11 +467,11 @@ function ProjectPane({
               }
             : undefined
         }
-        role={hasDescription ? 'button' : undefined}
-        tabIndex={hasDescription ? 0 : undefined}
+        role={canOpenInfo ? 'button' : undefined}
+        tabIndex={canOpenInfo ? 0 : undefined}
       >
         <span className="split__expand" aria-hidden="true">
-          {hasDescription ? (infoOpen ? '—' : '+') : ''}
+          {canOpenInfo ? (infoOpen ? '—' : '+') : ''}
         </span>
         <p className="split__title">
           <span className="split__title-text">{project.title}</span>
