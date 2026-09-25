@@ -123,6 +123,7 @@ function ProjectPane({
   showCategory: boolean
 }) {
   const [imageIndex, setImageIndex] = useState(0)
+  const [visualIndex, setVisualIndex] = useState(1)
   const [infoOpen, setInfoOpen] = useState(false)
   const [slideWidth, setSlideWidth] = useState(0)
   const [trackOffset, setTrackOffset] = useState(0)
@@ -131,17 +132,25 @@ function ProjectPane({
   const viewportRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const isAnimatingRef = useRef(false)
-  const pendingDirectionRef = useRef<-1 | 1 | null>(null)
+  const pendingVisualRef = useRef<number | null>(null)
   const mediaCount = project.media.length
   const safeIndex = Math.min(imageIndex, Math.max(mediaCount - 1, 0))
   const currentMedia = getProjectMedia(project, safeIndex)
-  const prevMedia =
-    mediaCount > 1 ? getProjectMedia(project, (safeIndex - 1 + mediaCount) % mediaCount) : null
-  const nextMedia =
-    mediaCount > 1 ? getProjectMedia(project, (safeIndex + 1) % mediaCount) : null
   const description = project.description
   const hasDescription = hasRichTextContent(description)
-  const restingOffset = mediaCount > 1 && slideWidth > 0 ? trackOffsetForSlide(1, slideWidth) : 0
+  const looped = mediaCount > 1
+  const trackSlides = useMemo(() => {
+    if (!looped) {
+      return project.media
+    }
+
+    return [project.media[mediaCount - 1], ...project.media, project.media[0]]
+  }, [looped, mediaCount, project.media])
+  const activeVisualIndex = looped ? visualIndex : 0
+  const restingOffset =
+    slideWidth > 0 && (looped || mediaCount > 0)
+      ? trackOffsetForSlide(activeVisualIndex, slideWidth)
+      : 0
 
   useLayoutEffect(() => {
     const viewport = viewportRef.current
@@ -155,7 +164,8 @@ function ProjectPane({
       setSlideWidth(width)
 
       if (!isAnimatingRef.current) {
-        setTrackOffset(mediaCount > 1 && width > 0 ? trackOffsetForSlide(1, width) : 0)
+        const index = looped ? visualIndex : 0
+        setTrackOffset(width > 0 ? trackOffsetForSlide(index, width) : 0)
       }
     }
 
@@ -164,14 +174,16 @@ function ProjectPane({
     observer.observe(viewport)
 
     return () => observer.disconnect()
-  }, [project.id, infoOpen, mediaCount])
+  }, [project.id, infoOpen, looped, mediaCount, visualIndex])
 
   useEffect(() => {
     setInfoOpen(false)
     setImageIndex(0)
+    setVisualIndex(1)
     isAnimatingRef.current = false
-    pendingDirectionRef.current = null
+    pendingVisualRef.current = null
     setIsAnimating(false)
+    setTrackOffset(0)
   }, [project.id])
 
   useEffect(() => {
@@ -179,12 +191,17 @@ function ProjectPane({
   }, [safeIndex])
 
   useEffect(() => {
-    // Warm every slide in this project as soon as the pane is mounted/active.
     void preloadProjectMedia(project)
   }, [project])
 
   useEffect(() => {
-    // Prefer next/prev in the network queue; do not gate rendering on decode.
+    const nextMedia = looped
+      ? getProjectMedia(project, (safeIndex + 1) % mediaCount)
+      : null
+    const prevMedia = looped
+      ? getProjectMedia(project, (safeIndex - 1 + mediaCount) % mediaCount)
+      : null
+
     void preloadImageMedia(currentMedia)
     void preloadImageMedia(nextMedia)
     void preloadImageMedia(prevMedia)
@@ -198,49 +215,74 @@ function ProjectPane({
     if (prevMedia?.kind === 'image') {
       ensureLinkPreload(prevMedia.src, 'high')
     }
-  }, [currentMedia, nextMedia, prevMedia])
+  }, [currentMedia, looped, mediaCount, project, safeIndex])
 
   const settleAfterSlide = useCallback(() => {
-    const direction = pendingDirectionRef.current
-    pendingDirectionRef.current = null
+    const pending = pendingVisualRef.current
+    pendingVisualRef.current = null
 
-    if (direction != null && mediaCount > 1) {
-      setImageIndex((current) => (current + direction + mediaCount) % mediaCount)
+    let nextVisual = pending
+    let nextReal = safeIndex
+
+    if (pending != null && looped) {
+      if (pending === 0) {
+        nextVisual = mediaCount
+        nextReal = mediaCount - 1
+      } else if (pending === mediaCount + 1) {
+        nextVisual = 1
+        nextReal = 0
+      } else {
+        nextVisual = pending
+        nextReal = pending - 1
+      }
     }
 
     isAnimatingRef.current = false
     setIsAnimating(false)
-    setTrackOffset(mediaCount > 1 && slideWidth > 0 ? trackOffsetForSlide(1, slideWidth) : 0)
-  }, [mediaCount, slideWidth])
+
+    if (nextVisual != null) {
+      setVisualIndex(nextVisual)
+      setImageIndex(nextReal)
+      setTrackOffset(slideWidth > 0 ? trackOffsetForSlide(nextVisual, slideWidth) : 0)
+    }
+  }, [looped, mediaCount, safeIndex, slideWidth])
 
   const navigateWithSlide = useCallback(
     (direction: -1 | 1) => {
-      if (mediaCount <= 1 || isAnimatingRef.current || infoOpen) {
+      if (!looped || isAnimatingRef.current || infoOpen) {
         return
       }
 
       const width = viewportRef.current?.clientWidth ?? slideWidth
+      const targetReal = (safeIndex + direction + mediaCount) % mediaCount
+      const targetMedia = getProjectMedia(project, targetReal)
 
       if (width <= 0) {
-        setImageIndex((current) => (current + direction + mediaCount) % mediaCount)
+        setImageIndex(targetReal)
+        setVisualIndex(targetReal + 1)
         return
       }
 
-      isAnimatingRef.current = true
-      pendingDirectionRef.current = direction
-      setIsAnimating(true)
+      const run = async () => {
+        if (targetMedia?.kind === 'image') {
+          ensureLinkPreload(targetMedia.src, 'high')
+        }
+        await preloadImageMedia(targetMedia)
 
-      // Kick the destination frame into cache before the transform paints.
-      const targetIndex = (safeIndex + direction + mediaCount) % mediaCount
-      const targetMedia = getProjectMedia(project, targetIndex)
-      void preloadImageMedia(targetMedia)
-      if (targetMedia?.kind === 'image') {
-        ensureLinkPreload(targetMedia.src, 'high')
+        if (isAnimatingRef.current) {
+          return
+        }
+
+        const nextVisual = visualIndex + direction
+        isAnimatingRef.current = true
+        pendingVisualRef.current = nextVisual
+        setIsAnimating(true)
+        setTrackOffset(trackOffsetForSlide(nextVisual, width))
       }
 
-      setTrackOffset(direction === 1 ? trackOffsetForSlide(2, width) : trackOffsetForSlide(0, width))
+      void run()
     },
-    [infoOpen, mediaCount, project, safeIndex, slideWidth],
+    [infoOpen, looped, mediaCount, project, safeIndex, slideWidth, visualIndex],
   )
 
   function handleTrackTransitionEnd(event: TransitionEvent<HTMLDivElement>) {
@@ -285,7 +327,7 @@ function ProjectPane({
 
     if (
       !start ||
-      mediaCount <= 1 ||
+      !looped ||
       isAnimatingRef.current ||
       event.changedTouches.length !== 1
     ) {
@@ -335,7 +377,7 @@ function ProjectPane({
           </div>
         ) : (
           <>
-            {mediaCount > 1 ? (
+            {looped ? (
               <>
                 <button
                   type="button"
@@ -365,57 +407,36 @@ function ProjectPane({
                     }}
                     onTransitionEnd={handleTrackTransitionEnd}
                   >
-                    {mediaCount > 1 && prevMedia ? (
-                      <div className="split__slide" aria-hidden="true">
-                        <div className="split__media-wrap">
-                          <ProjectMedia
-                            media={prevMedia}
-                            className="split__media"
-                            alt=""
-                            roundedVideo={isWebDesignCategory(project.category)}
-                            decoding="async"
-                            fetchPriority="auto"
-                            loading="eager"
-                          />
-                        </div>
-                      </div>
-                    ) : null}
+                    {trackSlides.map((media, slideIndex) => {
+                      const isActive = slideIndex === activeVisualIndex
+                      const isNeighbor =
+                        slideIndex === activeVisualIndex - 1 || slideIndex === activeVisualIndex + 1
 
-                    <div className="split__slide">
-                      <div className="split__media-wrap">
-                        <ProjectMedia
-                          key={`${project.id}-${safeIndex}-${currentMedia.src}`}
-                          media={currentMedia}
-                          className="split__media"
-                          alt={currentMedia.caption || project.imageAlt}
-                          roundedVideo={isWebDesignCategory(project.category)}
-                          decoding="async"
-                          fetchPriority="high"
-                          loading="eager"
-                        />
-                        {currentMedia.caption ? (
-                          <div className="split__caption-rail">
-                            <p className="split__caption">{currentMedia.caption}</p>
+                      return (
+                        <div
+                          key={`${project.id}-track-${slideIndex}-${media.src}`}
+                          className="split__slide"
+                          aria-hidden={!isActive}
+                        >
+                          <div className="split__media-wrap">
+                            <ProjectMedia
+                              media={media}
+                              className="split__media"
+                              alt={isActive ? media.caption || project.imageAlt : ''}
+                              roundedVideo={isWebDesignCategory(project.category)}
+                              decoding="async"
+                              fetchPriority={isActive || isNeighbor ? 'high' : 'auto'}
+                              loading="eager"
+                            />
+                            {isActive && media.caption ? (
+                              <div className="split__caption-rail">
+                                <p className="split__caption">{media.caption}</p>
+                              </div>
+                            ) : null}
                           </div>
-                        ) : null}
-                      </div>
-                    </div>
-
-                    {mediaCount > 1 && nextMedia ? (
-                      <div className="split__slide" aria-hidden="true">
-                        <div className="split__media-wrap">
-                          <ProjectMedia
-                            media={nextMedia}
-                            className="split__media"
-                            alt=""
-                            roundedVideo={isWebDesignCategory(project.category)}
-                            decoding="async"
-                            fetchPriority="high"
-                            loading="eager"
-                          />
                         </div>
-                      </div>
-                    ) : null}
+                      )
+                    })}
                   </div>
                 </div>
               </div>
