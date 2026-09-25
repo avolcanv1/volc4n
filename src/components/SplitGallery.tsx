@@ -41,6 +41,7 @@ function trackOffsetForSlide(slideIndex: number, slideWidth: number) {
 }
 
 const decodedImageCache = new Map<string, Promise<void>>()
+const linkPreloadIds = new Set<string>()
 
 function preloadImageMedia(media: ProjectMediaItem | undefined | null) {
   if (!media || media.kind !== 'image') {
@@ -77,12 +78,41 @@ function preloadImageMedia(media: ProjectMediaItem | undefined | null) {
   return promise
 }
 
+function ensureLinkPreload(src: string, priority: 'high' | 'auto' = 'high') {
+  if (typeof document === 'undefined' || linkPreloadIds.has(src)) {
+    return
+  }
+
+  linkPreloadIds.add(src)
+
+  const link = document.createElement('link')
+  link.rel = 'preload'
+  link.as = 'image'
+  link.href = src
+  if (priority === 'high') {
+    link.fetchPriority = 'high'
+  }
+  document.head.appendChild(link)
+}
+
+function preloadProjectMedia(project: GalleryItem | undefined | null) {
+  if (!project?.media?.length) {
+    return Promise.resolve()
+  }
+
+  return Promise.all(project.media.map((item) => preloadImageMedia(item))).then(() => undefined)
+}
+
 function preloadProjectCover(project: GalleryItem | undefined) {
   if (!project) {
     return Promise.resolve()
   }
 
-  return preloadImageMedia(getProjectMedia(project, 0) ?? project.media[0])
+  const cover = getProjectMedia(project, 0) ?? project.media[0]
+  if (cover?.kind === 'image') {
+    ensureLinkPreload(cover.src, 'high')
+  }
+  return preloadImageMedia(cover)
 }
 
 function ProjectPane({
@@ -149,16 +179,26 @@ function ProjectPane({
   }, [safeIndex])
 
   useEffect(() => {
-    // Warm current + neighbors immediately; do not gate rendering on decode.
-    void preloadImageMedia(currentMedia)
-    void preloadImageMedia(prevMedia)
-    void preloadImageMedia(nextMedia)
+    // Warm every slide in this project as soon as the pane is mounted/active.
+    void preloadProjectMedia(project)
+  }, [project])
 
-    if (mediaCount > 3) {
-      void preloadImageMedia(getProjectMedia(project, (safeIndex + 2) % mediaCount))
-      void preloadImageMedia(getProjectMedia(project, (safeIndex - 2 + mediaCount) % mediaCount))
+  useEffect(() => {
+    // Prefer next/prev in the network queue; do not gate rendering on decode.
+    void preloadImageMedia(currentMedia)
+    void preloadImageMedia(nextMedia)
+    void preloadImageMedia(prevMedia)
+
+    if (currentMedia?.kind === 'image') {
+      ensureLinkPreload(currentMedia.src, 'high')
     }
-  }, [currentMedia, mediaCount, nextMedia, prevMedia, project, safeIndex])
+    if (nextMedia?.kind === 'image') {
+      ensureLinkPreload(nextMedia.src, 'high')
+    }
+    if (prevMedia?.kind === 'image') {
+      ensureLinkPreload(prevMedia.src, 'high')
+    }
+  }, [currentMedia, nextMedia, prevMedia])
 
   const settleAfterSlide = useCallback(() => {
     const direction = pendingDirectionRef.current
@@ -189,9 +229,18 @@ function ProjectPane({
       isAnimatingRef.current = true
       pendingDirectionRef.current = direction
       setIsAnimating(true)
+
+      // Kick the destination frame into cache before the transform paints.
+      const targetIndex = (safeIndex + direction + mediaCount) % mediaCount
+      const targetMedia = getProjectMedia(project, targetIndex)
+      void preloadImageMedia(targetMedia)
+      if (targetMedia?.kind === 'image') {
+        ensureLinkPreload(targetMedia.src, 'high')
+      }
+
       setTrackOffset(direction === 1 ? trackOffsetForSlide(2, width) : trackOffsetForSlide(0, width))
     },
-    [infoOpen, mediaCount, slideWidth],
+    [infoOpen, mediaCount, project, safeIndex, slideWidth],
   )
 
   function handleTrackTransitionEnd(event: TransitionEvent<HTMLDivElement>) {
@@ -272,7 +321,7 @@ function ProjectPane({
       data-project-id={project.id}
     >
       <p className="split__project-counter" aria-live="polite">
-        [ {String(safeIndex + 1).padStart(2, '0')} / {String(mediaCount).padStart(2, '0')} ]
+        {String(safeIndex + 1).padStart(2, '0')} / {String(mediaCount).padStart(2, '0')}
       </p>
 
       <div
@@ -325,7 +374,7 @@ function ProjectPane({
                             alt=""
                             roundedVideo={isWebDesignCategory(project.category)}
                             decoding="async"
-                            fetchPriority="low"
+                            fetchPriority="auto"
                             loading="eager"
                           />
                         </div>
@@ -361,7 +410,7 @@ function ProjectPane({
                             alt=""
                             roundedVideo={isWebDesignCategory(project.category)}
                             decoding="async"
-                            fetchPriority="low"
+                            fetchPriority="high"
                             loading="eager"
                           />
                         </div>
@@ -444,8 +493,9 @@ function LaneColumn({
       }
 
       const nextIndex = Math.round(nextTop / Math.max(pane, 1))
-      void preloadProjectCover(projects[nextIndex])
-      void preloadProjectCover(projects[nextIndex + direction])
+      void preloadProjectMedia(projects[nextIndex])
+      void preloadProjectMedia(projects[nextIndex + direction])
+      void preloadProjectCover(projects[nextIndex + direction * 2])
 
       lockRef.current = true
       scroller.scrollTo({ top: nextTop, behavior: 'smooth' })
@@ -455,8 +505,9 @@ function LaneColumn({
   )
 
   useEffect(() => {
-    void preloadProjectCover(projects[0])
+    void preloadProjectMedia(projects[0])
     void preloadProjectCover(projects[1])
+    void preloadProjectCover(projects[2])
   }, [projects])
 
   useEffect(() => {
@@ -466,19 +517,21 @@ function LaneColumn({
       return
     }
 
-    const warmNearbyCovers = () => {
+    const warmNearbyProjects = () => {
       const pane = Math.max(scroller.clientHeight, 1)
       const index = Math.round(scroller.scrollTop / pane)
-      void preloadProjectCover(projects[index])
-      void preloadProjectCover(projects[index + 1])
-      void preloadProjectCover(projects[index - 1])
+      void preloadProjectMedia(projects[index])
+      void preloadProjectMedia(projects[index + 1])
+      void preloadProjectMedia(projects[index - 1])
+      void preloadProjectCover(projects[index + 2])
+      void preloadProjectCover(projects[index - 2])
     }
 
-    warmNearbyCovers()
-    scroller.addEventListener('scroll', warmNearbyCovers, { passive: true })
+    warmNearbyProjects()
+    scroller.addEventListener('scroll', warmNearbyProjects, { passive: true })
 
     return () => {
-      scroller.removeEventListener('scroll', warmNearbyCovers)
+      scroller.removeEventListener('scroll', warmNearbyProjects)
     }
   }, [projects])
 
