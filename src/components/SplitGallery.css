@@ -2,6 +2,7 @@
   --split-header-pad-y: 1.125rem;
   --split-header-block: calc(var(--split-header-pad-y) * 2 + var(--page-font-size) + 1px);
   --split-label-gap: 1.35rem;
+  --split-label-block: calc(var(--split-label-gap) + var(--page-font-size) + 0.55rem);
   --split-footer-block: calc(var(--page-padding) * 2 + var(--page-font-size));
   --split-rule: 1px solid color-mix(in srgb, var(--page-text) 12%, transparent);
   --image-ratio-width: 3;
@@ -13,9 +14,9 @@
   position: relative;
   height: 100svh;
   max-height: 100svh;
-  /* Columns fill the viewport; header floats on top so scroll runs full height. */
+  /* Header owns the top row; columns/scrollers live strictly below it. */
   display: grid;
-  grid-template-rows: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
   padding: 0;
 }
@@ -27,10 +28,8 @@
 }
 
 .page.split .split__header.page__bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  position: relative;
+  grid-row: 1;
   z-index: 10;
   margin: 0;
   padding: var(--split-header-pad-y) var(--page-padding);
@@ -42,15 +41,10 @@
   box-shadow: none;
   border: 0;
   border-bottom: var(--split-rule);
-  pointer-events: none;
-}
-
-.page.split .split__header.page__bar > * {
-  pointer-events: auto;
 }
 
 .split__columns {
-  grid-row: 1;
+  grid-row: 2;
   grid-column: 1;
   height: 100%;
   min-height: 0;
@@ -73,7 +67,7 @@
 
 .split__lane-label {
   position: absolute;
-  top: calc(var(--split-header-block) + var(--split-label-gap));
+  top: var(--split-label-gap);
   left: var(--page-padding);
   z-index: 2;
   margin: 0;
@@ -82,6 +76,21 @@
   background-color: transparent !important;
   font-size: var(--page-font-size);
   font-weight: 400;
+  line-height: 1.2;
+  pointer-events: none;
+}
+
+.split__project-counter {
+  position: absolute;
+  top: var(--split-label-gap);
+  right: var(--page-padding);
+  z-index: 2;
+  margin: 0;
+  padding: 0.15rem 0 0.4rem;
+  font-size: var(--page-font-size);
+  font-weight: 400;
+  line-height: 1.2;
+  white-space: nowrap;
   pointer-events: none;
 }
 
@@ -113,8 +122,8 @@
 
 .split__empty {
   margin: 0;
-  padding: calc(var(--split-header-block) + var(--split-label-gap) + var(--page-padding))
-    var(--page-padding) var(--page-padding);
+  padding: calc(var(--split-label-block) + var(--page-padding)) var(--page-padding)
+    var(--page-padding);
   color: color-mix(in srgb, var(--page-text) 55%, transparent);
 }
 
@@ -176,8 +185,7 @@
    * Horizontal inset >= shadow bleed so the padded slide clip (and drop-shadows)
    * stay inside the column instead of getting cut by the scroller.
    */
-  inset: calc(var(--split-header-block) + var(--split-label-gap) + 1.5rem)
-    var(--gallery-image-shadow-bleed) 1.75rem;
+  inset: calc(var(--split-label-block) + 1.25rem) var(--gallery-image-shadow-bleed) 1.75rem;
   display: grid;
   place-items: center;
   width: auto;
@@ -299,8 +307,7 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: calc(var(--split-header-block) + var(--split-label-gap) + 1.5rem) var(--page-padding)
-    1.75rem;
+  padding: calc(var(--split-label-block) + 1.25rem) var(--page-padding) 1.75rem;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -337,7 +344,8 @@
 .split__year,
 .split__counter,
 .split__category,
-.split__description {
+.split__description,
+.split__project-counter {
   margin: 0;
 }
 
@@ -371,6 +379,15 @@
 }
 
 .split__expand {
+  justify-self: start;
+  align-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  font-size: 1.55em;
+  line-height: 1;
+  font-weight: 400;
   user-select: none;
 }
 
@@ -400,7 +417,8 @@
   }
 
   .split__title,
-  .split__year {
+  .split__year,
+  .split__expand {
     justify-self: start;
   }
 

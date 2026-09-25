@@ -262,6 +262,10 @@ function ProjectPane({
       className={`split__project${infoOpen ? ' split__project--info' : ''}`}
       data-project-id={project.id}
     >
+      <p className="split__project-counter" aria-live="polite">
+        [ {String(safeIndex + 1).padStart(2, '0')} / {String(mediaCount).padStart(2, '0')} ]
+      </p>
+
       <div
         className="split__stage"
         onTouchStart={infoOpen ? undefined : handleTouchStart}
@@ -381,19 +385,12 @@ function ProjectPane({
         role={hasDescription ? 'button' : undefined}
         tabIndex={hasDescription ? 0 : undefined}
       >
-        <p className="split__meta-line">
-          <span className="split__counter">
-            [ {String(safeIndex + 1).padStart(2, '0')} / {String(mediaCount).padStart(2, '0')} ]
-          </span>
-          {showCategory ? <span className="split__category">{project.category}</span> : null}
-        </p>
+        <span className="split__expand" aria-hidden="true">
+          {hasDescription ? (infoOpen ? '—' : '+') : ''}
+        </span>
         <p className="split__title">
           <span className="split__title-text">{project.title}</span>
-          {hasDescription ? (
-            <span className="split__expand" aria-hidden="true">
-              {infoOpen ? '—' : '+'}
-            </span>
-          ) : null}
+          {showCategory ? <span className="split__category">{project.category}</span> : null}
         </p>
         <p className="split__year">{project.year}</p>
       </footer>
