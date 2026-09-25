@@ -2,12 +2,20 @@
   --split-footer-block: calc(var(--page-padding) * 2 + var(--page-font-size));
   --image-ratio-width: 3;
   --image-ratio-height: 2;
+  --gallery-image-shadow-bleed: 64px;
+  --gallery-image-shadow: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.12));
   height: 100svh;
   max-height: 100svh;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
   padding: 0;
+}
+
+.page.split.page--dark {
+  --gallery-image-shadow:
+    drop-shadow(0 0 32px rgba(255, 255, 255, 0.22))
+    drop-shadow(0 0 12px rgba(255, 255, 255, 0.14));
 }
 
 .split__header {
@@ -81,7 +89,7 @@
   box-sizing: border-box;
   height: 100%;
   max-height: 100%;
-  overflow: hidden;
+  overflow: visible;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   display: grid;
@@ -93,7 +101,7 @@
   position: relative;
   min-width: 0;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .split__nav {
@@ -142,15 +150,18 @@
   height: min(100cqh, calc(100cqw * var(--image-ratio-height) / var(--image-ratio-width)));
   display: grid;
   place-items: center;
+  overflow: visible;
 }
 
 .split__media-wrap {
   position: relative;
-  display: grid;
+  display: inline-grid;
   place-items: center;
-  width: 100%;
+  width: auto;
   height: 100%;
+  max-width: 100%;
   line-height: 0;
+  overflow: visible;
 }
 
 .split__media {
@@ -161,6 +172,11 @@
   max-height: 100%;
   object-fit: contain;
   object-position: center;
+  /* Shadow on the media so it follows portrait width and rounded video corners. */
+  filter: var(--gallery-image-shadow);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .split__media.project-media__video--rounded {
