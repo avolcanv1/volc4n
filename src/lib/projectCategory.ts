@@ -7,7 +7,7 @@ function normalizeProjectCategory(category: string) {
     .trim()
 }
 
-export type ProjectLane = 'editorial' | 'digital'
+export type ProjectLane = 'books' | 'notBooks'
 
 export function isWebDesignCategory(category: string) {
   const normalized = normalizeProjectCategory(category)
@@ -15,22 +15,24 @@ export function isWebDesignCategory(category: string) {
   return normalized === 'web design and development' || normalized === 'web design'
 }
 
-export function isDigitalCategory(category: string) {
+export function isBookCategory(category: string) {
   const normalized = normalizeProjectCategory(category)
 
-  return normalized.includes('web') || normalized.includes('digital')
+  return (
+    normalized.includes('editorial') ||
+    normalized.includes('book') ||
+    normalized.includes('libro')
+  )
 }
 
 export function isEditorialCategory(category: string) {
-  const normalized = normalizeProjectCategory(category)
-
-  return normalized.includes('editorial')
+  return isBookCategory(category)
 }
 
 export function getProjectLane(category: string): ProjectLane {
-  if (isDigitalCategory(category)) {
-    return 'digital'
+  if (isBookCategory(category)) {
+    return 'books'
   }
 
-  return 'editorial'
+  return 'notBooks'
 }

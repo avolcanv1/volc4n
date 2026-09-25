@@ -13,8 +13,8 @@ import '../styles/page.css'
 import './SplitGallery.css'
 
 const LANE_COPY: Record<ProjectLane, string> = {
-  editorial: 'Editorial',
-  digital: 'Digital',
+  books: 'Books',
+  notBooks: 'Not books',
 }
 
 const SWIPE_THRESHOLD = 48
@@ -296,18 +296,18 @@ export function SplitGallery() {
   const focusId = searchParams.get('project')
 
   const lanes = useMemo(() => {
-    const editorial: GalleryItem[] = []
-    const digital: GalleryItem[] = []
+    const books: GalleryItem[] = []
+    const notBooks: GalleryItem[] = []
 
     for (const project of projects) {
-      if (getProjectLane(project.category) === 'digital') {
-        digital.push(project)
+      if (getProjectLane(project.category) === 'books') {
+        books.push(project)
       } else {
-        editorial.push(project)
+        notBooks.push(project)
       }
     }
 
-    return { editorial, digital }
+    return { books, notBooks }
   }, [projects])
 
   const focusLane = useMemo(() => {
@@ -331,14 +331,14 @@ export function SplitGallery() {
 
       <div className="split__columns">
         <LaneColumn
-          lane="editorial"
-          projects={lanes.editorial}
-          focusId={focusLane === 'editorial' ? focusId : null}
+          lane="books"
+          projects={lanes.books}
+          focusId={focusLane === 'books' ? focusId : null}
         />
         <LaneColumn
-          lane="digital"
-          projects={lanes.digital}
-          focusId={focusLane === 'digital' ? focusId : null}
+          lane="notBooks"
+          projects={lanes.notBooks}
+          focusId={focusLane === 'notBooks' ? focusId : null}
         />
       </div>
     </div>
