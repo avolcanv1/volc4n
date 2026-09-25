@@ -227,37 +227,44 @@
   flex: 0 0 100%;
   width: 100%;
   height: 100%;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-width: 0;
   min-height: 0;
-  overflow: visible;
-  /* Keep media inset so lateral shadows stay inside the padded clip. */
+  /* Isolate each slide — wide media must not bleed into neighbors. */
+  overflow: hidden;
   padding-inline: 0;
 }
 
 .split__media-wrap {
   position: relative;
-  display: inline-block;
-  width: fit-content;
-  height: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
   max-width: 100%;
   max-height: 100%;
   min-width: 0;
   min-height: 0;
   line-height: 0;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .split__media {
   display: block;
-  /* Intrinsic size, capped to the stage — full image visible, no lateral crop. */
+  /*
+   * Shared stage height for every slide. Ultra-wide spreads keep that height and
+   * may extend past the slide width; .split__slide/.split__media-wrap clip them
+   * so neighbors never overlap when idle. Portraits stay full-height and narrower.
+   */
   width: auto;
-  height: auto;
-  max-width: 100%;
+  height: 100%;
+  max-width: none;
   max-height: 100%;
-  max-width: 100cqw;
-  max-height: 100cqh;
   object-fit: contain;
   object-position: center;
   /* Shadow on the media so it follows portrait width and rounded video corners. */
