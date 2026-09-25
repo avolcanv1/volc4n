@@ -33,6 +33,11 @@
 :root {
   --page-bg: #FAFAFA;
   --page-text: #000;
+  --page-padding: 30px;
+  --page-font-size: 14px;
+  --page-header-pad-y: 1.125rem;
+  --page-rule: 1px solid color-mix(in srgb, var(--page-text) 12%, transparent);
+  --page-header-block: calc(var(--page-header-pad-y) * 2 + var(--page-font-size) + 1px);
   --font-serif: 'Times Newer Roman', 'Times New Roman', Times, serif;
   --font-mono: 'IBM Plex Mono', 'Courier New', Courier, monospace;
   --font-counter: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;

@@ -12,7 +12,7 @@
   --quote-label-size: 24px;
   --quote-ui-size: 12px;
   /* Just under the volc4n brand in the fixed header */
-  --quote-sticky-top: calc(var(--quote-pad) + 1.35rem);
+  --quote-sticky-top: calc(var(--page-header-pad-y) + 1.35rem);
 
   /* Scroll inside .quote so the document scrollbar never appears on hover and
      shrinks the viewport — that was shifting fixed ES/EN + theme controls left. */
@@ -65,8 +65,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--quote-pad);
-  background: transparent;
+  padding: var(--page-header-pad-y) var(--quote-pad);
+  background: var(--quote-bg);
+  background-color: var(--quote-bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--quote-text) 12%, transparent);
 }
 
 .quote__brand {
@@ -660,8 +666,8 @@
   .quote__main {
     width: 100%;
     margin-left: 0;
-    /* Clear fixed header (pad + brand line + pad) so form starts below volc4n */
-    padding-top: calc(var(--quote-pad) * 2 + 1.5rem);
+    /* Clear fixed header so form starts below volc4n */
+    padding-top: calc(var(--page-header-pad-y) * 2 + 1.5rem);
   }
 
   .quote__section-title--sticky {

@@ -57,8 +57,8 @@
   );
 }
 
-.gallery .page__bar:not(.gallery__footer) {
-  padding-inline: var(--page-padding);
+.gallery .page__bar:not(.gallery__footer),
+.gallery .page__header.page__bar {
   position: relative;
   z-index: 2;
 }

@@ -5,8 +5,10 @@
   --page-bg: #FAFAFA;
   --page-text: #000;
   --page-focus: #000;
-  --page-header-block: calc(var(--page-padding) + var(--page-font-size));
-  --image-offset-top: 79px;
+  --page-header-pad-y: 1.125rem;
+  --page-rule: 1px solid color-mix(in srgb, var(--page-text) 12%, transparent);
+  --page-header-block: calc(var(--page-header-pad-y) * 2 + var(--page-font-size) + 1px);
+  --image-offset-top: var(--page-header-block);
   --image-stage-padding-top: calc(var(--image-offset-top) - var(--page-header-block));
   --page-footer-block: calc(var(--page-padding) + var(--page-font-size));
   --gallery-footer-gap: 35px;
@@ -87,6 +89,35 @@
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: start;
   gap: 1rem;
+}
+
+/*
+ * Shared site header chrome (Gallery/split, Index, About, etc.).
+ * Matches the home split header: tightened vertical pad, opaque page bg, rule stroke.
+ */
+.page__header.page__bar,
+.page > header.page__bar:not(.page__bar--bottom),
+.index__header.page__bar,
+.split__header.page__bar {
+  margin: 0;
+  padding: var(--page-header-pad-y) var(--page-padding);
+  background: var(--page-bg);
+  background-color: var(--page-bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  border: 0;
+  border-bottom: var(--page-rule);
+  z-index: 10;
+}
+
+/* Bleed full-width when the page shell still has outer padding (About / Gallery). */
+.page:not(.split):not(.index) > header.page__bar:not(.page__bar--bottom),
+.page:not(.split):not(.index) > .page__header.page__bar {
+  margin-inline: calc(-1 * var(--page-padding));
+  margin-top: calc(-1 * var(--page-padding));
+  width: calc(100% + 2 * var(--page-padding));
+  box-sizing: border-box;
 }
 
 .page__bar--bottom {
@@ -190,7 +221,7 @@
     --page-padding: 16px;
     --page-font-size: 15px;
     --page-display-font-size: clamp(1.25rem, 5.5vw, 1.875rem);
-    --page-header-block: calc(var(--page-padding) + var(--page-font-size));
+    --page-header-block: calc(var(--page-header-pad-y) * 2 + var(--page-font-size) + 1px);
   }
 
   .page.gallery {

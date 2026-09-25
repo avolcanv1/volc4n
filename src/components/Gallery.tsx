@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type TouchEvent } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
 import { getProjectMedia, type GalleryItem, type ProjectMedia as ProjectMediaItem } from '../types'
 import { ProjectMedia } from './ProjectMedia'
 import { isWebDesignCategory } from '../lib/projectCategory'
 import { hasRichTextContent } from '../lib/richText'
-import { PageNav } from './PageNav'
+import { PageHeader } from './PageHeader'
 import { RichText } from './RichText'
-import { ThemeToggle } from './ThemeToggle'
 import '../styles/page.css'
 import './Gallery.css'
 
@@ -509,13 +508,7 @@ export function Gallery() {
 
   return (
     <div className={`page gallery${isDark ? ' page--dark' : ''}`}>
-      <header className="page__bar">
-        <Link to="/" className="site-logo">
-          volc4n
-        </Link>
-        <PageNav />
-        <ThemeToggle />
-      </header>
+      <PageHeader />
 
       <div className="gallery__stage fit-media">
         <button

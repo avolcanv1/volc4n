@@ -4,8 +4,7 @@ import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
 import { isWebDesignCategory } from '../lib/projectCategory'
 import { ProjectMedia } from './ProjectMedia'
-import { PageNav } from './PageNav'
-import { ThemeToggle } from './ThemeToggle'
+import { PageHeader } from './PageHeader'
 import '../styles/page.css'
 import './Index.css'
 
@@ -126,13 +125,7 @@ export function Index() {
 
   return (
     <div className={`page index${isDark ? ' page--dark' : ''}`}>
-      <header ref={headerRef} className="index__header page__bar">
-        <Link to="/" className="site-logo">
-          volc4n
-        </Link>
-        <PageNav />
-        <ThemeToggle />
-      </header>
+      <PageHeader ref={headerRef} className="index__header" />
 
       {hoveredItem && hoveredItem.media.length > 0 && (
         <div ref={previewRef} className="index__preview" aria-hidden="true">

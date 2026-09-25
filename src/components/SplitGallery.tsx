@@ -8,16 +8,15 @@ import {
   type TouchEvent,
   type TransitionEvent,
 } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
 import { getProjectLane, isWebDesignCategory, type ProjectLane } from '../lib/projectCategory'
 import { hasRichTextContent } from '../lib/richText'
 import { getProjectMedia, type GalleryItem, type ProjectMedia as ProjectMediaItem } from '../types'
-import { PageNav } from './PageNav'
+import { PageHeader } from './PageHeader'
 import { ProjectMedia } from './ProjectMedia'
 import { RichText } from './RichText'
-import { ThemeToggle } from './ThemeToggle'
 import '../styles/page.css'
 import './SplitGallery.css'
 
@@ -670,13 +669,7 @@ export function SplitGallery() {
 
   return (
     <div className={`page split${isDark ? ' page--dark' : ''}`}>
-      <header className="split__header page__bar">
-        <Link to="/" className="site-logo">
-          volc4n
-        </Link>
-        <PageNav />
-        <ThemeToggle />
-      </header>
+      <PageHeader className="split__header" />
 
       <div className="split__columns">
         <LaneColumn

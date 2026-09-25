@@ -1,9 +1,7 @@
-import { Link } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
 import { AboutBio } from './AboutBio'
-import { PageNav } from './PageNav'
-import { ThemeToggle } from './ThemeToggle'
+import { PageHeader } from './PageHeader'
 import '../styles/page.css'
 import './About.css'
 
@@ -13,13 +11,7 @@ export function About() {
 
   return (
     <div className={`page about${isDark ? ' page--dark' : ''}`}>
-      <header className="page__bar">
-        <Link to="/" className="site-logo">
-          volc4n
-        </Link>
-        <PageNav />
-        <ThemeToggle />
-      </header>
+      <PageHeader />
 
       <main className="about__main">
         <AboutBio value={about.bio} className="about__text" />
