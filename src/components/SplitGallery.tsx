@@ -30,6 +30,15 @@ const SWIPE_THRESHOLD = 48
 const SWIPE_LOCK_PX = 10
 const SNAP_LOCK_MS = 620
 const SLIDE_FALLBACK_MS = 520
+const SLIDE_GAP_PX = 4
+
+function trackOffsetForSlide(slideIndex: number, slideWidth: number) {
+  if (slideWidth <= 0) {
+    return 0
+  }
+
+  return -(slideIndex * (slideWidth + SLIDE_GAP_PX))
+}
 
 const decodedImageCache = new Map<string, Promise<void>>()
 
@@ -102,7 +111,7 @@ function ProjectPane({
     mediaCount > 1 ? getProjectMedia(project, (safeIndex + 1) % mediaCount) : null
   const description = project.description
   const hasDescription = hasRichTextContent(description)
-  const restingOffset = mediaCount > 1 && slideWidth > 0 ? -slideWidth : 0
+  const restingOffset = mediaCount > 1 && slideWidth > 0 ? trackOffsetForSlide(1, slideWidth) : 0
 
   useLayoutEffect(() => {
     const viewport = viewportRef.current
@@ -116,7 +125,7 @@ function ProjectPane({
       setSlideWidth(width)
 
       if (!isAnimatingRef.current) {
-        setTrackOffset(mediaCount > 1 && width > 0 ? -width : 0)
+        setTrackOffset(mediaCount > 1 && width > 0 ? trackOffsetForSlide(1, width) : 0)
       }
     }
 
@@ -161,7 +170,7 @@ function ProjectPane({
 
     isAnimatingRef.current = false
     setIsAnimating(false)
-    setTrackOffset(mediaCount > 1 && slideWidth > 0 ? -slideWidth : 0)
+    setTrackOffset(mediaCount > 1 && slideWidth > 0 ? trackOffsetForSlide(1, slideWidth) : 0)
   }, [mediaCount, slideWidth])
 
   const navigateWithSlide = useCallback(
@@ -180,7 +189,7 @@ function ProjectPane({
       isAnimatingRef.current = true
       pendingDirectionRef.current = direction
       setIsAnimating(true)
-      setTrackOffset(direction === 1 ? -2 * width : 0)
+      setTrackOffset(direction === 1 ? trackOffsetForSlide(2, width) : trackOffsetForSlide(0, width))
     },
     [infoOpen, mediaCount, slideWidth],
   )
