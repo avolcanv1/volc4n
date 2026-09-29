@@ -478,8 +478,9 @@
   }
 
   .split__grid-col {
+    position: relative;
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
     min-width: 0;
     min-height: 0;
     border-left: var(--split-rule);
@@ -489,12 +490,26 @@
     border-left: 0;
   }
 
+  /* Floats over the column scroller so thumbnails show through as they scroll. */
   .split__grid-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
     margin: 0;
     padding: calc(var(--split-label-gap) + 0.15rem) var(--page-padding) 0.25rem;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    color: var(--page-text);
     font-size: var(--page-font-size);
     font-weight: 400;
     line-height: 1.2;
+    text-shadow:
+      0 0 2px var(--page-bg),
+      0 0 6px var(--page-bg),
+      0 0 12px var(--page-bg);
+    pointer-events: none;
   }
 
   .split__grid-scroller {
@@ -504,7 +519,9 @@
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
     /* Top/bottom room so the first and last thumbnail shadows are not clipped. */
-    padding: 0.75rem var(--page-padding) calc(var(--page-padding) * 2 + 1.5rem);
+    padding: calc(var(--split-label-gap) + 0.15rem + var(--page-font-size) * 1.2 + 1rem)
+      var(--page-padding) calc(var(--page-padding) * 2 + 1.5rem);
+    background: transparent;
     scrollbar-width: none;
   }
 
