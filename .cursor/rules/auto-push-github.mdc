@@ -1,27 +1,25 @@
 ---
-description: Automatically commit and push code changes to GitHub after completing work
 alwaysApply: true
 ---
 
-# Auto-push to GitHub
+# Local first, publish only on approval
 
-After making code changes in this project, commit and push to GitHub without waiting for the user to ask.
+Work and review everything locally before anything reaches GitHub or Vercel. This saves Vercel build credits: every push to a connected repo and every deploy triggers a build.
 
-## Workflow
+## While working
 
-1. Finish the requested code changes.
-2. Run `git status`, `git diff`, and `git log -1 --oneline` to review what will be committed.
-3. Stage only relevant files (never `.env`, secrets, or `node_modules`).
-4. Commit with a concise message focused on why.
-5. Push to `origin main` (use `git pull --rebase origin main` first if the push is rejected).
+1. Make the requested changes.
+2. Verify them on the local Vite dev server (`npm run dev -- --host`, port 5173), so the user can also check on their phone over the LAN.
+3. Commit locally with a concise message focused on why. Stage only relevant files (never `.env`, secrets, or `node_modules`).
+4. Do NOT `git push`, and do NOT run any `vercel` deploy (preview or production).
+
+## Publishing (only after the user explicitly says OK)
+
+1. Run `git status`, `git diff`, and `git log --oneline origin/main..HEAD` to review what will go out.
+2. Push to `origin main` (use `git pull --rebase origin main` first if the push is rejected).
+3. Deploy once to production: `npx vercel --prod --yes`.
 
 ## Remote
 
 - Repository: `https://github.com/avolcanv1/volc4n.git`
 - Branch: `main`
-
-## Skip auto-push only when
-
-- The user explicitly says not to push or commit.
-- There are no file changes to commit.
-- The change is exploratory and the user asked a question-only task with no edits.
