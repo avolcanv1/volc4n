@@ -59,12 +59,30 @@
     line-height: 1.25;
   }
 
+  .page.about {
+    min-height: 100dvh;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .about__main {
+    padding-bottom: 2rem;
+  }
+
   .about__footer {
-    gap: 0.75rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 0.75rem 1rem;
     font-size: var(--page-font-size);
   }
 
-  .about__credit {
-    text-align: center;
+  .about__footer-item {
+    overflow-wrap: anywhere;
+  }
+
+  .about__copyright {
+    justify-self: end;
+    align-self: end;
+    text-align: right;
   }
 }
