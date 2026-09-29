@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { ProjectMedia as ProjectMediaItem } from '../types'
 import './ProjectMedia.css'
 
@@ -11,6 +12,39 @@ type ProjectMediaProps = {
   loading?: 'eager' | 'lazy'
 }
 
+function ProjectVideo({
+  src,
+  className,
+  alt,
+  roundedVideo,
+}: {
+  src: string
+  className: string
+  alt: string
+  roundedVideo: boolean
+}) {
+  const [readySrc, setReadySrc] = useState<string | null>(null)
+  const ready = readySrc === src
+
+  return (
+    <video
+      className={`project-media__video${roundedVideo ? ' project-media__video--rounded' : ''}${
+        ready ? '' : ' project-media__video--pending'
+      } ${className}`}
+      src={src}
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="auto"
+      disablePictureInPicture
+      aria-label={alt}
+      onLoadedData={() => setReadySrc(src)}
+      onPlaying={() => setReadySrc(src)}
+    />
+  )
+}
+
 export function ProjectMedia({
   media,
   className = 'fit-media__image',
@@ -22,15 +56,12 @@ export function ProjectMedia({
 }: ProjectMediaProps) {
   if (media.kind === 'video') {
     return (
-      <video
-        className={`project-media__video${roundedVideo ? ' project-media__video--rounded' : ''} ${className}`}
+      <ProjectVideo
+        key={media.src}
         src={media.src}
-        autoPlay
-        loop
-        muted
-        playsInline
-        disablePictureInPicture
-        aria-label={alt}
+        className={className}
+        alt={alt}
+        roundedVideo={roundedVideo}
       />
     )
   }

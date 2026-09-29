@@ -1,5 +1,12 @@
 .project-media__video {
   display: block;
+  background: transparent;
+  transition: opacity 0.2s ease;
+}
+
+/* iOS paints an unloaded <video> as a black box until its first frame decodes. */
+.project-media__video--pending {
+  opacity: 0;
 }
 
 .project-media__video--rounded {

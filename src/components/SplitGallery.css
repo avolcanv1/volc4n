@@ -153,6 +153,14 @@
   border: 0;
   background: transparent;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: pan-y;
+}
+
+.split__nav:active,
+.split__nav:focus:not(:focus-visible) {
+  background: transparent;
+  outline: none;
 }
 
 .split__nav--prev {
@@ -483,7 +491,7 @@
 
   .split__grid-label {
     margin: 0;
-    padding: calc(var(--split-label-gap) + 0.15rem) var(--page-padding) 1rem;
+    padding: calc(var(--split-label-gap) + 0.15rem) var(--page-padding) 0.25rem;
     font-size: var(--page-font-size);
     font-weight: 400;
     line-height: 1.2;
@@ -495,7 +503,8 @@
     overflow-y: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-    padding: 0 var(--page-padding) calc(var(--page-padding) * 2);
+    /* Top/bottom room so the first and last thumbnail shadows are not clipped. */
+    padding: 0.75rem var(--page-padding) calc(var(--page-padding) * 2 + 1.5rem);
     scrollbar-width: none;
   }
 
@@ -541,6 +550,8 @@
     display: block;
     width: 100%;
     height: auto;
+    filter: var(--gallery-image-shadow);
+    transform: translateZ(0);
   }
 
   .split__tile-title {
@@ -555,15 +566,16 @@
 
   /* Mobile project detail: back bar in normal flow, then one full-height lane. */
   .page.split.split--mobile-detail {
-    --gallery-image-shadow-bleed: 24px;
-    --split-label-gap: 0.25rem;
+    --gallery-image-shadow-bleed: 28px;
+    --split-label-gap: 0px;
   }
 
   .split__detail {
+    --split-detail-bar-height: 44px;
     position: relative;
     z-index: 1;
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
     background: var(--page-bg);
   }
 
@@ -571,26 +583,40 @@
     border: 0;
   }
 
+  /* Back link and slide counter share one 44px row, inset like the header. */
   .split__detail-bar {
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
     z-index: 5;
     display: flex;
     align-items: center;
+    height: var(--split-detail-bar-height);
+  }
+
+  .split__detail .split__project-counter {
+    top: 0;
+    right: var(--page-padding);
+    display: flex;
+    align-items: center;
+    height: var(--split-detail-bar-height);
+    padding: 0;
+    line-height: 1;
   }
 
   .split__back {
     display: inline-flex;
     align-items: center;
     gap: 0.4em;
-    min-height: 44px;
+    height: var(--split-detail-bar-height);
     margin: 0;
-    padding: 0.5rem var(--page-padding);
+    padding: 0 var(--page-padding);
     border: 0;
     background: transparent;
     color: var(--page-text);
     font: inherit;
     font-size: var(--page-font-size);
-    line-height: 1.2;
+    line-height: 1;
     text-align: left;
     cursor: pointer;
     touch-action: manipulation;
