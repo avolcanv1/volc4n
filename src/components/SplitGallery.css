@@ -398,16 +398,50 @@
 }
 
 .split__expand {
+  /* Odd size keeps the 1px strokes centred on a whole pixel. */
+  --plus-size: 17px;
+  --plus-stroke: 1px;
+  position: relative;
   justify-self: start;
-  align-self: end;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.25rem;
-  font-size: 1.55em;
-  line-height: 1;
-  font-weight: 400;
+  align-self: center;
+  display: block;
+  flex: none;
+  width: var(--plus-size);
+  height: var(--plus-size);
+  color: var(--page-text);
   user-select: none;
+  transition: transform 0.28s ease;
+}
+
+.split__expand--plus::before,
+.split__expand--plus::after {
+  content: '';
+  position: absolute;
+  background: currentColor;
+}
+
+.split__expand--plus::before {
+  left: 0;
+  top: calc((var(--plus-size) - var(--plus-stroke)) / 2);
+  width: var(--plus-size);
+  height: var(--plus-stroke);
+}
+
+.split__expand--plus::after {
+  top: 0;
+  left: calc((var(--plus-size) - var(--plus-stroke)) / 2);
+  width: var(--plus-stroke);
+  height: var(--plus-size);
+}
+
+.split__footer--open .split__expand--plus {
+  transform: rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .split__expand {
+    transition: none;
+  }
 }
 
 @media (max-width: 768px) {

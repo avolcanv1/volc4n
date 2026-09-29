@@ -568,9 +568,10 @@ function ProjectPane({
         role={canOpenInfo ? 'button' : undefined}
         tabIndex={canOpenInfo ? 0 : undefined}
       >
-        <span className="split__expand" aria-hidden="true">
-          {canOpenInfo ? (infoOpen ? '—' : '+') : ''}
-        </span>
+        <span
+          className={`split__expand${canOpenInfo ? ' split__expand--plus' : ''}`}
+          aria-hidden="true"
+        />
         <p className="split__title">
           <span className="split__title-text">{project.title}</span>
         </p>
