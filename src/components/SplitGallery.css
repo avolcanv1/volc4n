@@ -454,7 +454,8 @@
 
   /* Mobile: header on top, two independently scrolling project columns below. */
   .page.split.split--mobile {
-    --mobile-portrait-width: 65%;
+    --mobile-thumb-max-height: 0.85;
+    --mobile-thumb-min-width: 36%;
     height: 100svh;
     height: 100dvh;
     max-height: 100svh;
@@ -572,9 +573,16 @@
     transform: translateZ(0);
   }
 
-  /* Portrait covers sit narrower, left-aligned with the column and project titles. */
-  .split__tile--portrait .split__tile-media {
-    width: var(--mobile-portrait-width);
+  /*
+   * Width follows the cover's aspect ratio (--thumb-ratio = height / width) so no
+   * thumbnail is taller than --mobile-thumb-max-height × column width; wide covers
+   * stay full width, very tall ones stop at --mobile-thumb-min-width.
+   */
+  .split__tile .split__tile-media {
+    width: max(
+      var(--mobile-thumb-min-width),
+      min(100%, calc(100% * var(--mobile-thumb-max-height) / var(--thumb-ratio, 0.5)))
+    );
   }
 
   .split__tile-title {

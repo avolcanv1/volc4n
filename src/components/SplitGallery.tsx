@@ -5,6 +5,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type TouchEvent,
   type TransitionEvent,
 } from 'react'
@@ -757,29 +758,28 @@ function useIsMobile() {
   return isMobile
 }
 
-const PORTRAIT_RATIO = 1.05
-
-function isPortrait(width: number, height: number) {
-  return width > 0 && height > width * PORTRAIT_RATIO
-}
-
-function orientationFromSrc(src: string): boolean | null {
+function aspectFromSrc(src: string): number | null {
   const match = /-(\d+)x(\d+)\.[a-z0-9]+(?:\?|$)/i.exec(src)
-  return match ? isPortrait(Number(match[1]), Number(match[2])) : null
+  if (!match) {
+    return null
+  }
+
+  const width = Number(match[1])
+  return width > 0 ? Number(match[2]) / width : null
 }
 
 function GridTile({ project, onOpen }: { project: GalleryItem; onOpen: (id: string) => void }) {
   const cover = getProjectMedia(project, 0)
-  const [measured, setMeasured] = useState<{ src: string; portrait: boolean } | null>(null)
-  const portrait = cover
-    ? (orientationFromSrc(cover.src) ??
-      (measured?.src === cover.src ? measured.portrait : false))
-    : false
+  const [measured, setMeasured] = useState<{ src: string; ratio: number } | null>(null)
+  const ratio = cover
+    ? (aspectFromSrc(cover.src) ?? (measured?.src === cover.src ? measured.ratio : null))
+    : null
 
   return (
     <li
-      className={`split__tile${portrait ? ' split__tile--portrait' : ''}`}
+      className="split__tile"
       data-project-id={project.id}
+      style={ratio ? ({ '--thumb-ratio': ratio } as CSSProperties) : undefined}
     >
       <button type="button" className="split__tile-button" onClick={() => onOpen(project.id)}>
         {cover ? (
@@ -790,9 +790,11 @@ function GridTile({ project, onOpen }: { project: GalleryItem; onOpen: (id: stri
             roundedVideo={isWebDesignCategory(project.category)}
             decoding="async"
             loading="lazy"
-            onDimensions={(width, height) =>
-              setMeasured({ src: cover.src, portrait: isPortrait(width, height) })
-            }
+            onDimensions={(width, height) => {
+              if (width > 0 && height > 0) {
+                setMeasured({ src: cover.src, ratio: height / width })
+              }
+            }}
           />
         ) : null}
         <span className="split__tile-title">{project.title}</span>
