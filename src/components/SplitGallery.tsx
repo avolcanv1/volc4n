@@ -5,11 +5,10 @@ import {
   useMemo,
   useRef,
   useState,
-  type RefObject,
   type TouchEvent,
   type TransitionEvent,
 } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
 import { getProjectLane, isWebDesignCategory, type ProjectLane } from '../lib/projectCategory'
@@ -26,8 +25,10 @@ const LANE_COPY: Record<ProjectLane, string> = {
   notBooks: 'Not books',
 }
 
-const SWIPE_THRESHOLD = 48
-const SWIPE_LOCK_PX = 10
+const SWIPE_THRESHOLD = 50
+const SWIPE_LOCK_PX = 8
+const SWIPE_FLICK_MIN_PX = 15
+const SWIPE_FLICK_VELOCITY = 0.4
 const SNAP_LOCK_MS = 620
 const SLIDE_FALLBACK_MS = 520
 const SLIDE_GAP_PX = 8
@@ -128,7 +129,15 @@ function ProjectPane({
   const [slideWidth, setSlideWidth] = useState(0)
   const [trackOffset, setTrackOffset] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null)
+  const [dragOffset, setDragOffset] = useState(0)
+  const [isSnappingBack, setIsSnappingBack] = useState(false)
+  const touchStartRef = useRef<{
+    x: number
+    y: number
+    time: number
+    axis: 'x' | 'y' | null
+  } | null>(null)
+  const swipedRef = useRef(false)
   const viewportRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const isAnimatingRef = useRef(false)
@@ -186,6 +195,7 @@ function ProjectPane({
     pendingVisualRef.current = null
     setIsAnimating(false)
     setTrackOffset(0)
+    setDragOffset(0)
   }, [project.id])
 
   useEffect(() => {
@@ -260,6 +270,7 @@ function ProjectPane({
       const targetMedia = getProjectMedia(project, targetReal)
 
       if (width <= 0) {
+        setDragOffset(0)
         setImageIndex(targetReal)
         setVisualIndex(targetReal + 1)
         return
@@ -272,12 +283,15 @@ function ProjectPane({
         await preloadImageMedia(targetMedia)
 
         if (isAnimatingRef.current) {
+          setDragOffset(0)
           return
         }
 
         const nextVisual = visualIndex + direction
         isAnimatingRef.current = true
         pendingVisualRef.current = nextVisual
+        setDragOffset(0)
+        setIsSnappingBack(false)
         setIsAnimating(true)
         setTrackOffset(trackOffsetForSlide(nextVisual, width))
       }
@@ -290,6 +304,10 @@ function ProjectPane({
   function handleTrackTransitionEnd(event: TransitionEvent<HTMLDivElement>) {
     if (event.target !== trackRef.current || event.propertyName !== 'transform') {
       return
+    }
+
+    if (isSnappingBack) {
+      setIsSnappingBack(false)
     }
 
     if (!isAnimatingRef.current) {
@@ -313,38 +331,110 @@ function ProjectPane({
     return () => window.clearTimeout(timer)
   }, [isAnimating, settleAfterSlide])
 
+  useEffect(() => {
+    if (!isSnappingBack) {
+      return
+    }
+
+    const timer = window.setTimeout(() => setIsSnappingBack(false), SLIDE_FALLBACK_MS)
+    return () => window.clearTimeout(timer)
+  }, [isSnappingBack])
+
+  function snapBack() {
+    setIsSnappingBack(true)
+    setDragOffset(0)
+  }
+
   function handleTouchStart(event: TouchEvent<HTMLDivElement>) {
+    swipedRef.current = false
+
     if (event.touches.length !== 1 || isAnimatingRef.current) {
       touchStartRef.current = null
       return
     }
 
     const touch = event.touches[0]
-    touchStartRef.current = { x: touch.clientX, y: touch.clientY }
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+      time: performance.now(),
+      axis: null,
+    }
+  }
+
+  function handleTouchMove(event: TouchEvent<HTMLDivElement>) {
+    const start = touchStartRef.current
+
+    if (!start || !looped || isAnimatingRef.current || event.touches.length !== 1) {
+      return
+    }
+
+    const touch = event.touches[0]
+    const deltaX = touch.clientX - start.x
+    const deltaY = touch.clientY - start.y
+
+    if (start.axis === null) {
+      if (Math.max(Math.abs(deltaX), Math.abs(deltaY)) < SWIPE_LOCK_PX) {
+        return
+      }
+
+      start.axis = Math.abs(deltaX) > Math.abs(deltaY) ? 'x' : 'y'
+    }
+
+    if (start.axis !== 'x') {
+      return
+    }
+
+    const width = viewportRef.current?.clientWidth ?? slideWidth
+    const limit = width > 0 ? width : Math.abs(deltaX)
+    setIsSnappingBack(false)
+    setDragOffset(Math.max(-limit, Math.min(limit, deltaX)))
   }
 
   function handleTouchEnd(event: TouchEvent<HTMLDivElement>) {
     const start = touchStartRef.current
     touchStartRef.current = null
 
-    if (
-      !start ||
-      !looped ||
-      isAnimatingRef.current ||
-      event.changedTouches.length !== 1
-    ) {
+    if (!start || start.axis !== 'x') {
+      return
+    }
+
+    swipedRef.current = true
+
+    if (!looped || isAnimatingRef.current || event.changedTouches.length !== 1) {
+      snapBack()
       return
     }
 
     const touch = event.changedTouches[0]
     const deltaX = touch.clientX - start.x
-    const deltaY = touch.clientY - start.y
+    const elapsed = Math.max(performance.now() - start.time, 1)
+    const isFlick = Math.abs(deltaX) > SWIPE_FLICK_MIN_PX && Math.abs(deltaX) / elapsed > SWIPE_FLICK_VELOCITY
 
-    if (Math.abs(deltaX) < SWIPE_THRESHOLD || Math.abs(deltaX) < Math.abs(deltaY) + SWIPE_LOCK_PX) {
+    if (Math.abs(deltaX) < SWIPE_THRESHOLD && !isFlick) {
+      snapBack()
       return
     }
 
     navigateWithSlide(deltaX < 0 ? 1 : -1)
+  }
+
+  function handleTouchCancel() {
+    const start = touchStartRef.current
+    touchStartRef.current = null
+
+    if (start?.axis === 'x') {
+      snapBack()
+    }
+  }
+
+  function handleNavClick(direction: -1 | 1) {
+    if (swipedRef.current) {
+      swipedRef.current = false
+      return
+    }
+
+    navigateWithSlide(direction)
   }
 
   const toggleInfo = useCallback(() => {
@@ -371,7 +461,9 @@ function ProjectPane({
       <div
         className="split__stage"
         onTouchStart={infoOpen ? undefined : handleTouchStart}
+        onTouchMove={infoOpen ? undefined : handleTouchMove}
         onTouchEnd={infoOpen ? undefined : handleTouchEnd}
+        onTouchCancel={infoOpen ? undefined : handleTouchCancel}
       >
         {infoOpen && canOpenInfo ? (
           <div className="split__info" role="region" aria-label="Project description">
@@ -391,14 +483,14 @@ function ProjectPane({
                   className="split__nav split__nav--prev"
                   aria-label="Previous image"
                   onPointerDown={(event) => event.preventDefault()}
-                  onClick={() => navigateWithSlide(-1)}
+                  onClick={() => handleNavClick(-1)}
                 />
                 <button
                   type="button"
                   className="split__nav split__nav--next"
                   aria-label="Next image"
                   onPointerDown={(event) => event.preventDefault()}
-                  onClick={() => navigateWithSlide(1)}
+                  onClick={() => handleNavClick(1)}
                 />
               </>
             ) : null}
@@ -408,9 +500,13 @@ function ProjectPane({
                 <div className="split__clip">
                   <div
                     ref={trackRef}
-                    className={`split__track${isAnimating ? ' split__track--animating' : ''}`}
+                    className={`split__track${
+                      isAnimating || isSnappingBack ? ' split__track--animating' : ''
+                    }`}
                     style={{
-                      transform: `translate3d(${isAnimating ? trackOffset : restingOffset}px, 0, 0)`,
+                      transform: `translate3d(${
+                        isAnimating ? trackOffset : restingOffset + dragOffset
+                      }px, 0, 0)`,
                     }}
                     onTransitionEnd={handleTrackTransitionEnd}
                   >
@@ -664,15 +760,45 @@ function useIsMobile() {
 function GridColumn({
   lane,
   projects,
+  revealId,
   onOpen,
 }: {
   lane: ProjectLane
   projects: GalleryItem[]
+  revealId: string | null
   onOpen: (id: string) => void
 }) {
+  const scrollerRef = useRef<HTMLDivElement>(null)
+
+  useLayoutEffect(() => {
+    const scroller = scrollerRef.current
+
+    if (!revealId || !scroller) {
+      return
+    }
+
+    const tile = scroller.querySelector<HTMLElement>(
+      `[data-project-id="${CSS.escape(revealId)}"]`,
+    )
+
+    if (!tile) {
+      return
+    }
+
+    const tileTop = tile.offsetTop - scroller.offsetTop
+    const tileBottom = tileTop + tile.offsetHeight
+    const viewTop = scroller.scrollTop
+    const viewBottom = viewTop + scroller.clientHeight
+
+    if (tileBottom <= viewTop || tileTop >= viewBottom) {
+      scroller.scrollTop = Math.max(0, tileTop - (scroller.clientHeight - tile.offsetHeight) / 2)
+    }
+  }, [revealId])
+
   return (
     <section className={`split__grid-col split__grid-col--${lane}`} aria-label={LANE_COPY[lane]}>
       <h2 className="split__grid-label">{LANE_COPY[lane]}</h2>
+      <div ref={scrollerRef} className="split__grid-scroller">
       {projects.length === 0 ? (
         <p className="split__grid-empty">No projects yet.</p>
       ) : (
@@ -704,6 +830,7 @@ function GridColumn({
           })}
         </ul>
       )}
+      </div>
     </section>
   )
 }
@@ -711,33 +838,36 @@ function GridColumn({
 function MobileGrid({
   books,
   notBooks,
-  returnToRef,
+  hidden,
+  revealId,
+  revealLane,
   onOpen,
 }: {
   books: GalleryItem[]
   notBooks: GalleryItem[]
-  returnToRef: RefObject<string | null>
+  hidden: boolean
+  revealId: string | null
+  revealLane: ProjectLane | null
   onOpen: (id: string) => void
 }) {
-  const gridRef = useRef<HTMLDivElement>(null)
-
-  useLayoutEffect(() => {
-    const returnToId = returnToRef.current
-
-    if (!returnToId || !gridRef.current) {
-      return
-    }
-
-    const tile = gridRef.current.querySelector<HTMLElement>(
-      `[data-project-id="${CSS.escape(returnToId)}"]`,
-    )
-    tile?.scrollIntoView({ block: 'center' })
-  }, [returnToRef])
-
   return (
-    <div ref={gridRef} className="split__grid">
-      <GridColumn lane="books" projects={books} onOpen={onOpen} />
-      <GridColumn lane="notBooks" projects={notBooks} onOpen={onOpen} />
+    <div
+      className={`split__grid${hidden ? ' split__grid--hidden' : ''}`}
+      aria-hidden={hidden || undefined}
+      inert={hidden}
+    >
+      <GridColumn
+        lane="books"
+        projects={books}
+        revealId={!hidden && revealLane === 'books' ? revealId : null}
+        onOpen={onOpen}
+      />
+      <GridColumn
+        lane="notBooks"
+        projects={notBooks}
+        revealId={!hidden && revealLane === 'notBooks' ? revealId : null}
+        onOpen={onOpen}
+      />
     </div>
   )
 }
@@ -751,16 +881,14 @@ function MobileDetail({
 }) {
   const lane = getProjectLane(project.category)
 
-  useLayoutEffect(() => {
-    window.scrollTo(0, 0)
-  }, [project.id])
-
   return (
-    <div className="split__columns split__columns--detail">
-      <section className={`split__lane split__lane--${lane}`} aria-label={project.title}>
-        <button type="button" className="split__lane-label split__back" onClick={onBack}>
-          ← {LANE_COPY[lane]}
+    <div className="split__detail">
+      <div className="split__detail-bar">
+        <button type="button" className="split__back" onClick={onBack}>
+          <span aria-hidden="true">←</span> {LANE_COPY[lane]}
         </button>
+      </div>
+      <section className={`split__lane split__lane--${lane}`} aria-label={project.title}>
         <div className="split__scroller">
           <ProjectPane project={project} showCategory={lane !== 'books'} />
         </div>
@@ -775,7 +903,8 @@ export function SplitGallery() {
   const [searchParams, setSearchParams] = useSearchParams()
   const focusId = searchParams.get('project')
   const isMobile = useIsMobile()
-  const lastOpenedRef = useRef<string | null>(null)
+  const location = useLocation()
+  const navigate = useNavigate()
 
   const lanes = useMemo(() => {
     const books: GalleryItem[] = []
@@ -801,45 +930,60 @@ export function SplitGallery() {
     return match ? getProjectLane(match.category) : null
   }, [focusId, projects])
 
-  useEffect(() => {
-    if (focusId) {
-      lastOpenedRef.current = focusId
+  const detailProject = useMemo(
+    () => (focusId ? projects.find((project) => project.id === focusId) ?? null : null),
+    [focusId, projects],
+  )
+
+  const [revealId, setRevealId] = useState<string | null>(null)
+  const [trackedDetailId, setTrackedDetailId] = useState<string | null>(null)
+  const detailId = detailProject?.id ?? null
+
+  if (detailId !== trackedDetailId) {
+    setTrackedDetailId(detailId)
+    if (detailId) {
+      setRevealId(detailId)
     }
-  }, [focusId])
+  }
+
+  const revealLane = useMemo(() => {
+    const match = revealId ? projects.find((project) => project.id === revealId) : null
+    return match ? getProjectLane(match.category) : null
+  }, [projects, revealId])
 
   const openProject = useCallback(
     (id: string) => {
-      setSearchParams({ project: id })
+      setSearchParams({ project: id }, { state: { fromGrid: true } })
     },
     [setSearchParams],
   )
 
   const closeProject = useCallback(() => {
-    setSearchParams({})
-  }, [setSearchParams])
+    if ((location.state as { fromGrid?: boolean } | null)?.fromGrid) {
+      navigate(-1)
+      return
+    }
+
+    setSearchParams({}, { replace: true })
+  }, [location.state, navigate, setSearchParams])
 
   if (isMobile) {
-    const detailProject = focusId
-      ? projects.find((project) => project.id === focusId) ?? null
-      : null
-
     return (
       <div
-        className={`page split${detailProject ? ' split--mobile-detail' : ' split--mobile-grid'}${
+        className={`page split split--mobile${detailProject ? ' split--mobile-detail' : ''}${
           isDark ? ' page--dark' : ''
         }`}
       >
         <PageHeader className="split__header" />
-        {detailProject ? (
-          <MobileDetail project={detailProject} onBack={closeProject} />
-        ) : (
-          <MobileGrid
-            books={lanes.books}
-            notBooks={lanes.notBooks}
-            returnToRef={lastOpenedRef}
-            onOpen={openProject}
-          />
-        )}
+        <MobileGrid
+          books={lanes.books}
+          notBooks={lanes.notBooks}
+          hidden={Boolean(detailProject)}
+          revealId={revealId}
+          revealLane={revealLane}
+          onOpen={openProject}
+        />
+        {detailProject ? <MobileDetail project={detailProject} onBack={closeProject} /> : null}
       </div>
     )
   }
