@@ -10,6 +10,7 @@ type ProjectMediaProps = {
   decoding?: 'async' | 'sync' | 'auto'
   fetchPriority?: 'high' | 'low' | 'auto'
   loading?: 'eager' | 'lazy'
+  onDimensions?: (width: number, height: number) => void
 }
 
 function ProjectVideo({
@@ -17,11 +18,13 @@ function ProjectVideo({
   className,
   alt,
   roundedVideo,
+  onDimensions,
 }: {
   src: string
   className: string
   alt: string
   roundedVideo: boolean
+  onDimensions?: (width: number, height: number) => void
 }) {
   const [readySrc, setReadySrc] = useState<string | null>(null)
   const ready = readySrc === src
@@ -39,6 +42,9 @@ function ProjectVideo({
       preload="auto"
       disablePictureInPicture
       aria-label={alt}
+      onLoadedMetadata={(event) =>
+        onDimensions?.(event.currentTarget.videoWidth, event.currentTarget.videoHeight)
+      }
       onLoadedData={() => setReadySrc(src)}
       onPlaying={() => setReadySrc(src)}
     />
@@ -53,6 +59,7 @@ export function ProjectMedia({
   decoding = 'async',
   fetchPriority,
   loading,
+  onDimensions,
 }: ProjectMediaProps) {
   if (media.kind === 'video') {
     return (
@@ -62,6 +69,7 @@ export function ProjectMedia({
         className={className}
         alt={alt}
         roundedVideo={roundedVideo}
+        onDimensions={onDimensions}
       />
     )
   }
@@ -75,6 +83,12 @@ export function ProjectMedia({
       decoding={decoding}
       fetchPriority={fetchPriority}
       loading={loading}
+      onLoad={
+        onDimensions
+          ? (event) =>
+              onDimensions(event.currentTarget.naturalWidth, event.currentTarget.naturalHeight)
+          : undefined
+      }
     />
   )
 }

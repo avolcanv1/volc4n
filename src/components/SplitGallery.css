@@ -454,6 +454,7 @@
 
   /* Mobile: header on top, two independently scrolling project columns below. */
   .page.split.split--mobile {
+    --mobile-portrait-width: 65%;
     height: 100svh;
     height: 100dvh;
     max-height: 100svh;
@@ -569,6 +570,11 @@
     height: auto;
     filter: var(--gallery-image-shadow);
     transform: translateZ(0);
+  }
+
+  /* Portrait covers sit narrower, left-aligned with the column and project titles. */
+  .split__tile--portrait .split__tile-media {
+    width: var(--mobile-portrait-width);
   }
 
   .split__tile-title {
