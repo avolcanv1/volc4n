@@ -442,4 +442,115 @@
     width: max-content;
     padding: 0.35rem 0.45rem;
   }
+
+  /* Mobile project grid: Books | Not books, normal page scroll. */
+  .page.split.split--mobile-grid {
+    height: auto;
+    max-height: none;
+    min-height: 100svh;
+    display: block;
+    overflow: visible;
+  }
+
+  .page.split.split--mobile-grid .split__header.page__bar {
+    position: sticky;
+    top: 0;
+  }
+
+  .split__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .split__grid-col {
+    min-width: 0;
+    padding: var(--split-label-gap) var(--page-padding) calc(var(--page-padding) * 2);
+    border-left: var(--split-rule);
+  }
+
+  .split__grid-col:first-child {
+    border-left: 0;
+  }
+
+  .split__grid-label {
+    margin: 0 0 1.25rem;
+    padding: 0.15rem 0 0;
+    font-size: var(--page-font-size);
+    font-weight: 400;
+    line-height: 1.2;
+  }
+
+  .split__grid-empty {
+    margin: 0;
+    color: var(--page-text);
+  }
+
+  .split__grid-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .split__tile-button {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--page-text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .split__tile-button:focus-visible {
+    outline: 1px solid var(--page-focus);
+    outline-offset: 3px;
+  }
+
+  .split__tile-media {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .split__tile-title {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--page-text);
+    font-size: 13px;
+    font-style: italic;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  /* Mobile project detail: single full-height lane with the desktop carousel. */
+  .page.split.split--mobile-detail {
+    --gallery-image-shadow-bleed: 24px;
+  }
+
+  .split__columns--detail {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .split__back {
+    border: 0;
+    color: var(--page-text);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .split__back:focus-visible {
+    outline: 1px solid var(--page-focus);
+    outline-offset: 2px;
+  }
 }

@@ -5,6 +5,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type RefObject,
   type TouchEvent,
   type TransitionEvent,
 } from 'react'
@@ -641,11 +642,140 @@ function LaneColumn({
   )
 }
 
+const MOBILE_QUERY = '(max-width: 768px)'
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(MOBILE_QUERY).matches,
+  )
+
+  useEffect(() => {
+    const media = window.matchMedia(MOBILE_QUERY)
+    const onChange = () => setIsMobile(media.matches)
+
+    onChange()
+    media.addEventListener('change', onChange)
+    return () => media.removeEventListener('change', onChange)
+  }, [])
+
+  return isMobile
+}
+
+function GridColumn({
+  lane,
+  projects,
+  onOpen,
+}: {
+  lane: ProjectLane
+  projects: GalleryItem[]
+  onOpen: (id: string) => void
+}) {
+  return (
+    <section className={`split__grid-col split__grid-col--${lane}`} aria-label={LANE_COPY[lane]}>
+      <h2 className="split__grid-label">{LANE_COPY[lane]}</h2>
+      {projects.length === 0 ? (
+        <p className="split__grid-empty">No projects yet.</p>
+      ) : (
+        <ul className="split__grid-list">
+          {projects.map((project) => {
+            const cover = getProjectMedia(project, 0)
+
+            return (
+              <li key={project.id} className="split__tile" data-project-id={project.id}>
+                <button
+                  type="button"
+                  className="split__tile-button"
+                  onClick={() => onOpen(project.id)}
+                >
+                  {cover ? (
+                    <ProjectMedia
+                      media={cover}
+                      className="split__tile-media"
+                      alt={cover.caption || project.imageAlt}
+                      roundedVideo={isWebDesignCategory(project.category)}
+                      decoding="async"
+                      loading="lazy"
+                    />
+                  ) : null}
+                  <span className="split__tile-title">{project.title}</span>
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </section>
+  )
+}
+
+function MobileGrid({
+  books,
+  notBooks,
+  returnToRef,
+  onOpen,
+}: {
+  books: GalleryItem[]
+  notBooks: GalleryItem[]
+  returnToRef: RefObject<string | null>
+  onOpen: (id: string) => void
+}) {
+  const gridRef = useRef<HTMLDivElement>(null)
+
+  useLayoutEffect(() => {
+    const returnToId = returnToRef.current
+
+    if (!returnToId || !gridRef.current) {
+      return
+    }
+
+    const tile = gridRef.current.querySelector<HTMLElement>(
+      `[data-project-id="${CSS.escape(returnToId)}"]`,
+    )
+    tile?.scrollIntoView({ block: 'center' })
+  }, [returnToRef])
+
+  return (
+    <div ref={gridRef} className="split__grid">
+      <GridColumn lane="books" projects={books} onOpen={onOpen} />
+      <GridColumn lane="notBooks" projects={notBooks} onOpen={onOpen} />
+    </div>
+  )
+}
+
+function MobileDetail({
+  project,
+  onBack,
+}: {
+  project: GalleryItem
+  onBack: () => void
+}) {
+  const lane = getProjectLane(project.category)
+
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0)
+  }, [project.id])
+
+  return (
+    <div className="split__columns split__columns--detail">
+      <section className={`split__lane split__lane--${lane}`} aria-label={project.title}>
+        <button type="button" className="split__lane-label split__back" onClick={onBack}>
+          ← {LANE_COPY[lane]}
+        </button>
+        <div className="split__scroller">
+          <ProjectPane project={project} showCategory={lane !== 'books'} />
+        </div>
+      </section>
+    </div>
+  )
+}
+
 export function SplitGallery() {
   const { isDark } = useTheme()
   const { projects } = useContent()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const focusId = searchParams.get('project')
+  const isMobile = useIsMobile()
+  const lastOpenedRef = useRef<string | null>(null)
 
   const lanes = useMemo(() => {
     const books: GalleryItem[] = []
@@ -670,6 +800,49 @@ export function SplitGallery() {
     const match = projects.find((project) => project.id === focusId)
     return match ? getProjectLane(match.category) : null
   }, [focusId, projects])
+
+  useEffect(() => {
+    if (focusId) {
+      lastOpenedRef.current = focusId
+    }
+  }, [focusId])
+
+  const openProject = useCallback(
+    (id: string) => {
+      setSearchParams({ project: id })
+    },
+    [setSearchParams],
+  )
+
+  const closeProject = useCallback(() => {
+    setSearchParams({})
+  }, [setSearchParams])
+
+  if (isMobile) {
+    const detailProject = focusId
+      ? projects.find((project) => project.id === focusId) ?? null
+      : null
+
+    return (
+      <div
+        className={`page split${detailProject ? ' split--mobile-detail' : ' split--mobile-grid'}${
+          isDark ? ' page--dark' : ''
+        }`}
+      >
+        <PageHeader className="split__header" />
+        {detailProject ? (
+          <MobileDetail project={detailProject} onBack={closeProject} />
+        ) : (
+          <MobileGrid
+            books={lanes.books}
+            notBooks={lanes.notBooks}
+            returnToRef={lastOpenedRef}
+            onOpen={openProject}
+          />
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className={`page split${isDark ? ' page--dark' : ''}`}>
