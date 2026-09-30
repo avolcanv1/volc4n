@@ -69,6 +69,22 @@ function mapMediaItem(item: unknown): ProjectMedia | null {
   return null
 }
 
+/** Re-requests a Sanity CDN image at a smaller width; other URLs are returned untouched. */
+export function resizeImageUrl(src: string, width: number) {
+  try {
+    const url = new URL(src, window.location.origin)
+
+    if (url.hostname !== 'cdn.sanity.io') {
+      return src
+    }
+
+    url.searchParams.set('w', String(Math.round(width)))
+    return url.toString()
+  } catch {
+    return src
+  }
+}
+
 export function mapAbout(doc: SanityAbout) {
   return {
     bio: normalizeRichText(doc.bio) ?? [],
