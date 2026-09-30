@@ -12,7 +12,13 @@ import {
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
-import { getProjectLane, isWebDesignCategory, type ProjectLane } from '../lib/projectCategory'
+import {
+  getProjectLane,
+  groupProjectsByLane,
+  isWebDesignCategory,
+  PROJECT_LANE_LABELS,
+  type ProjectLane,
+} from '../lib/projectCategory'
 import { hasRichTextContent } from '../lib/richText'
 import { getProjectMedia, type GalleryItem, type ProjectMedia as ProjectMediaItem } from '../types'
 import { PageHeader } from './PageHeader'
@@ -21,10 +27,7 @@ import { RichText } from './RichText'
 import '../styles/page.css'
 import './SplitGallery.css'
 
-const LANE_COPY: Record<ProjectLane, string> = {
-  books: 'Books',
-  notBooks: 'Not books',
-}
+const LANE_COPY = PROJECT_LANE_LABELS
 
 const SWIPE_THRESHOLD = 50
 const SWIPE_LOCK_PX = 8
@@ -931,20 +934,7 @@ export function SplitGallery() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const lanes = useMemo(() => {
-    const books: GalleryItem[] = []
-    const notBooks: GalleryItem[] = []
-
-    for (const project of projects) {
-      if (getProjectLane(project.category) === 'books') {
-        books.push(project)
-      } else {
-        notBooks.push(project)
-      }
-    }
-
-    return { books, notBooks }
-  }, [projects])
+  const lanes = useMemo(() => groupProjectsByLane(projects), [projects])
 
   const focusLane = useMemo(() => {
     if (!focusId) {

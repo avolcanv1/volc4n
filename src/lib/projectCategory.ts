@@ -36,3 +36,22 @@ export function getProjectLane(category: string): ProjectLane {
 
   return 'notBooks'
 }
+
+export const PROJECT_LANES: readonly ProjectLane[] = ['books', 'notBooks']
+
+export const PROJECT_LANE_LABELS: Record<ProjectLane, string> = {
+  books: 'Books',
+  notBooks: 'Not books',
+}
+
+export function groupProjectsByLane<T extends { category: string }>(
+  projects: readonly T[],
+): Record<ProjectLane, T[]> {
+  const lanes: Record<ProjectLane, T[]> = { books: [], notBooks: [] }
+
+  for (const project of projects) {
+    lanes[getProjectLane(project.category)].push(project)
+  }
+
+  return lanes
+}

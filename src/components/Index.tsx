@@ -1,8 +1,13 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
-import { isWebDesignCategory } from '../lib/projectCategory'
+import {
+  groupProjectsByLane,
+  isWebDesignCategory,
+  PROJECT_LANE_LABELS,
+  PROJECT_LANES,
+} from '../lib/projectCategory'
 import { ProjectMedia } from './ProjectMedia'
 import { PageHeader } from './PageHeader'
 import '../styles/page.css'
@@ -29,20 +34,22 @@ export function Index() {
   const { projects } = useContent()
   const headerRef = useRef<HTMLElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [previewMediaIndex, setPreviewMediaIndex] = useState(0)
-  const hoveredItem = hoveredIndex !== null ? projects[hoveredIndex] : null
+  const lanes = useMemo(() => groupProjectsByLane(projects), [projects])
+  const hoveredItem =
+    hoveredId !== null ? (projects.find((project) => project.id === hoveredId) ?? null) : null
 
   useEffect(() => {
     setPreviewMediaIndex(0)
-  }, [hoveredIndex])
+  }, [hoveredId])
 
   useEffect(() => {
-    if (hoveredIndex === null) {
+    if (!hoveredItem) {
       return
     }
 
-    const mediaCount = projects[hoveredIndex]?.media.length ?? 0
+    const mediaCount = hoveredItem.media.length
 
     if (mediaCount <= 1) {
       return
@@ -55,7 +62,7 @@ export function Index() {
     return () => {
       window.clearInterval(timer)
     }
-  }, [hoveredIndex, projects])
+  }, [hoveredItem])
 
   useLayoutEffect(() => {
     const header = headerRef.current
@@ -121,27 +128,42 @@ export function Index() {
       resizeObserver.disconnect()
       window.removeEventListener('resize', updatePreviewBounds)
     }
-  }, [hoveredIndex])
+  }, [hoveredId])
 
   return (
     <div className={`page index${isDark ? ' page--dark' : ''}`}>
       <PageHeader ref={headerRef} className="index__header" />
 
-      <main className="index__list">
-        {projects.map((item, itemIndex) => (
-          <Link
-            key={item.id}
-            to={`/?project=${item.id}`}
-            className="index__row"
-            onMouseEnter={() => setHoveredIndex(itemIndex)}
-            onMouseLeave={() => setHoveredIndex(null)}
-            onFocus={() => setHoveredIndex(itemIndex)}
-            onBlur={() => setHoveredIndex(null)}
+      <main className="index__columns">
+        {PROJECT_LANES.map((lane) => (
+          <section
+            key={lane}
+            className={`index__lane index__lane--${lane}`}
+            aria-label={PROJECT_LANE_LABELS[lane]}
           >
-            <span className="index__category">{item.category}</span>
-            <span className="index__title">{item.title}</span>
-            <span className="index__year">{item.year}</span>
-          </Link>
+            <h2 className="index__lane-label">{PROJECT_LANE_LABELS[lane]}</h2>
+            <div className="index__list">
+              {lanes[lane].length === 0 ? (
+                <p className="index__empty">No projects yet.</p>
+              ) : (
+                lanes[lane].map((item) => (
+                  <Link
+                    key={item.id}
+                    to={`/?project=${item.id}`}
+                    className="index__row"
+                    onMouseEnter={() => setHoveredId(item.id)}
+                    onMouseLeave={() => setHoveredId(null)}
+                    onFocus={() => setHoveredId(item.id)}
+                    onBlur={() => setHoveredId(null)}
+                  >
+                    <span className="index__category">{item.category}</span>
+                    <span className="index__title">{item.title}</span>
+                    <span className="index__year">{item.year}</span>
+                  </Link>
+                ))
+              )}
+            </div>
+          </section>
         ))}
       </main>
 
