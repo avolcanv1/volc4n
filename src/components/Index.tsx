@@ -156,8 +156,10 @@ export function Index() {
                     onFocus={() => setHoveredId(item.id)}
                     onBlur={() => setHoveredId(null)}
                   >
-                    <span className="index__category">{item.category}</span>
                     <span className="index__title">{item.title}</span>
+                    {lane === 'notBooks' ? (
+                      <span className="index__category">{item.category}</span>
+                    ) : null}
                     <span className="index__year">{item.year}</span>
                   </Link>
                 ))
