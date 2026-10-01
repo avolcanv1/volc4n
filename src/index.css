@@ -55,6 +55,7 @@
 :root[data-theme='dark'] {
   --page-bg: #000;
   --page-text: #fff;
+  --page-rule: 1px solid color-mix(in srgb, var(--page-text) 20%, transparent);
 }
 
 *,
