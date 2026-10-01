@@ -41,6 +41,8 @@
   --font-serif: 'Times Newer Roman', 'Times New Roman', Times, serif;
   --font-mono: 'IBM Plex Mono', 'Courier New', Courier, monospace;
   --font-counter: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  --selection-bg: #B5FFB5;
+  --selection-fg: #000;
 
   font-family: var(--font-serif);
   line-height: normal;
@@ -82,6 +84,6 @@ button {
 }
 
 ::selection {
-  background: #B5FFB5;
-  color: #000;
+  background: var(--selection-bg);
+  color: var(--selection-fg);
 }

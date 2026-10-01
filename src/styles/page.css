@@ -3,7 +3,6 @@
   --page-font-size: 14px;
   --page-display-font-size: 34px;
   --page-bg: #FAFAFA;
-  --page-surface: #fff;
   --page-text: #000;
   --page-focus: #000;
   --page-header-pad-y: 1.125rem;
@@ -77,7 +76,6 @@
 
 .page--dark {
   --page-bg: #000;
-  --page-surface: #111;
   --page-text: #fff;
   --page-focus: #fff;
   --shadow-soft: 0 0 12px rgba(0, 0, 0, 0.45);
