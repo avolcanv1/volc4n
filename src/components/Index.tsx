@@ -1,8 +1,9 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
 import { resizeImageUrl } from '../lib/mapContent'
+import { aspectFromSrc, isPortraitRatio } from '../lib/mediaAspect'
 import {
   groupProjectsByLane,
   isWebDesignCategory,
@@ -10,18 +11,32 @@ import {
   PROJECT_LANES,
 } from '../lib/projectCategory'
 import { getProjectMedia, type GalleryItem } from '../types'
+import { InViewVideo } from './InViewVideo'
 import { PageHeader } from './PageHeader'
 import '../styles/page.css'
 import './Index.css'
 
-const THUMB_IMAGE_WIDTH = 320
+const THUMB_IMAGE_WIDTH = 480
 
 function IndexThumb({ project }: { project: GalleryItem }) {
   const cover = getProjectMedia(project, 0)
+  const [measured, setMeasured] = useState<{ src: string; ratio: number } | null>(null)
   const rounded = isWebDesignCategory(project.category) ? ' index__thumb-media--rounded' : ''
+  const ratio = cover
+    ? (aspectFromSrc(cover.src) ?? (measured?.src === cover.src ? measured.ratio : null))
+    : null
+
+  const measure = (width: number, height: number) => {
+    if (cover && width > 0 && height > 0) {
+      setMeasured({ src: cover.src, ratio: height / width })
+    }
+  }
 
   return (
-    <span className="index__thumb" aria-hidden="true">
+    <span
+      className={`index__thumb${isPortraitRatio(ratio) ? ' index__thumb--portrait' : ''}`}
+      aria-hidden="true"
+    >
       {cover?.kind === 'image' ? (
         <img
           className={`index__thumb-media${rounded}`}
@@ -30,15 +45,16 @@ function IndexThumb({ project }: { project: GalleryItem }) {
           draggable={false}
           loading="lazy"
           decoding="async"
+          onLoad={(event) =>
+            measure(event.currentTarget.naturalWidth, event.currentTarget.naturalHeight)
+          }
         />
       ) : cover?.kind === 'video' ? (
-        <video
+        <InViewVideo
+          src={cover.src}
           className={`index__thumb-media${rounded}`}
-          src={`${cover.src}#t=0.1`}
-          muted
-          playsInline
-          preload="metadata"
-          disablePictureInPicture
+          rootSelector=".index__list"
+          onDimensions={measure}
         />
       ) : null}
     </span>

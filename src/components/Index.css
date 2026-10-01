@@ -3,10 +3,10 @@
   --split-label-gap: 1.35rem;
   --split-label-block: calc(var(--split-label-gap) + var(--page-font-size) + 0.55rem);
   --split-rule: var(--page-rule);
-  --index-thumb-height: 52px;
+  --index-thumb-height: 80px;
+  --index-thumb-height-portrait: calc(var(--index-thumb-height) * 1.25);
   --index-thumb-slot: calc(var(--index-thumb-height) * 1.5);
-  --index-thumb-gap: 1.25rem;
-  --index-thumb-shadow: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.12));
+  --index-thumb-gap: 1.5rem;
 
   position: relative;
   height: 100svh;
@@ -15,11 +15,6 @@
   grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
   padding: 0;
-}
-
-.page.index.page--dark {
-  --index-thumb-shadow:
-    drop-shadow(0 0 12px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.12));
 }
 
 .page.index .index__header.page__bar {
@@ -102,10 +97,10 @@
   flex: none;
   display: grid;
   grid-template-columns: var(--index-thumb-slot) minmax(0, 1fr);
-  align-items: center;
+  align-items: end;
   column-gap: var(--index-thumb-gap);
   width: 100%;
-  padding-bottom: 0.75rem;
+  padding-bottom: 1rem;
   color: inherit;
   text-decoration: none;
   cursor: pointer;
@@ -120,11 +115,15 @@
 /* Fixed-width slot so every title in a lane starts on the same edge. */
 .index__thumb {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: flex-start;
   width: var(--index-thumb-slot);
   height: var(--index-thumb-height);
   min-width: 0;
+}
+
+.index__thumb--portrait {
+  height: var(--index-thumb-height-portrait);
 }
 
 .index__thumb-media {
@@ -134,8 +133,6 @@
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  filter: var(--index-thumb-shadow);
-  transform: translateZ(0);
 }
 
 .index__thumb-media--rounded {
@@ -145,9 +142,27 @@
 .index__text {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: first baseline;
+  align-items: last baseline;
   column-gap: 1.5rem;
   min-width: 0;
+}
+
+/* Each text box ends on its alphabetic baseline, so the shared baseline meets the thumbnail's bottom edge. */
+.index__title,
+.index__category,
+.index__year {
+  text-box: trim-end text alphabetic;
+}
+
+@supports not (text-box: trim-end text alphabetic) {
+  .index__title {
+    margin-bottom: -0.31em;
+  }
+
+  .index__category,
+  .index__year {
+    margin-bottom: var(--index-meta-descent, -0.43em);
+  }
 }
 
 .index__category,
@@ -161,12 +176,7 @@
 
 .index__title {
   grid-column: 1;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  overflow: hidden;
-  font-size: clamp(1.25rem, 1.85vw, calc(var(--page-display-font-size) + 6px));
+  font-size: clamp(1.0625rem, 1.53vw, calc((var(--page-display-font-size) + 6px) * 0.82));
   line-height: 1.1;
   text-align: left;
   text-wrap: pretty;
@@ -176,7 +186,7 @@
 .index__category {
   grid-column: 2;
   justify-self: end;
-  max-width: 14rem;
+  max-width: 9.5rem;
   text-align: right;
 }
 
@@ -193,9 +203,24 @@
   text-shadow: var(--shadow-soft), var(--shadow-tight);
 }
 
+@media (max-width: 1100px) {
+  .page.index {
+    --index-thumb-height: 64px;
+    --index-thumb-gap: 1rem;
+  }
+
+  .index__text {
+    column-gap: 0.85rem;
+  }
+
+  .index__category {
+    max-width: 6.5rem;
+  }
+}
+
 @media (max-width: 768px) {
   .page.index {
-    --index-thumb-height: 38px;
+    --index-thumb-height: 56px;
     --index-thumb-slot: calc(var(--index-thumb-height) * 1.25);
     --index-thumb-gap: 0.6rem;
     height: 100svh;
@@ -238,21 +263,20 @@
   .index__lane--notBooks .index__text {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-rows: auto auto;
-    align-items: baseline;
+    align-items: last baseline;
     column-gap: 0.5rem;
     row-gap: 0.3rem;
   }
 
+  /* Only the meta line sits on the thumbnail edge; the title keeps its full line box above it. */
   .index__title {
     grid-column: 1 / -1;
     grid-row: 1;
-    display: block;
-    overflow: visible;
-    font-size: 15px;
+    font-size: 13px;
     line-height: 1.25;
     text-align: left;
-    -webkit-line-clamp: unset;
-    line-clamp: none;
+    text-box: normal;
+    margin-bottom: 0;
   }
 
   .index__category,
