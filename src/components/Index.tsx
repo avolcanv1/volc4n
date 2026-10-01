@@ -10,6 +10,7 @@ import {
   PROJECT_LANE_LABELS,
   PROJECT_LANES,
 } from '../lib/projectCategory'
+import { useIsMobile } from '../lib/useIsMobile'
 import { getProjectMedia, type GalleryItem } from '../types'
 import { InViewVideo } from './InViewVideo'
 import { PageHeader } from './PageHeader'
@@ -65,6 +66,7 @@ export function Index() {
   const { isDark } = useTheme()
   const { projects } = useContent()
   const lanes = useMemo(() => groupProjectsByLane(projects), [projects])
+  const showThumbs = !useIsMobile()
   return (
     <div className={`page index${isDark ? ' page--dark' : ''}`}>
       <PageHeader className="index__header" />
@@ -91,7 +93,7 @@ export function Index() {
               ) : (
                 lanes[lane].map((item) => (
                   <Link key={item.id} to={`/?project=${item.id}`} className="index__row">
-                    <IndexThumb project={item} />
+                    {showThumbs ? <IndexThumb project={item} /> : null}
                     <span className="index__text">
                       <span className="index__title">{item.title}</span>
                       {lane === 'notBooks' ? (

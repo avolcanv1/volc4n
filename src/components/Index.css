@@ -227,9 +227,6 @@
 
 @media (max-width: 768px) {
   .page.index {
-    --index-thumb-height: 56px;
-    --index-thumb-slot: calc(var(--index-thumb-height) * 1.25);
-    --index-thumb-gap: 0.6rem;
     height: 100svh;
     height: 100dvh;
     max-height: 100svh;
@@ -254,27 +251,32 @@
   }
 
   .index__row {
-    padding-bottom: 0.6rem;
+    grid-template-columns: minmax(0, 1fr);
+    padding-bottom: 0.75rem;
   }
 
   .index__text,
   .index__lane--notBooks .index__text {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-rows: auto auto;
-    align-items: last baseline;
+    align-items: baseline;
     column-gap: 0.5rem;
     row-gap: 0.3rem;
   }
 
-  /* Only the meta line sits on the thumbnail edge; the title keeps its full line box above it. */
+  .index__title,
+  .index__category,
+  .index__year {
+    text-box: normal;
+    margin-bottom: 0;
+  }
+
   .index__title {
     grid-column: 1 / -1;
     grid-row: 1;
     font-size: 13px;
     line-height: 1.25;
     text-align: left;
-    text-box: normal;
-    margin-bottom: 0;
   }
 
   .index__category,

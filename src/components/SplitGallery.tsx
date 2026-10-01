@@ -21,6 +21,7 @@ import {
 } from '../lib/projectCategory'
 import { aspectFromSrc } from '../lib/mediaAspect'
 import { hasRichTextContent } from '../lib/richText'
+import { useIsMobile } from '../lib/useIsMobile'
 import { getProjectMedia, type GalleryItem, type ProjectMedia as ProjectMediaItem } from '../types'
 import { InViewVideo } from './InViewVideo'
 import { PageHeader } from './PageHeader'
@@ -743,25 +744,6 @@ function LaneColumn({
       </div>
     </section>
   )
-}
-
-const MOBILE_QUERY = '(max-width: 768px)'
-
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia(MOBILE_QUERY).matches,
-  )
-
-  useEffect(() => {
-    const media = window.matchMedia(MOBILE_QUERY)
-    const onChange = () => setIsMobile(media.matches)
-
-    onChange()
-    media.addEventListener('change', onChange)
-    return () => media.removeEventListener('change', onChange)
-  }, [])
-
-  return isMobile
 }
 
 function GridTile({ project, onOpen }: { project: GalleryItem; onOpen: (id: string) => void }) {
