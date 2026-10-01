@@ -15,7 +15,7 @@
   box-sizing: border-box;
   padding: var(--about-marquee-pad-y) 0;
   overflow: hidden;
-  background: var(--page-surface);
+  background: var(--page-bg);
   border-bottom: var(--page-rule);
 }
 
