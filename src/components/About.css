@@ -2,32 +2,21 @@
   grid-template-rows: auto auto minmax(0, 1fr) auto;
 }
 
-/*
- * Second bar under the header: same vertical padding and serif line box as the
- * header (via the zero-width strut), so both bars are the same height.
- */
+/* Slim second bar under the header. */
 .about-marquee {
   --about-marquee-gap: 7rem;
   --about-marquee-duration: 35s;
+  --about-marquee-pad-y: 0.625rem;
 
   display: flex;
   align-items: center;
   margin-inline: calc(-1 * var(--page-padding));
   width: calc(100% + 2 * var(--page-padding));
   box-sizing: border-box;
-  padding: var(--page-header-pad-y) 0;
+  padding: var(--about-marquee-pad-y) 0;
   overflow: hidden;
   background: var(--page-bg);
   border-bottom: var(--page-rule);
-  font-family: var(--font-serif);
-  font-size: var(--page-font-size);
-  line-height: normal;
-}
-
-.about-marquee::before {
-  content: '\200b';
-  flex: none;
-  width: 0;
 }
 
 .about-marquee__track {
@@ -43,6 +32,7 @@
   margin: 0;
   padding: 0 var(--about-marquee-gap) 0 0;
   list-style: none;
+  line-height: 11px;
   text-transform: uppercase;
 }
 
