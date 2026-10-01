@@ -1,3 +1,75 @@
+.page.about {
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+}
+
+/*
+ * Second bar under the header: same vertical padding and serif line box as the
+ * header (via the zero-width strut), so both bars are the same height.
+ */
+.about-marquee {
+  --about-marquee-gap: 7rem;
+  --about-marquee-duration: 35s;
+
+  display: flex;
+  align-items: center;
+  margin-inline: calc(-1 * var(--page-padding));
+  width: calc(100% + 2 * var(--page-padding));
+  box-sizing: border-box;
+  padding: var(--page-header-pad-y) 0;
+  overflow: hidden;
+  background: var(--page-bg);
+  border-bottom: var(--page-rule);
+  font-family: var(--font-serif);
+  font-size: var(--page-font-size);
+  line-height: normal;
+}
+
+.about-marquee::before {
+  content: '\200b';
+  flex: none;
+  width: 0;
+}
+
+.about-marquee__track {
+  display: flex;
+  flex: none;
+  width: max-content;
+  animation: about-marquee-scroll var(--about-marquee-duration) linear infinite;
+}
+
+.about-marquee__list {
+  display: flex;
+  gap: var(--about-marquee-gap);
+  margin: 0;
+  padding: 0 var(--about-marquee-gap) 0 0;
+  list-style: none;
+  text-transform: uppercase;
+}
+
+/* One copy per cycle: the track holds 4 identical copies. */
+@keyframes about-marquee-scroll {
+  to {
+    transform: translateX(-25%);
+  }
+}
+
+@media (hover: hover) {
+  .about-marquee:hover .about-marquee__track {
+    animation-play-state: paused;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-marquee__track {
+    animation: none;
+    padding-left: var(--page-padding);
+  }
+
+  .about-marquee__list[aria-hidden='true'] {
+    display: none;
+  }
+}
+
 .about__main {
   display: flex;
   align-items: center;
@@ -61,9 +133,8 @@
 
   .page.about {
     min-height: 100dvh;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto auto 1fr auto;
   }
-
   .about__main {
     padding-bottom: 2rem;
   }
