@@ -385,7 +385,7 @@
 }
 
 .split__title-text {
-  font-style: italic;
+  font-style: normal;
 }
 
 .split__year {
@@ -624,7 +624,7 @@
     margin-top: 0.5rem;
     color: var(--page-text);
     font-size: 13px;
-    font-style: italic;
+    font-style: normal;
     line-height: 1.25;
     overflow-wrap: anywhere;
   }

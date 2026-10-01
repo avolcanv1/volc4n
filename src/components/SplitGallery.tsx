@@ -19,8 +19,10 @@ import {
   PROJECT_LANE_LABELS,
   type ProjectLane,
 } from '../lib/projectCategory'
+import { aspectFromSrc } from '../lib/mediaAspect'
 import { hasRichTextContent } from '../lib/richText'
 import { getProjectMedia, type GalleryItem, type ProjectMedia as ProjectMediaItem } from '../types'
+import { InViewVideo } from './InViewVideo'
 import { PageHeader } from './PageHeader'
 import { ProjectMedia } from './ProjectMedia'
 import { RichText } from './RichText'
@@ -762,16 +764,6 @@ function useIsMobile() {
   return isMobile
 }
 
-function aspectFromSrc(src: string): number | null {
-  const match = /-(\d+)x(\d+)\.[a-z0-9]+(?:\?|$)/i.exec(src)
-  if (!match) {
-    return null
-  }
-
-  const width = Number(match[1])
-  return width > 0 ? Number(match[2]) / width : null
-}
-
 function GridTile({ project, onOpen }: { project: GalleryItem; onOpen: (id: string) => void }) {
   const cover = getProjectMedia(project, 0)
   const [measured, setMeasured] = useState<{ src: string; ratio: number } | null>(null)
@@ -786,7 +778,20 @@ function GridTile({ project, onOpen }: { project: GalleryItem; onOpen: (id: stri
       style={ratio ? ({ '--thumb-ratio': ratio } as CSSProperties) : undefined}
     >
       <button type="button" className="split__tile-button" onClick={() => onOpen(project.id)}>
-        {cover ? (
+        {cover?.kind === 'video' ? (
+          <InViewVideo
+            src={cover.src}
+            className="split__tile-media"
+            rootSelector=".split__grid-scroller"
+            roundedVideo={isWebDesignCategory(project.category)}
+            alt={cover.caption || project.imageAlt}
+            onDimensions={(width, height) => {
+              if (width > 0 && height > 0) {
+                setMeasured({ src: cover.src, ratio: height / width })
+              }
+            }}
+          />
+        ) : cover ? (
           <ProjectMedia
             media={cover}
             className="split__tile-media"
