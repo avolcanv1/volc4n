@@ -44,18 +44,27 @@
   border-left: 0;
 }
 
-.index__lane-label {
-  position: absolute;
-  top: var(--split-label-gap);
-  left: var(--page-padding);
+/* Pinned at the top of the scroller (same spot as the Gallery lane title); rows pass underneath it. */
+.index__lane-head {
+  position: sticky;
+  top: 0;
   z-index: 2;
-  margin: 0;
-  padding: 0.15rem 0 0.4rem;
+  flex: none;
   background: transparent;
+  pointer-events: none;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: -1.4rem;
+  padding: calc(var(--split-label-gap) + 0.15rem) 0 0.4rem;
+}
+
+.index__lane-label {
+  margin: 0;
   font-size: var(--page-font-size);
   font-weight: 400;
   line-height: 1.2;
-  pointer-events: none;
 }
 
 .index__list {
@@ -65,9 +74,7 @@
   flex-direction: column;
   gap: 2.5rem;
   min-height: 0;
-  /* Rows scroll beneath the lane label band instead of under the label text. */
-  margin-top: var(--split-label-block);
-  padding: 1.25rem var(--page-padding) var(--page-padding);
+  padding: 0 var(--page-padding) var(--page-padding);
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
@@ -230,23 +237,14 @@
     overscroll-behavior: none;
   }
 
-  /* Floats over the column scroller, like the mobile Gallery column titles. */
-  .index__lane-label {
-    top: 0;
-    left: 0;
-    padding: calc(var(--split-label-gap) + 0.15rem) var(--page-padding) 0.25rem;
-    color: var(--page-text);
-    text-shadow:
-      0 0 2px var(--page-bg),
-      0 0 6px var(--page-bg),
-      0 0 12px var(--page-bg);
+  .index__lane-head {
+    margin-bottom: -0.5rem;
+    padding-bottom: 0.25rem;
   }
 
   .index__list {
     gap: 1.25rem;
-    margin-top: 0;
-    padding: calc(var(--split-label-gap) + 0.15rem + var(--page-font-size) * 1.2 + 1rem)
-      var(--page-padding) calc(var(--page-padding) * 2 + 1.5rem);
+    padding: 0 var(--page-padding) calc(var(--page-padding) * 2 + 1.5rem);
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }

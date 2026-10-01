@@ -192,6 +192,15 @@
   text-decoration: none;
 }
 
+/* Small mono counters (Gallery slide counter, Index lane counts). */
+.page__counter {
+  font-family: var(--font-counter);
+  font-size: 9px;
+  font-weight: 200;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
 .page__nav {
   justify-self: center;
   margin: 0;

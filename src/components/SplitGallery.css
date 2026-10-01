@@ -76,11 +76,6 @@
   z-index: 2;
   margin: 0;
   padding: 0.15rem 0 0.4rem;
-  font-family: var(--font-counter);
-  font-size: 9px;
-  font-weight: 200;
-  line-height: 1.2;
-  white-space: nowrap;
   pointer-events: none;
 }
 

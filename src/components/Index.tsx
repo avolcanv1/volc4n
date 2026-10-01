@@ -65,7 +65,6 @@ export function Index() {
   const { isDark } = useTheme()
   const { projects } = useContent()
   const lanes = useMemo(() => groupProjectsByLane(projects), [projects])
-
   return (
     <div className={`page index${isDark ? ' page--dark' : ''}`}>
       <PageHeader className="index__header" />
@@ -77,8 +76,16 @@ export function Index() {
             className={`index__lane index__lane--${lane}`}
             aria-label={PROJECT_LANE_LABELS[lane]}
           >
-            <h2 className="index__lane-label">{PROJECT_LANE_LABELS[lane]}</h2>
             <div className="index__list">
+              <div className="index__lane-head">
+                <h2 className="index__lane-label">{PROJECT_LANE_LABELS[lane]}</h2>
+                <span
+                  className="index__lane-count page__counter"
+                  aria-label={`${lanes[lane].length} projects`}
+                >
+                  {String(lanes[lane].length).padStart(2, '0')}
+                </span>
+              </div>
               {lanes[lane].length === 0 ? (
                 <p className="index__empty">No projects yet.</p>
               ) : (

@@ -460,7 +460,7 @@ function ProjectPane({
       className={`split__project${infoOpen ? ' split__project--info' : ''}`}
       data-project-id={project.id}
     >
-      <p className="split__project-counter" aria-live="polite">
+      <p className="split__project-counter page__counter" aria-live="polite">
         {String(safeIndex + 1).padStart(2, '0')} / {String(mediaCount).padStart(2, '0')}
       </p>
 
