@@ -144,8 +144,9 @@
   font-weight: 400;
   line-height: normal;
   white-space: nowrap;
-  background: var(--selection-bg);
-  color: var(--selection-fg);
+  /* Same green as ::selection (index.css) */
+  background: #B5FFB5;
+  color: #000;
 }
 
 .quote__field {
