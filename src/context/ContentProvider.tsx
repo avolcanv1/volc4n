@@ -1,7 +1,8 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { defaultAbout } from '../data/defaultAbout'
 import { galleryItems as fallbackProjects } from '../data/gallery'
 import { mapAbout, mapProject } from '../lib/mapContent'
+import { withProjectSlugs } from '../lib/projectSlug'
 import { aboutQuery, projectsQuery } from '../lib/queries'
 import { sortProjectsChronologically } from '../lib/sortProjects'
 import { isSanityConfigured, sanityClient } from '../lib/sanity'
@@ -101,10 +102,12 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     }
   }, [usesSanity])
 
+  const sluggedProjects = useMemo(() => withProjectSlugs(projects), [projects])
+
   return (
     <ContentContext.Provider
       value={{
-        projects,
+        projects: sluggedProjects,
         about,
         isLoading,
         usesSanity,

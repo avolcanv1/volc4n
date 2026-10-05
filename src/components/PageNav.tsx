@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 
 export function PageNav() {
   const { pathname } = useLocation()
-  const isGallery = pathname === '/'
+  const isGallery = pathname === '/' || pathname.startsWith('/project/')
   const isIndex = pathname === '/index'
   const isAbout = pathname === '/about'
 

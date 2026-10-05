@@ -4,6 +4,7 @@ import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
 import { resizeImageUrl } from '../lib/mapContent'
 import { aspectFromSrc, isPortraitRatio } from '../lib/mediaAspect'
+import { projectPath } from '../lib/projectSlug'
 import {
   groupProjectsByLane,
   isWebDesignCategory,
@@ -92,7 +93,7 @@ export function Index() {
                 <p className="index__empty">No projects yet.</p>
               ) : (
                 lanes[lane].map((item) => (
-                  <Link key={item.id} to={`/?project=${item.id}`} className="index__row">
+                  <Link key={item.id} to={projectPath(item)} className="index__row">
                     {showThumbs ? <IndexThumb project={item} /> : null}
                     <span className="index__text">
                       <span className="index__title">{item.title}</span>

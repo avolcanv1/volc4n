@@ -11,6 +11,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<SplitGallery />} />
+      <Route path="/project/:slug" element={<SplitGallery />} />
       <Route path="/index" element={<Index />} />
       <Route path="/about" element={<About />} />
       <Route path="/quote" element={<Quote />} />

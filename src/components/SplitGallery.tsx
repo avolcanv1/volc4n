@@ -9,7 +9,7 @@ import {
   type TouchEvent,
   type TransitionEvent,
 } from 'react'
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 import { useTheme } from '../context/ThemeContext'
 import {
@@ -20,6 +20,7 @@ import {
   type ProjectLane,
 } from '../lib/projectCategory'
 import { aspectFromSrc } from '../lib/mediaAspect'
+import { projectPath } from '../lib/projectSlug'
 import { hasRichTextContent } from '../lib/richText'
 import { useIsMobile } from '../lib/useIsMobile'
 import { getProjectMedia, type GalleryItem, type ProjectMedia as ProjectMediaItem } from '../types'
@@ -914,28 +915,57 @@ function MobileDetail({
 
 export function SplitGallery() {
   const { isDark } = useTheme()
-  const { projects } = useContent()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const focusId = searchParams.get('project')
+  const { projects, isLoading } = useContent()
+  const { slug } = useParams()
+  const [searchParams] = useSearchParams()
+  const legacyId = searchParams.get('project')
   const isMobile = useIsMobile()
   const location = useLocation()
   const navigate = useNavigate()
 
   const lanes = useMemo(() => groupProjectsByLane(projects), [projects])
 
-  const focusLane = useMemo(() => {
-    if (!focusId) {
-      return null
+  const detailProject = useMemo(() => {
+    if (slug) {
+      return (
+        projects.find((project) => project.slug === slug) ??
+        projects.find((project) => project.id === slug) ??
+        null
+      )
     }
+    return legacyId ? (projects.find((project) => project.id === legacyId) ?? null) : null
+  }, [legacyId, projects, slug])
 
-    const match = projects.find((project) => project.id === focusId)
-    return match ? getProjectLane(match.category) : null
-  }, [focusId, projects])
+  const focusId = detailProject?.id ?? null
+  const focusLane = detailProject ? getProjectLane(detailProject.category) : null
 
-  const detailProject = useMemo(
-    () => (focusId ? projects.find((project) => project.id === focusId) ?? null : null),
-    [focusId, projects],
-  )
+  useEffect(() => {
+    const wanted = slug ?? legacyId
+    if (!wanted) {
+      return
+    }
+    if (detailProject) {
+      const canonical = projectPath(detailProject)
+      if (location.pathname !== canonical || location.search) {
+        navigate(canonical, { replace: true, state: location.state })
+      }
+      return
+    }
+    if (!isLoading) {
+      navigate('/', { replace: true })
+    }
+  }, [detailProject, isLoading, legacyId, location, navigate, slug])
+
+  useEffect(() => {
+    if (!detailProject) {
+      return
+    }
+    const previous = document.title
+    document.title = `${detailProject.title} — volc4n`
+    return () => {
+      document.title = previous
+    }
+  }, [detailProject])
 
   const [revealId, setRevealId] = useState<string | null>(null)
   const [trackedDetailId, setTrackedDetailId] = useState<string | null>(null)
@@ -955,9 +985,12 @@ export function SplitGallery() {
 
   const openProject = useCallback(
     (id: string) => {
-      setSearchParams({ project: id }, { state: { fromGrid: true } })
+      const project = projects.find((item) => item.id === id)
+      if (project) {
+        navigate(projectPath(project), { state: { fromGrid: true } })
+      }
     },
-    [setSearchParams],
+    [navigate, projects],
   )
 
   const closeProject = useCallback(() => {
@@ -966,8 +999,8 @@ export function SplitGallery() {
       return
     }
 
-    setSearchParams({}, { replace: true })
-  }, [location.state, navigate, setSearchParams])
+    navigate('/', { replace: true })
+  }, [location.state, navigate])
 
   if (isMobile) {
     return (

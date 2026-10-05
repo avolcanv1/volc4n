@@ -8,6 +8,7 @@ export type ProjectMedia =
 
 export type GalleryItem = {
   id: string
+  slug?: string
   category: string
   title: string
   year: string
