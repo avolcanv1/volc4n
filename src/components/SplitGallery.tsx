@@ -40,6 +40,8 @@ const SWIPE_FLICK_VELOCITY = 0.4
 const SNAP_LOCK_MS = 620
 const SLIDE_FALLBACK_MS = 520
 const SLIDE_GAP_PX = 8
+const LANES_READY_TIMEOUT_MS = 1500
+const MOBILE_SIZE_WAIT_MS = 1200
 
 function trackOffsetForSlide(slideIndex: number, slideWidth: number) {
   if (slideWidth <= 0) {
@@ -588,18 +590,66 @@ function ProjectPane({
   )
 }
 
+function randomIndex(length: number) {
+  return Math.floor(Math.random() * length)
+}
+
+function warmProjectsAround(projects: GalleryItem[], index: number) {
+  void preloadProjectMedia(projects[index])
+  void preloadProjectMedia(projects[index + 1])
+  void preloadProjectMedia(projects[index - 1])
+  void preloadProjectCover(projects[index + 2])
+  void preloadProjectCover(projects[index - 2])
+}
+
 function LaneColumn({
   lane,
   projects,
   focusId,
+  ready,
 }: {
   lane: ProjectLane
   projects: GalleryItem[]
   focusId: string | null
+  ready: boolean
 }) {
   const scrollerRef = useRef<HTMLDivElement>(null)
   const lockRef = useRef(false)
   const unlockTimerRef = useRef(0)
+  const positionedRef = useRef(false)
+  const lastFocusRef = useRef<string | null>(null)
+
+  useLayoutEffect(() => {
+    const scroller = scrollerRef.current
+
+    if (!scroller || positionedRef.current) {
+      return
+    }
+
+    if (!ready) {
+      scroller.style.visibility = 'hidden'
+      return
+    }
+
+    positionedRef.current = true
+    lastFocusRef.current = focusId
+    scroller.style.visibility = ''
+
+    if (projects.length === 0) {
+      return
+    }
+
+    const focusIndex = focusId ? projects.findIndex((project) => project.id === focusId) : -1
+    const index = focusIndex >= 0 ? focusIndex : randomIndex(projects.length)
+    const target = scroller.children[index]
+
+    if (target) {
+      scroller.scrollTop +=
+        target.getBoundingClientRect().top - scroller.getBoundingClientRect().top
+    }
+
+    warmProjectsAround(projects, index)
+  }, [focusId, projects, ready])
 
   const unlockSoon = useCallback(() => {
     window.clearTimeout(unlockTimerRef.current)
@@ -637,12 +687,6 @@ function LaneColumn({
   )
 
   useEffect(() => {
-    void preloadProjectMedia(projects[0])
-    void preloadProjectCover(projects[1])
-    void preloadProjectCover(projects[2])
-  }, [projects])
-
-  useEffect(() => {
     const scroller = scrollerRef.current
 
     if (!scroller || projects.length === 0) {
@@ -650,13 +694,11 @@ function LaneColumn({
     }
 
     const warmNearbyProjects = () => {
+      if (!positionedRef.current) {
+        return
+      }
       const pane = Math.max(scroller.clientHeight, 1)
-      const index = Math.round(scroller.scrollTop / pane)
-      void preloadProjectMedia(projects[index])
-      void preloadProjectMedia(projects[index + 1])
-      void preloadProjectMedia(projects[index - 1])
-      void preloadProjectCover(projects[index + 2])
-      void preloadProjectCover(projects[index - 2])
+      warmProjectsAround(projects, Math.round(scroller.scrollTop / pane))
     }
 
     warmNearbyProjects()
@@ -716,6 +758,11 @@ function LaneColumn({
   }, [snapBy])
 
   useEffect(() => {
+    if (!positionedRef.current || focusId === lastFocusRef.current) {
+      return
+    }
+    lastFocusRef.current = focusId
+
     if (!focusId || !scrollerRef.current) {
       return
     }
@@ -758,7 +805,10 @@ function GridTile({ project, onOpen }: { project: GalleryItem; onOpen: (id: stri
     <li
       className="split__tile"
       data-project-id={project.id}
-      style={ratio ? ({ '--thumb-ratio': ratio } as CSSProperties) : undefined}
+      data-sized={ratio ? '' : undefined}
+      style={
+        ratio ? ({ '--thumb-ratio': ratio, '--thumb-aspect': 1 / ratio } as CSSProperties) : undefined
+      }
     >
       <button type="button" className="split__tile-button" onClick={() => onOpen(project.id)}>
         {cover?.kind === 'video' ? (
@@ -799,14 +849,73 @@ function GridColumn({
   lane,
   projects,
   revealId,
+  ready,
+  randomize,
   onOpen,
 }: {
   lane: ProjectLane
   projects: GalleryItem[]
   revealId: string | null
+  ready: boolean
+  randomize: boolean
   onOpen: (id: string) => void
 }) {
   const scrollerRef = useRef<HTMLDivElement>(null)
+  const positionedRef = useRef(false)
+  const startIndexRef = useRef<number | null>(null)
+
+  useLayoutEffect(() => {
+    const scroller = scrollerRef.current
+
+    if (!scroller || positionedRef.current) {
+      return
+    }
+
+    if (!ready) {
+      scroller.style.visibility = 'hidden'
+      return
+    }
+
+    const tiles = Array.from(scroller.querySelectorAll<HTMLElement>('.split__tile'))
+
+    if (!randomize || tiles.length === 0) {
+      positionedRef.current = true
+      scroller.style.visibility = ''
+      return
+    }
+
+    const deadline = performance.now() + MOBILE_SIZE_WAIT_MS
+    let frame = 0
+
+    const place = () => {
+      const sized = tiles.every((tile) => tile.hasAttribute('data-sized'))
+
+      if (!sized && performance.now() < deadline) {
+        frame = requestAnimationFrame(place)
+        return
+      }
+
+      const padTop = parseFloat(getComputedStyle(scroller).paddingTop) || 0
+      const base = scroller.getBoundingClientRect().top - scroller.scrollTop
+      const maxTop = scroller.scrollHeight - scroller.clientHeight
+      const tops = tiles.map((tile) => Math.max(0, tile.getBoundingClientRect().top - base - padTop))
+      const reachable = tops.filter((top) => top <= maxTop + 1).length || 1
+
+      startIndexRef.current ??= randomIndex(reachable)
+      const index = Math.min(startIndexRef.current, reachable - 1)
+
+      scroller.scrollTop = tops[index]
+      positionedRef.current = true
+      scroller.style.visibility = ''
+
+      for (let offset = 0; offset < 3; offset += 1) {
+        void preloadProjectCover(projects[index + offset])
+      }
+    }
+
+    place()
+    return () => cancelAnimationFrame(frame)
+  }, [projects, randomize, ready])
 
   useLayoutEffect(() => {
     const scroller = scrollerRef.current
@@ -857,6 +966,8 @@ function MobileGrid({
   hidden,
   revealId,
   revealLane,
+  ready,
+  pinnedLane,
   onOpen,
 }: {
   books: GalleryItem[]
@@ -864,6 +975,8 @@ function MobileGrid({
   hidden: boolean
   revealId: string | null
   revealLane: ProjectLane | null
+  ready: boolean
+  pinnedLane: ProjectLane | null
   onOpen: (id: string) => void
 }) {
   return (
@@ -876,12 +989,16 @@ function MobileGrid({
         lane="books"
         projects={books}
         revealId={!hidden && revealLane === 'books' ? revealId : null}
+        ready={ready}
+        randomize={pinnedLane !== 'books'}
         onOpen={onOpen}
       />
       <GridColumn
         lane="notBooks"
         projects={notBooks}
         revealId={!hidden && revealLane === 'notBooks' ? revealId : null}
+        ready={ready}
+        randomize={pinnedLane !== 'notBooks'}
         onOpen={onOpen}
       />
     </div>
@@ -924,6 +1041,18 @@ export function SplitGallery() {
   const navigate = useNavigate()
 
   const lanes = useMemo(() => groupProjectsByLane(projects), [projects])
+
+  const [loadTimedOut, setLoadTimedOut] = useState(false)
+
+  useEffect(() => {
+    if (!isLoading) {
+      return
+    }
+    const timer = window.setTimeout(() => setLoadTimedOut(true), LANES_READY_TIMEOUT_MS)
+    return () => window.clearTimeout(timer)
+  }, [isLoading])
+
+  const lanesReady = !isLoading || loadTimedOut
 
   const detailProject = useMemo(() => {
     if (slug) {
@@ -1016,6 +1145,8 @@ export function SplitGallery() {
           hidden={Boolean(detailProject)}
           revealId={revealId}
           revealLane={revealLane}
+          ready={lanesReady}
+          pinnedLane={focusLane}
           onOpen={openProject}
         />
         {detailProject ? <MobileDetail project={detailProject} onBack={closeProject} /> : null}
@@ -1032,11 +1163,13 @@ export function SplitGallery() {
           lane="books"
           projects={lanes.books}
           focusId={focusLane === 'books' ? focusId : null}
+          ready={lanesReady}
         />
         <LaneColumn
           lane="notBooks"
           projects={lanes.notBooks}
           focusId={focusLane === 'notBooks' ? focusId : null}
+          ready={lanesReady}
         />
       </div>
     </div>

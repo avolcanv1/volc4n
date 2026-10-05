@@ -612,6 +612,8 @@
       var(--mobile-thumb-min-width),
       min(100%, calc(100% * var(--mobile-thumb-max-height) / var(--thumb-ratio, 0.5)))
     );
+    /* Reserve the height before the cover loads so the random start tile stays put. */
+    aspect-ratio: var(--thumb-aspect, auto);
   }
 
   .split__tile-title {
